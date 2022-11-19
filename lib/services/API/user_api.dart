@@ -33,4 +33,27 @@ class UserApi {
       return null;
     }
   }
+
+  // Future<bool> updatePassword({required String newPassword}) async {
+
+  // }
+  Future<bool> updateAvatar({required String base64Image}) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/update-profile".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "avatar": "data:image/png;base64,$base64Image"
+      }).then((response) {
+        return response.statusCode == 200;
+      });
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return false;
+    }
+  }
 }
