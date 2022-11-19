@@ -1,0 +1,27 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
+class DataCacher {
+  DataCacher._pr();
+  static final DataCacher _instance = DataCacher._pr();
+  static DataCacher get instance => _instance;
+
+  late final SharedPreferences _prefs;
+
+  Future<void> init() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  bool initApp() => _prefs.getBool("initial") ?? true;
+  Future<void> setToOld() async {
+    await _prefs.setBool("initial", false);
+  }
+
+  Future<void> resetOld() async {
+    await _prefs.setBool("initial", true);
+  }
+
+  String? getUserToken() => _prefs.getString("access-token");
+  Future<void> seUserToken(String token) async {
+    await _prefs.setString("access-token", token);
+  }
+}
