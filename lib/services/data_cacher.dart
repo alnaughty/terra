@@ -24,4 +24,6 @@ class DataCacher {
   Future<void> seUserToken(String token) async {
     await _prefs.setString("access-token", token);
   }
+
+  Future<void> removeToken() async => await _prefs.remove("access-token");
 }

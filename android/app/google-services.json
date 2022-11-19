@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "622868737127",
+    "project_id": "terra-9f4fc",
+    "storage_bucket": "terra-9f4fc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622868737127:android:8240e8a047ca33a41ab8c2",
+        "android_client_info": {
+          "package_name": "com.olympustech.terra"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "622868737127-1l99skk92eahoh4p4su1mq8ok0k68uqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYSl1AqxNhKQSC-gAqCUl1-nTlMadwPq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "622868737127-1l99skk92eahoh4p4su1mq8ok0k68uqs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

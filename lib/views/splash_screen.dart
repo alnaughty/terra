@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/color.dart';
+import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/splash_screen_dc.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,15 +14,24 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SplashScreenDc {
+  final DataCacher _cacher = DataCacher.instance;
   void initPlatform() async {
     await hasString().then((value) async {
+      await Future.delayed(const Duration(milliseconds: 1500));
       if (value) {
+        setState(() {
+          accessToken = _cacher.getUserToken();
+        });
+
         ///GO TO HOME PAGE
         print("GO TO GHOME");
+        // ignore: use_build_context_synchronously
+        await Navigator.pushReplacementNamed(context, "/home_page");
       } else {
         /// GO TO LANDING PAGE
-        await Future.delayed(const Duration(milliseconds: 1500));
+
         print("GO TO LANDING");
+        // ignore: use_build_context_synchronously
         await Navigator.pushReplacementNamed(context, "/landing_page");
       }
     });

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocode/geocode.dart';
+
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:terra/extension/string_extensions.dart';
 
@@ -9,12 +12,16 @@ class PersonalInfoPage extends StatefulWidget {
     required this.firstName,
     required this.lastName,
     required this.phoneNumber,
-    required this.address,
+    required this.city,
+    required this.country,
+    required this.street,
     required this.birthdate,
   });
   final TextEditingController firstName;
   final TextEditingController lastName;
-  final TextEditingController address;
+  final TextEditingController city;
+  final TextEditingController country;
+  final TextEditingController street;
   final TextEditingController phoneNumber;
   final TextEditingController birthdate;
   @override
@@ -31,6 +38,40 @@ class PersonalInfoPageState extends State<PersonalInfoPage> {
     }
     Fluttertoast.showToast(msg: "You must provide your birthdate");
     return false;
+  }
+
+  void getLocation() async {
+    final LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.always ||
+        permission == LocationPermission.whileInUse) {
+      final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      final Address address = await GeoCode().reverseGeocoding(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+      widget.city.text = address.city ?? "";
+      widget.country.text = address.countryName ?? "";
+      widget.street.text = address.streetAddress ?? "";
+      print("ADDRESSED :$address");
+      if (mounted) setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    getLocation();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   @override
@@ -166,8 +207,8 @@ class PersonalInfoPageState extends State<PersonalInfoPage> {
                       ).then((value) {
                         if (value != null) {
                           setState(() {
-                            widget.birthdate.text =
-                                DateFormat("MMMM dd, yyyy").format(value);
+                            widget.birthdate.text = value.toString();
+                            // DateFormat("MMMM dd, yyyy").format(value);
                           });
                         }
                       });
@@ -178,7 +219,8 @@ class PersonalInfoPageState extends State<PersonalInfoPage> {
                     child: Text(
                       widget.birthdate.text.isEmpty
                           ? "No selected date"
-                          : widget.birthdate.text,
+                          : DateFormat("MMMM dd, yyyy")
+                              .format(DateTime.parse(widget.birthdate.text)),
                     ),
                   ),
                 ),
@@ -187,9 +229,45 @@ class PersonalInfoPageState extends State<PersonalInfoPage> {
                 height: 10,
               ),
               namedField(
-                name: "Address",
+                name: "Country",
                 child: TextFormField(
-                  controller: widget.address,
+                  controller: widget.country,
+                  keyboardType: TextInputType.streetAddress,
+                  validator: (text) {
+                    if (text!.isEmpty) {
+                      return "This field is required";
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Country",
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              namedField(
+                name: "City",
+                child: TextFormField(
+                  controller: widget.city,
+                  keyboardType: TextInputType.streetAddress,
+                  validator: (text) {
+                    if (text!.isEmpty) {
+                      return "This field is required";
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "City/State/Municipality",
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              namedField(
+                name: "Street",
+                child: TextFormField(
+                  controller: widget.street,
                   minLines: 1,
                   maxLines: 3,
                   keyboardType: TextInputType.streetAddress,
@@ -199,7 +277,7 @@ class PersonalInfoPageState extends State<PersonalInfoPage> {
                     }
                   },
                   decoration: const InputDecoration(
-                    hintText: "Street, City/State/Municipality, Zipcode",
+                    hintText: "Street",
                   ),
                 ),
               ),

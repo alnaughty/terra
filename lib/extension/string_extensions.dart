@@ -11,3 +11,7 @@ extension PhoneChecker on String {
     return regExp.hasMatch(this);
   }
 }
+
+extension ToURI on String {
+  Uri get toUri => Uri.parse(this);
+}

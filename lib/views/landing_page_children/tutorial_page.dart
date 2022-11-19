@@ -72,10 +72,12 @@ class _TutorialPageState extends State<TutorialPage> {
         Positioned(
           top: 10,
           right: 10,
-          child: TextButton(
-            onPressed: widget.onPressed,
-            child: Text(
-              currentIndex < _data.length - 1 ? "Skip" : "Lets Get Started",
+          child: SafeArea(
+            child: TextButton(
+              onPressed: widget.onPressed,
+              child: Text(
+                currentIndex < _data.length - 1 ? "Skip" : "Lets Get Started",
+              ),
             ),
           ),
         ),

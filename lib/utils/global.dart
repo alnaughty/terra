@@ -1,3 +1,5 @@
+import 'package:terra/models/user_details.dart';
+
 final List<String> categoryList = [
   "Cleaning",
   "Laundry",
@@ -22,3 +24,6 @@ final List<String> categoryList = [
   "Groceries",
   "Others",
 ];
+
+String? accessToken;
+UserDetails? loggedUser;

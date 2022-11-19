@@ -32,6 +32,12 @@ class AuthenticationDataState extends State<AuthenticationData> {
   }
 
   String? _accountTypeChoice;
+  int get type => _accountTypeChoice == null
+      ? 1
+      : _accountTypeChoice! == "Job Seeker"
+          ? 1
+          : 2;
+
   bool validate() => _kForm.currentState!.validate() && hasAccount();
   Widget namedField({required String name, required Widget child}) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,

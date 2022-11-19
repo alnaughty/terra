@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:terra/utils/color.dart';
+import 'package:terra/utils/global.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -42,13 +43,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 100,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100),
-                              color: Colors.orange,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: Container(
+                              color: Colors.white,
+                              child: Image.network(
+                                loggedUser!.avatar,
+                                width: 100,
+                                height: 100,
+                              ),
                             ),
+                            // child: Container(
+                            //   width: 100,
+                            //   height: 100,
+                            //   // decoration: BoxDecoration(
+                            //   //   borderRadius: BorderRadius.circular(100),
+                            //   //   color: Colors.orange,
+                            //   // ),
+                            // ),
                           ),
                           const SizedBox(
                             height: 5,
@@ -67,15 +79,15 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(
                             height: 5,
                           ),
-                          const Text(
-                            "John Doe",
-                            style: TextStyle(
+                          Text(
+                            loggedUser!.fullName,
+                            style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
                             ),
                           ),
                           Text(
-                            "johndoe@gmail.com",
+                            loggedUser!.email,
                             style: TextStyle(
                               fontWeight: FontWeight.w300,
                               fontSize: 12,
@@ -158,11 +170,11 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const ListTile(
-                    contentPadding: EdgeInsets.all(0),
-                    title: Text("Country"),
+                  ListTile(
+                    contentPadding: const EdgeInsets.all(0),
+                    title: const Text("Country"),
                     subtitle: Text(
-                      "Philippines",
+                      loggedUser!.country!,
                     ),
                   ),
                   const ListTile(

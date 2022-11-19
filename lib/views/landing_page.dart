@@ -13,6 +13,7 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final DataCacher _cacher = DataCacher.instance;
+
   @override
   void initState() {
     // TODO: implement initState
