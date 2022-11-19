@@ -174,14 +174,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     contentPadding: const EdgeInsets.all(0),
                     title: const Text("Country"),
                     subtitle: Text(
-                      loggedUser!.country!,
+                      loggedUser!.country ?? "Unknown",
                     ),
                   ),
-                  const ListTile(
+                  ListTile(
                     contentPadding: EdgeInsets.all(0),
                     title: Text("Location"),
                     subtitle: Text(
-                      "Catbalogan City",
+                      loggedUser!.city ?? "Unknown",
                     ),
                   ),
                   ListTile(
