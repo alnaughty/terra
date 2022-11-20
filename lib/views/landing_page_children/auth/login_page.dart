@@ -196,7 +196,10 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                                   context,
                                   email: _email.text,
                                   password: _password.text,
-                                );
+                                ).whenComplete(() {
+                                  _isLoading = false;
+                                  if (mounted) setState(() {});
+                                });
                               }
                             },
                             shape: RoundedRectangleBorder(

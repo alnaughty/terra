@@ -81,11 +81,13 @@ class AuthApi {
       }).then(
         (response) {
           var data = json.decode(response.body);
+          print("DATA : $data");
           if (response.statusCode == 200 || response.statusCode == 201) {
-            print("DATA : $data");
-
             return data['access_token'];
           }
+          Fluttertoast.showToast(
+              msg: "Error ${response.statusCode} : ${response.reasonPhrase}");
+          print("ERROR : ${response.statusCode}");
           return null;
         },
       );

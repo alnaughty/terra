@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:terra/services/API/category_api.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/color.dart';
@@ -18,7 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin, UserApi {
+    with SingleTickerProviderStateMixin, UserApi, CategoryApi {
   late final TabController _tabController;
   late final List<Widget> _body = [
     const HomePageMain(),
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage>
         await Navigator.pushReplacementNamed(context, "/login_page");
       }
     });
+    await fetchAll();
   }
 
   @override

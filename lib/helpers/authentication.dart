@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/services/API/auth.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/services/firebase_auth.dart';
@@ -89,11 +90,16 @@ class AuthenticationHelper {
               (val) async {
                 if (val != null) {
                   await _cacher.seUserToken(val);
-                  accessToken = value;
+                  accessToken = val;
                   await Navigator.pushReplacementNamed(context, "/home_page");
+                  return;
+                } else {
+                  print("WARA ACCESSTOKEN");
                 }
               },
             );
+          } else {
+            Fluttertoast.showToast(msg: "Unable to connect to provider.");
           }
         },
       );

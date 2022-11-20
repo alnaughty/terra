@@ -2,8 +2,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:terra/models/category.dart';
 import 'package:terra/utils/color.dart';
-import 'package:terra/utils/global.dart';
+import 'package:terra/view_model/categories_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/all_categories.dart';
 
 class HomePageMain extends StatefulWidget {
@@ -293,72 +294,86 @@ class _HomePageMainState extends State<HomePageMain> {
           )
         ],
       );
-  Widget viewCategory(double maxHeight) => Column(
-        children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            Text("Category",
-                style: TextStyle(
-                  color: Colors.grey.shade900,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 17,
-                )),
-            TextButton(
-                style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.resolveWith(
-                      (_) => Colors.grey.shade900),
-                ),
-                onPressed: () async {
-                  await showModalBottomSheet(
-                    backgroundColor: Colors.transparent,
-                    context: context,
-                    isScrollControlled: true,
-                    isDismissible: true,
-                    builder: (_) => DraggableScrollableSheet(
-                        maxChildSize: 1,
-                        minChildSize: .45,
-                        initialChildSize: .5,
-                        builder: (_, scrollController) => AllCategories(
-                              scrollController: scrollController,
-                            )),
-                  );
-                },
-                child: const Text(
-                  "View all",
-                )),
-          ]),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+  final CategoriesVm _vm = CategoriesVm.instance;
+  Widget viewCategory(double maxHeight) => StreamBuilder<List<Category>>(
+        stream: _vm.stream,
+        builder: (_, snapshot) {
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Container();
+          }
+          final List<Category> _result = snapshot.data!;
+          return Column(
             children: [
-              ...categoryList.sublist(0, 5).map((e) => Column(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          gradient: _colors.gradient,
-                          borderRadius: BorderRadius.circular(5),
-                          image: DecorationImage(
-                            image: AssetImage(
-                              "assets/icons/${e.toLowerCase().replaceAll(" ", "-")}.png",
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text("Category",
+                    style: TextStyle(
+                      color: Colors.grey.shade900,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 17,
+                    )),
+                TextButton(
+                    style: ButtonStyle(
+                      foregroundColor: MaterialStateProperty.resolveWith(
+                          (_) => Colors.grey.shade900),
+                    ),
+                    onPressed: () async {
+                      await showModalBottomSheet(
+                        backgroundColor: Colors.transparent,
+                        context: context,
+                        isScrollControlled: true,
+                        isDismissible: true,
+                        builder: (_) => DraggableScrollableSheet(
+                            maxChildSize: 1,
+                            minChildSize: .45,
+                            initialChildSize: .5,
+                            builder: (_, scrollController) => AllCategories(
+                                  scrollController: scrollController,
+                                )),
+                      );
+                    },
+                    child: const Text(
+                      "View all",
+                    )),
+              ]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ...(_result.length > 5 ? _result.sublist(0, 5) : _result)
+                      .map((e) => Expanded(
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    gradient: _colors.gradient,
+                                    borderRadius: BorderRadius.circular(5),
+                                    image: DecorationImage(
+                                      image: NetworkImage(
+                                        e.icon,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  "${e.name[0].toUpperCase()}${e.name.substring(1)}",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "${e[0].toUpperCase()}${e.substring(1)}",
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      )
-                    ],
-                  )),
+                          )),
+                ],
+              )
             ],
-          )
-        ],
+          );
+        },
       );
 }

@@ -11,6 +11,7 @@ import 'package:terra/utils/network.dart';
 class UserApi {
   Future<UserDetails?> details() async {
     try {
+      print("TOKEN : $accessToken");
       return await http
           .get("${Network.domain}/api/user-details".toUri, headers: {
         "Accept": "application/json",
