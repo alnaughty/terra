@@ -132,11 +132,21 @@ class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
                               padding: const EdgeInsets.all(10),
                               child: Hero(
                                 tag: "logo",
-                                child: Image.asset(
-                                  "assets/images/LogoT.png",
-                                  fit: BoxFit.fitHeight,
-                                  color: Colors.white,
-                                  // height: 30,
+                                child: Column(
+                                  children: [
+                                    Image.asset(
+                                      "assets/images/Logo.png",
+                                      fit: BoxFit.fitHeight,
+                                      color: Colors.white,
+                                      // height: 30,
+                                    ),
+                                    Image.asset(
+                                      "assets/images/Terra-name.png",
+                                      fit: BoxFit.fitHeight,
+                                      color: Colors.white,
+                                      // height: 30,
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),

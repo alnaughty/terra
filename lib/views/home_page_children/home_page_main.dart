@@ -361,6 +361,8 @@ class _HomePageMainState extends State<HomePageMain> {
                                 ),
                                 Text(
                                   "${e.name[0].toUpperCase()}${e.name.substring(1)}",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     fontSize: 10,
                                     color: Colors.grey.shade700,
