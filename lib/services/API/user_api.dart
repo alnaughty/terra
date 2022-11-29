@@ -18,6 +18,7 @@ class UserApi {
         HttpHeaders.authorizationHeader: "Bearer $accessToken",
       }).then((response) {
         var data = json.decode(response.body);
+        print(data);
         if (response.statusCode == 200 || response.statusCode == 201) {
           return UserDetails.fromJson(data);
         }

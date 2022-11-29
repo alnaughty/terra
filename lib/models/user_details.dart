@@ -13,6 +13,7 @@ class UserDetails {
   final String? country;
   final String fullName;
   final String status;
+  final List skills;
 
   const UserDetails({
     required this.id,
@@ -24,25 +25,31 @@ class UserDetails {
     required this.avatar,
     required this.status,
     required this.fullName,
+    required this.skills,
     this.street,
     this.city,
     this.country,
   });
 
-  factory UserDetails.fromJson(Map<String, dynamic> json) => UserDetails(
-        id: json['id'].toInt(),
-        firstName: json['first_name'] ?? "Unknown",
-        lastName: json['last_name'] ?? "Unknown",
-        email: json['email'] ?? "terra@app.ph",
-        accountType: json['account_type'].toInt(),
-        phoneNumber: json['mobile_number'],
-        avatar: "${Network.domain}${json['avatar']}",
-        status: json['status'],
-        fullName: json['fullname'],
-        city: json['city'],
-        country: json['country'],
-        street: json['barangay'],
-      );
+  factory UserDetails.fromJson(Map<String, dynamic> json) {
+    final List _skills = json['skills'] ?? [];
+
+    return UserDetails(
+      id: json['id'].toInt(),
+      firstName: json['first_name'] ?? "Unknown",
+      lastName: json['last_name'] ?? "Unknown",
+      email: json['email'] ?? "terra@app.ph",
+      accountType: json['account_type'].toInt(),
+      phoneNumber: json['mobile_number'],
+      avatar: "${Network.domain}${json['avatar']}",
+      status: json['status'],
+      fullName: json['fullname'],
+      city: json['city'],
+      country: json['country'],
+      street: json['barangay'],
+      skills: _skills,
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -51,6 +58,7 @@ class UserDetails {
         "avatar": avatar,
         "status": status,
         "fullName": fullName,
+        "skills": skills,
       };
   @override
   String toString() => "${toJson()}";
