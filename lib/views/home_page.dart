@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:terra/services/API/category_api.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
+import 'package:terra/services/firebase_messaging.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/views/home_page_children/activity_history.dart';
@@ -26,9 +27,11 @@ class _HomePageState extends State<HomePage>
     const WalletPage(),
     const NotificationPage(),
     const ActivityHistory(),
-    const ProfilePage(),
+    ProfilePage(
+      loadingCallback: (s) => setState(() => _isLoading = s),
+    ),
   ];
-
+  static final MyFCMService _fcm = MyFCMService.instance;
   int _currentIndex = 0;
   final AppColors _colors = AppColors.instance;
   final DataCacher _cacher = DataCacher.instance;
@@ -38,6 +41,8 @@ class _HomePageState extends State<HomePage>
       if (value != null) {
         loggedUser = value;
         print("USER : $value");
+        await fetchAll();
+        _fcm.init();
         if (mounted) setState(() {});
       } else {
         await _cacher.removeToken();
@@ -45,7 +50,6 @@ class _HomePageState extends State<HomePage>
         await Navigator.pushReplacementNamed(context, "/login_page");
       }
     });
-    await fetchAll();
   }
 
   @override
@@ -63,60 +67,77 @@ class _HomePageState extends State<HomePage>
     super.dispose();
   }
 
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: loggedUser == null
-          ? Center(
-              child: Image.asset("assets/images/loader.gif"),
-            )
-          : TabBarView(
-              controller: _tabController,
-              physics: const NeverScrollableScrollPhysics(),
-              children: _body,
+    return Stack(
+      children: [
+        Positioned.fill(
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: loggedUser == null
+                ? Center(
+                    child: Image.asset("assets/images/loader.gif"),
+                  )
+                : TabBarView(
+                    controller: _tabController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: _body,
+                  ),
+            bottomNavigationBar: loggedUser == null
+                ? null
+                : BottomNavigationBar(
+                    currentIndex: _currentIndex,
+                    unselectedItemColor: Colors.black38,
+                    selectedItemColor: _colors.top,
+                    onTap: (i) async {
+                      setState(() => _currentIndex = i);
+                      _tabController.animateTo(i);
+                    },
+                    items: const [
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.home_filled,
+                          ),
+                          label: "Home",
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.wallet,
+                          ),
+                          label: "Wallet",
+                        ),
+                        BottomNavigationBarItem(
+                          icon: Icon(
+                            Icons.notifications,
+                          ),
+                          label: "Notifications",
+                        ),
+                        BottomNavigationBarItem(
+                            icon: Icon(
+                              Icons.history,
+                            ),
+                            label: "Activity History"),
+                        BottomNavigationBarItem(
+                            icon: Icon(
+                              Icons.person,
+                            ),
+                            label: "Profile"),
+                      ]),
+          ),
+        ),
+        if (_isLoading) ...{
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(.5),
+              child: Center(
+                child: Image.asset("assets/images/loader.gif"),
+              ),
             ),
-      bottomNavigationBar: loggedUser == null
-          ? null
-          : BottomNavigationBar(
-              currentIndex: _currentIndex,
-              unselectedItemColor: Colors.black38,
-              selectedItemColor: _colors.top,
-              onTap: (i) async {
-                setState(() => _currentIndex = i);
-                _tabController.animateTo(i);
-              },
-              items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.home_filled,
-                    ),
-                    label: "Home",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.wallet,
-                    ),
-                    label: "Wallet",
-                  ),
-                  BottomNavigationBarItem(
-                    icon: Icon(
-                      Icons.notifications,
-                    ),
-                    label: "Notifications",
-                  ),
-                  BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.history,
-                      ),
-                      label: "Activity History"),
-                  BottomNavigationBarItem(
-                      icon: Icon(
-                        Icons.person,
-                      ),
-                      label: "Profile"),
-                ]),
+          )
+        },
+      ],
     );
   }
 }

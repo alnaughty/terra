@@ -1,3 +1,4 @@
+import 'package:terra/models/category.dart';
 import 'package:terra/utils/network.dart';
 
 class UserDetails {
@@ -13,9 +14,9 @@ class UserDetails {
   final String? country;
   final String fullName;
   final String status;
-  final List skills;
+  List<Category> skills;
 
-  const UserDetails({
+  UserDetails({
     required this.id,
     required this.firstName,
     required this.lastName,
@@ -47,7 +48,7 @@ class UserDetails {
       city: json['city'],
       country: json['country'],
       street: json['barangay'],
-      skills: _skills,
+      skills: _skills.map((e) => Category.fromJson(e)).toList(),
     );
   }
 

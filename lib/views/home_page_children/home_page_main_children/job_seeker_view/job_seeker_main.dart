@@ -1,11 +1,7 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:terra/models/category.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
-import 'package:terra/view_model/categories_vm.dart';
-import 'package:terra/views/home_page_children/home_page_main_children/all_categories.dart';
 
 class JobSeekerHeader extends StatefulWidget {
   const JobSeekerHeader({super.key});
@@ -163,7 +159,10 @@ class _JobSeekerHeaderState extends State<JobSeekerHeader> {
                             height: 25,
                           ),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              await Navigator.pushNamed(
+                                  context, "/job_listing");
+                            },
                             style: ButtonStyle(
                               backgroundColor:
                                   MaterialStateProperty.resolveWith(
@@ -177,7 +176,7 @@ class _JobSeekerHeaderState extends State<JobSeekerHeader> {
                                         vertical: 10,
                                       )),
                             ),
-                            child: const Text("Look for a job"),
+                            child: const Text("Quick apply"),
                           ),
                         ],
                       ),

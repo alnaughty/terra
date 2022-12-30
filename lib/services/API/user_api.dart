@@ -58,4 +58,53 @@ class UserApi {
       return false;
     }
   }
+
+  Future<bool> updateSkills(String ids) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/update-skills".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "skills": ids,
+      }).then((response) {
+        print("RESPONSE : ${response.statusCode}");
+        return response.statusCode == 200;
+      });
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return false;
+    }
+  }
+
+  Future<List<UserDetails>?> searchBySkill(String? skills) async {
+    try {
+      return await http.get(
+          "${Network.domain}/api/users?skills=${skills ?? ""}".toUri,
+          headers: {
+            "Accept": "application/json",
+            HttpHeaders.authorizationHeader: "Bearer $accessToken"
+          }).then((response) {
+        if (response.statusCode == 200) {
+          var d = json.decode(response.body);
+          final List<UserDetails> _result =
+              (d['data'] as List).map((e) => UserDetails.fromJson(e)).toList();
+          return _result;
+        }
+        Fluttertoast.showToast(
+          msg: "An error occurred while processing, please contact developer",
+        );
+        return null;
+      });
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return null;
+    }
+  }
 }

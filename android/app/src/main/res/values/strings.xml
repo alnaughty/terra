@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TERRA</string>
+    <string name="map_api_key">AIzaSyAAiVreREfnoKydveRUWvMXCrn-Rw4bcDw</string>
+    <!-- <string name="facebook_app_id">371419387661332</string>
+    <string name="fb_login_protocol_scheme">fb371419387661332</string>
+    <string name="facebook_client_token">740de5f103e8782ed3f43b7658f91a7a</string> -->
+</resources>

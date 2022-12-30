@@ -27,3 +27,4 @@ final List<String> categoryList = [
 
 String? accessToken;
 UserDetails? loggedUser;
+String? fcmToken;

@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:terra/services/API/auth.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/skill_update.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
-
+  const ProfilePage({
+    super.key,
+    required this.loadingCallback,
+  });
+  final ValueChanged<bool> loadingCallback;
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
   final AppColors _colors = AppColors.instance;
+  final AuthApi _api = AuthApi();
   final double headerHeight = 350;
   @override
   Widget build(BuildContext context) {
@@ -178,80 +184,160 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                   ListTile(
-                    contentPadding: EdgeInsets.all(0),
-                    title: Text("Location"),
+                    contentPadding: const EdgeInsets.all(0),
+                    title: const Text("Location"),
                     subtitle: Text(
                       loggedUser!.city ?? "Unknown",
                     ),
                   ),
                   ListTile(
                     contentPadding: const EdgeInsets.all(0),
-                    title: const Text("Skills"),
-                    subtitle: SizedBox(
-                      height: 50,
-                      child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          itemBuilder: (_, i) =>
-                              Chip(label: Text("Skill #${i + 1}")),
-                          separatorBuilder: (_, i) => const SizedBox(
-                                width: 10,
-                              ),
-                          itemCount: 5),
+                    title: Row(
+                      children: [
+                        const Expanded(
+                          child: Text("Skills"),
+                        ),
+                        IconButton(
+                          onPressed: () async {
+                            await showGeneralDialog(
+                              context: context,
+                              pageBuilder: (_, a1, a2) => Container(),
+                              barrierColor: Colors.black.withOpacity(0.5),
+                              transitionBuilder: (context, a1, a2, c) {
+                                return Transform.scale(
+                                  scale: a1.value,
+                                  child: Opacity(
+                                    opacity: a1.value,
+                                    child: AlertDialog(
+                                      shape: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                      ),
+                                      title: Text(
+                                          "${loggedUser!.skills.isEmpty ? 'Add' : "Update"} your skills"),
+                                      content: SkillUpdateView(
+                                        loadingCallback:
+                                            (bool isLoading) async {
+                                          print("ROMAR : $isLoading");
+                                          widget.loadingCallback(isLoading);
+                                          if (!isLoading) {
+                                            if (mounted) setState(() {});
+                                          } else {}
+                                        },
+                                        currentSkills: loggedUser!.skills,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                              transitionDuration:
+                                  const Duration(milliseconds: 200),
+                              barrierDismissible: true,
+                              barrierLabel: '',
+                            );
+                          },
+                          icon: const Icon(Icons.add),
+                        )
+                      ],
                     ),
-                  ),
-                  ListTile(
-                    contentPadding: const EdgeInsets.all(0),
-                    title: const Text(
-                      "Work Album",
-                    ),
-                    subtitle: Container(
-                      height: 100,
-                      width: size.width - 40,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 85,
-                            height: 100,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade400,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: MaterialButton(
-                              onPressed: () {},
-                              height: 100,
-                              child: Center(
-                                child: Icon(
-                                  Icons.add,
-                                  color: _colors.mid,
-                                  size: 30,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
+                    subtitle: loggedUser!.skills.isNotEmpty
+                        ? SizedBox(
+                            height: 50,
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
-                              itemBuilder: (_, i) => Container(
-                                width: 85,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade400,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
+                              itemBuilder: (_, i) => InputChip(
+                                avatar:
+                                    Image.network(loggedUser!.skills[i].icon),
+                                label: Text(loggedUser!.skills[i].name),
+                                onPressed: () {},
                               ),
                               separatorBuilder: (_, i) => const SizedBox(
                                 width: 10,
                               ),
-                              itemCount: 5,
+                              itemCount: loggedUser!.skills.length,
                             ),
                           )
-                        ],
+                        : Container(),
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  Center(
+                    child: TextButton.icon(
+                      style: ButtonStyle(
+                          overlayColor: MaterialStateProperty.resolveWith(
+                              (states) => Colors.red.withOpacity(.2))),
+                      onPressed: () async {
+                        widget.loadingCallback(true);
+                        await _api
+                            .logout(context)
+                            .whenComplete(() => widget.loadingCallback(false));
+                      },
+                      icon: const Icon(
+                        Icons.exit_to_app,
+                        color: Colors.red,
+                      ),
+                      label: const Text(
+                        "LOGOUT",
+                        style: TextStyle(
+                          color: Colors.red,
+                        ),
                       ),
                     ),
                   )
+                  // ListTile(
+                  //   contentPadding: const EdgeInsets.all(0),
+                  //   title: const Text(
+                  //     "Work Album",
+                  //   ),
+                  //   subtitle: Container(
+                  //     height: 100,
+                  //     width: size.width - 40,
+                  //     child: Row(
+                  //       children: [
+                  //         Container(
+                  //           width: 85,
+                  //           height: 100,
+                  //           decoration: BoxDecoration(
+                  //             color: Colors.grey.shade400,
+                  //             borderRadius: BorderRadius.circular(10),
+                  //           ),
+                  //           child: MaterialButton(
+                  //             onPressed: () {},
+                  //             height: 100,
+                  //             child: Center(
+                  //               child: Icon(
+                  //                 Icons.add,
+                  //                 color: _colors.mid,
+                  //                 size: 30,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //         const SizedBox(
+                  //           width: 10,
+                  //         ),
+                  //         Expanded(
+                  //           child: ListView.separated(
+                  //             scrollDirection: Axis.horizontal,
+                  //             itemBuilder: (_, i) => Container(
+                  //               width: 85,
+                  //               height: 100,
+                  //               decoration: BoxDecoration(
+                  //                 color: Colors.grey.shade400,
+                  //                 borderRadius: BorderRadius.circular(10),
+                  //               ),
+                  //             ),
+                  //             separatorBuilder: (_, i) => const SizedBox(
+                  //               width: 10,
+                  //             ),
+                  //             itemCount: 5,
+                  //           ),
+                  //         )
+                  //       ],
+                  //     ),
+                  //   ),
+                  // )
                 ],
               ),
             )

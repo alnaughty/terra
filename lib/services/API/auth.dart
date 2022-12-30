@@ -1,13 +1,18 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/services/data_cacher.dart';
+import 'package:terra/services/firebase_auth.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/utils/network.dart';
 
 class AuthApi {
+  final FirebaseAuthenticator _auth = FirebaseAuthenticator();
+  final DataCacher _cacher = DataCacher.instance;
   Future<String?> register({
     required String firstName,
     required String lastName,
@@ -97,6 +102,40 @@ class AuthApi {
         msg: "An unexpected error occurred while processing.",
       );
       return null;
+    }
+  }
+
+  Future<void> logout(BuildContext context) async {
+    try {
+      return await http.get(
+        "${Network.domain}/api/logout".toUri,
+        headers: {
+          "accept": "application/json",
+          HttpHeaders.authorizationHeader: "Bearer $accessToken"
+        },
+      ).then((response) async {
+        print(response.body);
+        if (response.statusCode == 200) {
+          accessToken = null;
+          await _cacher.removeToken();
+          await _auth.logout().whenComplete(() async =>
+              await Navigator.pushReplacementNamed(context, "/landing_page"));
+
+          return;
+        } else {
+          var data = json.decode(response.body);
+          if (data['message'] != null) {
+            Fluttertoast.showToast(msg: data['message']);
+          }
+          return;
+        }
+      });
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return;
     }
   }
 }

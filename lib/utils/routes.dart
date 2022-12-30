@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:terra/views/home_page.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/job_seeker_view/job_listing_page.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/my_application.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/my_messages.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/my_task.dart';
@@ -68,6 +69,13 @@ class RouteData {
       case "/my_messages":
         return PageTransition(
           child: const MyMessages(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/job_listing":
+        return PageTransition(
+          child: const JobListingPage(),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
