@@ -77,40 +77,52 @@ class _AllCategoriesState extends State<AllCategories> {
                             _result.length,
                             (index) => LayoutBuilder(builder: (context, cc) {
                               final double ww = cc.maxWidth;
-                              return Column(
-                                children: [
-                                  Container(
-                                    width: ww,
-                                    height: ww,
-                                    decoration: BoxDecoration(
-                                      gradient: _colors.gradient,
-                                      borderRadius: BorderRadius.circular(5),
-                                      image: DecorationImage(
-                                        image: NetworkImage(
-                                          _result[index].icon,
+                              return MaterialButton(
+                                padding: const EdgeInsets.all(0),
+                                onPressed: () async {
+                                  await Navigator.pushNamed(
+                                    context,
+                                    loggedUser!.accountType == 1
+                                        ? "/job_listing"
+                                        : "/browse_employees_page",
+                                    arguments: _result[index].id,
+                                  );
+                                },
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      width: ww,
+                                      height: ww,
+                                      decoration: BoxDecoration(
+                                        gradient: _colors.gradient,
+                                        borderRadius: BorderRadius.circular(5),
+                                        image: DecorationImage(
+                                          image: NetworkImage(
+                                            _result[index].icon,
+                                          ),
+                                          // image: AssetImage(
+                                          //   "assets/icons/${_result[index].toLowerCase().replaceAll(" ", "-")}.png",
+                                          // ),
                                         ),
-                                        // image: AssetImage(
-                                        //   "assets/icons/${_result[index].toLowerCase().replaceAll(" ", "-")}.png",
-                                        // ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      "${_result[index].name[0].toUpperCase()}${_result[index].name.substring(1)}",
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey.shade700,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                    const SizedBox(
+                                      height: 5,
                                     ),
-                                  )
-                                ],
+                                    Expanded(
+                                      child: Text(
+                                        "${_result[index].name[0].toUpperCase()}${_result[index].name.substring(1)}",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey.shade700,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
                               );
                             }),
                           ),

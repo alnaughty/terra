@@ -12,6 +12,11 @@ extension PhoneChecker on String {
   }
 }
 
+extension Currency on String {
+  static final regExp = RegExp(r"^\s*-?[0-9]{1,10}\s*$");
+  bool isValidInt() => regExp.hasMatch(this);
+}
+
 extension ToURI on String {
   Uri get toUri => Uri.parse(this);
 }

@@ -23,7 +23,9 @@ class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, UserApi, CategoryApi {
   late final TabController _tabController;
   late final List<Widget> _body = [
-    const HomePageMain(),
+    HomePageMain(
+      onLoading: (s) => setState(() => _isLoading = s),
+    ),
     const WalletPage(),
     const NotificationPage(),
     const ActivityHistory(),
@@ -40,6 +42,7 @@ class _HomePageState extends State<HomePage>
     await details().then((value) async {
       if (value != null) {
         loggedUser = value;
+        if (mounted) setState(() {});
         print("USER : $value");
         await fetchAll();
         _fcm.init();
@@ -56,7 +59,9 @@ class _HomePageState extends State<HomePage>
   void initState() {
     // TODO: implement initState
     _tabController = TabController(length: _body.length, vsync: this);
-    init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await init();
+    });
     super.initState();
   }
 
@@ -76,15 +81,18 @@ class _HomePageState extends State<HomePage>
         Positioned.fill(
           child: Scaffold(
             backgroundColor: Colors.white,
-            body: loggedUser == null
-                ? Center(
-                    child: Image.asset("assets/images/loader.gif"),
-                  )
-                : TabBarView(
-                    controller: _tabController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: _body,
-                  ),
+            body: SafeArea(
+              top: false,
+              child: loggedUser == null
+                  ? Center(
+                      child: Image.asset("assets/images/loader.gif"),
+                    )
+                  : TabBarView(
+                      controller: _tabController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: _body,
+                    ),
+            ),
             bottomNavigationBar: loggedUser == null
                 ? null
                 : BottomNavigationBar(

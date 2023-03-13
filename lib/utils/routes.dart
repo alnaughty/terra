@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:terra/views/home_page.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/applicant_page.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/employer_view/browse_employee_page.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/job_seeker_view/job_listing_page.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/job_seeker_view/job_offers.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/my_application.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/my_messages.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/my_task.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/task_history.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/transaction_history_page.dart';
 import 'package:terra/views/landing_page.dart';
 import 'package:terra/views/landing_page_children/auth/login_page.dart';
 import 'package:terra/views/landing_page_children/auth/register_page.dart';
@@ -20,6 +24,16 @@ class RouteData {
       case "/landing_page":
         return PageTransition(
           child: const LandingPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/browse_employees_page":
+        final int? id = settings.arguments as int?;
+        return PageTransition(
+          child: BrowseEmployeePage(
+            initialCategoryId: id,
+          ),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
@@ -52,6 +66,13 @@ class RouteData {
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
         );
+      case "/job_offers_page":
+        return PageTransition(
+          child: const JobOffers(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
       case "/task_history_page":
         return PageTransition(
           child: const TaskHistory(),
@@ -59,9 +80,23 @@ class RouteData {
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
         );
+      case "/transaction_history_page":
+        return PageTransition(
+          child: const TransactionHistoryPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
       case "/my_application_page":
         return PageTransition(
           child: const MyApplicationPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/applicant_page":
+        return PageTransition(
+          child: const ApplicantPage(),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
@@ -74,8 +109,11 @@ class RouteData {
           reverseDuration: _transitionDuration,
         );
       case "/job_listing":
+        final int? catId = settings.arguments as int?;
         return PageTransition(
-          child: const JobListingPage(),
+          child: JobListingPage(
+            catId: catId,
+          ),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,

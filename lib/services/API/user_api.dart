@@ -1,14 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/user_details.dart';
 import 'package:http/http.dart' as http;
+import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/utils/network.dart';
 
 class UserApi {
+  final DataCacher _cacher = DataCacher.instance;
+  // Future<bool> updateAccountType() async {}
   Future<UserDetails?> details() async {
     try {
       print("TOKEN : $accessToken");
@@ -77,6 +79,31 @@ class UserApi {
         msg: "An unexpected error occurred while processing.",
       );
       return false;
+    }
+  }
+
+  Future<void> saveFcm(
+    String tok,
+  ) async {
+    if (tok == _cacher.getFcmToken()) return;
+    try {
+      return await http.post("${Network.domain}/api/fcm-token".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "fcm_token": tok,
+      }).then((response) {
+        if (response.statusCode == 200) {
+          _cacher.saveFcmToken(tok);
+        }
+        return;
+      });
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return;
     }
   }
 

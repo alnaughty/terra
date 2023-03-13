@@ -48,10 +48,13 @@ dependencies:
   firebase_core: ^2.3.0
   geolocator: ^9.0.2
   flutter_dotenv: ^5.0.2
-  geocode: ^1.0.2
   flutter_native_splash: ^2.2.15
   firebase_messaging: ^14.2.0
   google_maps_flutter: ^2.2.2
+  geocoding: ^2.0.5
+  url_launcher: ^6.1.7
+  firebase_database: ^10.0.15
+  timeago: ^3.3.0
 
 dev_dependencies:
   flutter_test:

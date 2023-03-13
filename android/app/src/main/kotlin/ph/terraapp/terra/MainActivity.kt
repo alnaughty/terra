@@ -1,4 +1,4 @@
-package com.olympustech.terra
+package ph.terraapp.terra
 
 import io.flutter.embedding.android.FlutterActivity
 

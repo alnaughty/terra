@@ -11,4 +11,12 @@ class Category {
         icon: "${Network.domain}${json['icon']}",
         name: json['name'],
       );
+  @override
+  String toString() => "${toJson()}";
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "icon": icon,
+        "name": name,
+      };
 }

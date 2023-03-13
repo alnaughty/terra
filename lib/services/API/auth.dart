@@ -27,7 +27,7 @@ class AuthApi {
     String? country,
   }) async {
     try {
-      final Map<String, dynamic> _body = {
+      final Map<String, dynamic> _body = Map<String, dynamic>.from({
         "first_name": firstName,
         "last_name": lastName,
         "password": password,
@@ -36,22 +36,35 @@ class AuthApi {
         "account_type": accountType.toString(),
         "mobile_number": phoneNumber,
         "firebase_id": uid,
-      };
-      if (brgy != null) {
-        _body.addAll({
-          "barangay": brgy,
-        });
-      }
-      if (city != null) {
-        _body.addAll({
-          "city": city,
-        });
-      }
-      if (country != null) {
-        _body.addAll({
-          "country": country,
-        });
-      }
+        "barangay": brgy,
+        "city": city,
+        "country": country,
+      }..removeWhere((_, value) => value == null));
+      // final Map<String, dynamic> _body = {
+      //   "first_name": firstName,
+      //   "last_name": lastName,
+      //   "password": password,
+      //   "c_password": password,
+      //   "email": email,
+      //   "account_type": accountType.toString(),
+      //   "mobile_number": phoneNumber,
+      //   "firebase_id": uid,
+      // };
+      // if (brgy != null) {
+      //   _body.addAll({
+      //     "barangay": brgy,
+      //   });
+      // }
+      // if (city != null) {
+      //   _body.addAll({
+      //     "city": city,
+      //   });
+      // }
+      // if (country != null) {
+      //   _body.addAll({
+      //     "country": country,
+      //   });
+      // }
       return await http
           .post(
         "${Network.domain}/api/register".toUri,
@@ -62,7 +75,7 @@ class AuthApi {
         var data = json.decode(response.body);
         if (response.statusCode == 200 || response.statusCode == 201) {
           print("DATA : $data");
-
+          _cacher.seUserToken(data['access_token']);
           return data['access_token'];
         }
         return null;
@@ -88,6 +101,7 @@ class AuthApi {
           var data = json.decode(response.body);
           print("DATA : $data");
           if (response.statusCode == 200 || response.statusCode == 201) {
+            _cacher.seUserToken(data['access_token']);
             return data['access_token'];
           }
           Fluttertoast.showToast(
@@ -107,16 +121,16 @@ class AuthApi {
 
   Future<void> logout(BuildContext context) async {
     try {
-      return await http.get(
-        "${Network.domain}/api/logout".toUri,
-        headers: {
-          "accept": "application/json",
-          HttpHeaders.authorizationHeader: "Bearer $accessToken"
-        },
-      ).then((response) async {
+      return await http.post("${Network.domain}/api/logout".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "fcm_token": fcmToken,
+      }).then((response) async {
         print(response.body);
         if (response.statusCode == 200) {
           accessToken = null;
+          loggedUser = null;
           await _cacher.removeToken();
           await _auth.logout().whenComplete(() async =>
               await Navigator.pushReplacementNamed(context, "/landing_page"));

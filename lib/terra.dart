@@ -13,6 +13,8 @@ class TerraApp extends StatelessWidget {
       title: "Terra",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        useMaterial3: true,
+        fontFamily: "Poppins",
         primaryColor: _colors.top,
         checkboxTheme: CheckboxThemeData(
           fillColor: MaterialStateProperty.resolveWith(

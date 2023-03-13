@@ -10,6 +10,7 @@ import 'package:terra/models/application.dart';
 import 'package:terra/services/API/application.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/job_seeker_view/application_card.dart';
 import 'package:terra/views/home_page_children/map_page.dart';
 
 class MyApplicationPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _MyApplicationPageState extends State<MyApplicationPage> {
   final AppColors _colors = AppColors.instance;
   static final ApplicationApi _api = ApplicationApi.instance;
   void init() async {
-    await _api.fetchApplications().then((value) {
+    await _api.fetchApplicationsByJobseeker().then((value) {
       if (value != null) {
         _displayData = value;
       } else {
@@ -146,53 +147,89 @@ class _MyApplicationPageState extends State<MyApplicationPage> {
                         size: 30,
                       ),
                     )
-                  : ListView.separated(
-                      padding: const EdgeInsets.all(0),
-                      itemBuilder: (_, i) => ListTile(
-                        onTap: () {
-                          print("SHOW TASK DETAILS");
-                        },
-                        contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 0),
-                        title: Text(
-                          _displayData[i].task.title,
-                        ),
-                        subtitle: Text(
-                          DateFormat("MMMM dd, yyyy").format(
-                            _displayData[i].requestedOn,
+                  : _displayData.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "You have no applications yet",
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await Navigator.pushNamed(
+                                      context, "/job_listing");
+                                },
+                                child: Text(
+                                  "Apply for jobs",
+                                ),
+                              )
+                            ],
                           ),
-                        ),
-                        trailing: IconButton(
-                          onPressed: () async {
-                            final List<double> _r = _displayData[i]
-                                .task
-                                .latlong
-                                .trim()
-                                .split(",")
-                                .map((e) => double.parse(e))
-                                .toList();
-                            final LatLng latLong = LatLng(_r[0], _r[1]);
-                            await Navigator.push(
-                              context,
-                              PageTransition(
-                                  child: MapPage(
-                                    targetLocation: latLong,
-                                    name: _displayData[i].task.title,
-                                  ),
-                                  type: PageTransitionType.rightToLeft),
-                            );
+                        )
+                      : ListView.separated(
+                          padding: const EdgeInsets.all(0),
+                          itemBuilder: (_, i) {
+                            final Application application = _displayData[i];
+                            return ApplicationCard(application: application);
                           },
-                          icon: const Icon(
-                            Icons.location_on_rounded,
-                            size: 25,
-                            color: Colors.red,
-                          ),
+                          // itemBuilder: (_, i) => ListTile(
+                          //   onTap: () {
+                          //     print("SHOW TASK DETAILS");
+                          //   },
+                          // leading: _displayData[i].task.category == null
+                          //     ? null
+                          //     : Container(
+                          //         decoration: BoxDecoration(
+                          //           borderRadius: BorderRadius.circular(10),
+                          //           gradient: LinearGradient(
+                          //             colors: [_colors.top, _colors.bot],
+                          //           ),
+                          //         ),
+                          //         child: Image.network(
+                          //             _displayData[i].task.category!.icon),
+                          //       ),
+                          //   contentPadding: const EdgeInsets.symmetric(
+                          //       horizontal: 10, vertical: 0),
+                          //   title: Text(
+                          //     _displayData[i].task.title,
+                          //   ),
+                          //   subtitle: Text(
+                          //     DateFormat("MMMM dd, yyyy").format(
+                          //       _displayData[i].requestedOn,
+                          //     ),
+                          //   ),
+                          // trailing: IconButton(
+                          //   onPressed: () async {
+                          //     final List<double> _r = _displayData[i]
+                          //         .task
+                          //         .latlong
+                          //         .trim()
+                          //         .split(",")
+                          //         .map((e) => double.parse(e))
+                          //         .toList();
+                          //     final LatLng latLong = LatLng(_r[0], _r[1]);
+                          //     await Navigator.push(
+                          //       context,
+                          //       PageTransition(
+                          //           child: MapPage(
+                          //             targetLocation: latLong,
+                          //             name: _displayData[i].task.title,
+                          //           ),
+                          //           type: PageTransitionType.rightToLeft),
+                          //     );
+                          //   },
+                          //   icon: const Icon(
+                          //     Icons.location_on_rounded,
+                          //     size: 25,
+                          //     color: Colors.red,
+                          //   ),
+                          // ),
+                          // ),
+                          separatorBuilder: (_, i) =>
+                              const Divider(color: Colors.black45),
+                          itemCount: _displayData.length,
                         ),
-                      ),
-                      separatorBuilder: (_, i) =>
-                          const Divider(color: Colors.black45),
-                      itemCount: _displayData.length,
-                    ),
             ),
           ),
         ],

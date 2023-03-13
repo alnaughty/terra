@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geocode/geocode.dart';
-
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:terra/extension/string_extensions.dart';
@@ -49,13 +48,16 @@ class PersonalInfoPageState extends State<PersonalInfoPage> {
       final Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
-      final Address address = await GeoCode().reverseGeocoding(
-        latitude: position.latitude,
-        longitude: position.longitude,
-      );
-      widget.city.text = address.city ?? "";
-      widget.country.text = address.countryName ?? "";
-      widget.street.text = address.streetAddress ?? "";
+      final List<Placemark> address =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      // final Address address = await GeoCode().reverseGeocoding(
+      //   latitude: position.latitude,
+      //   longitude: position.longitude,
+      // );
+      if (address.isEmpty) return;
+      widget.city.text = address.first.locality ?? "";
+      widget.country.text = address.first.country ?? "";
+      widget.street.text = address.first.street ?? "";
       print("ADDRESSED :$address");
       if (mounted) setState(() {});
     }

@@ -15,6 +15,7 @@ class UserDetails {
   final String fullName;
   final String status;
   List<Category> skills;
+  final String firebaseId;
 
   UserDetails({
     required this.id,
@@ -30,6 +31,7 @@ class UserDetails {
     this.street,
     this.city,
     this.country,
+    required this.firebaseId,
   });
 
   factory UserDetails.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class UserDetails {
       country: json['country'],
       street: json['barangay'],
       skills: _skills.map((e) => Category.fromJson(e)).toList(),
+      firebaseId: json['firebase_id'],
     );
   }
 
@@ -60,6 +63,7 @@ class UserDetails {
         "status": status,
         "fullName": fullName,
         "skills": skills,
+        "firebase_id": firebaseId,
       };
   @override
   String toString() => "${toJson()}";

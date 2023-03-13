@@ -56,7 +56,9 @@ class _MapPageState extends State<MapPage> {
       body: isChecking
           ? Center(
               child: LoadingAnimationWidget.staggeredDotsWave(
-                  color: _colors.bot, size: 50),
+                color: _colors.bot,
+                size: 50,
+              ),
             )
           : SafeArea(
               top: false,
@@ -69,10 +71,13 @@ class _MapPageState extends State<MapPage> {
                       mapType: MapType.hybrid,
                       indoorViewEnabled: true,
                       trafficEnabled: true,
+                      myLocationButtonEnabled: true,
                       markers: <Marker>{
                         Marker(
                           markerId: const MarkerId("my-position"),
-                          infoWindow: const InfoWindow(title: "I am here"),
+                          infoWindow: InfoWindow(
+                              title:
+                                  "I am here ${currentPos.latitude} ${currentPos.longitude}"),
                           icon: BitmapDescriptor.defaultMarkerWithHue(
                             BitmapDescriptor.hueAzure,
                           ),
@@ -93,10 +98,7 @@ class _MapPageState extends State<MapPage> {
                       },
                       initialCameraPosition: CameraPosition(
                         zoom: 19.151926040649414,
-                        target: LatLng(
-                          currentPos.latitude,
-                          currentPos.longitude,
-                        ),
+                        target: widget.targetLocation,
                       ),
                     ),
                   ),

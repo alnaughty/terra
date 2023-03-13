@@ -136,37 +136,48 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                         const SizedBox(
                           height: 5,
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
+                        LayoutBuilder(builder: (context, c) {
+                          final w = c.maxWidth;
+                          return SizedBox(
+                            width: w,
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              runAlignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              // crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Checkbox(
-                                  splashRadius: 0,
-                                  value: isRemembered,
-                                  onChanged: (f) {
-                                    setState(() {
-                                      isRemembered = !isRemembered;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  "Remember me",
-                                  style: TextStyle(
-                                    color: _colors.top,
+                                SizedBox(
+                                  width: 170,
+                                  child: Row(
+                                    children: [
+                                      Checkbox(
+                                        splashRadius: 0,
+                                        value: isRemembered,
+                                        onChanged: (f) {
+                                          setState(() {
+                                            isRemembered = !isRemembered;
+                                          });
+                                        },
+                                      ),
+                                      Text(
+                                        "Remember me",
+                                        style: TextStyle(
+                                          color: _colors.top,
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                )
+                                ),
+                                TextButton(
+                                  onPressed: () {},
+                                  child: const Text(
+                                    "Forgot your password?",
+                                  ),
+                                ),
                               ],
                             ),
-                            const Spacer(),
-                            TextButton(
-                              onPressed: () {},
-                              child: const Text(
-                                "Forgot your password?",
-                              ),
-                            ),
-                          ],
-                        ),
+                          );
+                        }),
                         const SizedBox(
                           height: 50,
                         ),

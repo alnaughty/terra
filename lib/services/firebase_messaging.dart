@@ -1,8 +1,10 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:terra/services/API/user_api.dart';
 import 'package:terra/utils/global.dart';
 
 class MyFCMService {
   MyFCMService._pr();
+  final UserApi _api = UserApi();
   static final MyFCMService _instance = MyFCMService._pr();
   static MyFCMService get instance => _instance;
   static final FirebaseMessaging _fcm = FirebaseMessaging.instance;
@@ -25,6 +27,10 @@ class MyFCMService {
         sound: true,
       );
       fcmToken = await token;
+      if (fcmToken != null) {
+        _api.saveFcm(fcmToken!);
+        print("FCM TOKEN : $fcmToken ");
+      }
       // print(await token);
       listen();
     } catch (e) {

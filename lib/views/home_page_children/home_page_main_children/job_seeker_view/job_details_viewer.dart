@@ -1,13 +1,18 @@
+import 'package:flutter/cupertino.dart' as cup;
 import 'package:flutter/material.dart';
-import 'package:terra/models/job.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:terra/models/v2/task.dart';
 import 'package:terra/services/API/job.dart';
+import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
+import 'package:terra/utils/global.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_conversation_page.dart';
+import 'package:terra/views/home_page_children/map_page.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class JobDetailsViewer extends StatefulWidget {
-  const JobDetailsViewer(
-      {super.key, required this.job, required this.loadingCallback});
-  final Job job;
-  final ValueChanged<bool> loadingCallback;
+  const JobDetailsViewer({super.key, required this.task});
+  final Task task;
   @override
   State<JobDetailsViewer> createState() => _JobDetailsViewerState();
 }
@@ -16,30 +21,42 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
   final AppColors _colors = AppColors.instance;
   final JobAPI _api = JobAPI.instance;
   late final TextEditingController _negotiate;
+  final ChatRoomService _chatService = ChatRoomService.instance;
+  bool _isLoading = false;
   void apply(double price) async {
-    widget.loadingCallback(true);
+    // widget.loadingCallback(true);
+    setState(() {
+      _isLoading = true;
+    });
     await _api
         .apply(
-      id: widget.job.id,
+      id: widget.task.id,
       rate: price,
     )
         .then((value) {
-      widget.job.hasApplied = value;
-      widget.loadingCallback(false);
+      widget.task.hasApplied = value;
+      _isLoading = false;
+      if (mounted) setState(() {});
+      // widget.loadingCallback(false);
     });
   }
 
   void cancelApplication() async {
-    widget.loadingCallback(true);
+    // widget.loadingCallback(true);
+    setState(() {
+      _isLoading = true;
+    });
     await _api
         .cancel(
-      id: widget.job.id,
+      id: widget.task.id,
     )
         .then((value) {
       if (value) {
-        widget.job.hasApplied = false;
+        widget.task.hasApplied = false;
       }
-      widget.loadingCallback(false);
+      _isLoading = false;
+      if (mounted) setState(() {});
+      // widget.loadingCallback(false);
     });
   }
 
@@ -57,415 +74,362 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
     super.dispose();
   }
 
-  late double negotiatedPrice = widget.job.price;
+  late double negotiatedPrice = widget.task.rate ?? 0.0;
   bool isNegotiating = false;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return Material(
-      color: Colors.transparent,
-      elevation: 0,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.grey.shade100,
-        ),
-        constraints: BoxConstraints(
-            maxWidth: 400, maxHeight: size.height * .8, minHeight: 100),
-        width: size.width * .8,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Row(
-              //   children: [
-              // ClipRRect(
-              //   borderRadius: BorderRadius.circular(60),
-              //   child: Container(
-              //     width: 50,
-              //     height: 50,
-              //     color: Colors.white,
-              //     child: Image.network(
-              //       widget.job.postedBy.avatar,
-              //     ),
-              //   ),
-              // ),
-              //     const SizedBox(
-              //       width: 10,
-              //     ),
-
-              //   ],
-              // ),
-              ListTile(
-                contentPadding: const EdgeInsets.all(0),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(60),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    color: Colors.white,
-                    child: Image.network(
-                      widget.job.postedBy.avatar,
-                    ),
-                  ),
-                ),
-                title: Text(
-                  widget.job.postedBy.fullName,
-                  maxLines: 2,
-                  style: const TextStyle(
-                    height: 1,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 17,
-                  ),
-                ),
-                subtitle: Text(
-                  widget.job.postedBy.email,
-                  style: TextStyle(
-                    color: Colors.black.withOpacity(.5),
-                    fontStyle: FontStyle.italic,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-              Text(
-                widget.job.title,
-                style: TextStyle(
-                  color: Colors.black.withOpacity(.6),
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Wrap(
-                spacing: 5,
-                runSpacing: 0,
-                children: [
-                  Chip(
-                    avatar: Image.network(
-                      widget.job.category.icon,
-                    ),
-                    label: Text(
-                      widget.job.category.name,
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(.7),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  Chip(
-                    backgroundColor:
-                        widget.job.status.toLowerCase() == "available"
-                            ? _colors.top
-                            : Colors.red,
-                    label: Text(
-                      widget.job.status.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                      ),
-                    ),
-                  ),
-                  if (widget.job.isNegotiable) ...{
-                    Chip(
-                      backgroundColor: _colors.mid,
-                      label: Text(
-                        "negotiable".toUpperCase(),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                        ),
-                      ),
-                    ),
-                  },
-                  Chip(
-                    backgroundColor: _colors.bot,
-                    label: Text(
-                      widget.job.urgency == 1
-                          ? "NOT URGENT"
-                          : widget.job.urgency == 2
-                              ? "MILD URGENCY"
-                              : "ASAP",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 9,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  Icon(
-                    Icons.location_city,
-                    color: _colors.top,
-                    size: 20,
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Expanded(
-                    child: Text(
-                      "${widget.job.city[0].toUpperCase()}${widget.job.city.substring(1)}",
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        color: Colors.black.withOpacity(.7),
-                        decoration: TextDecoration.underline,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-              Divider(
-                color: Colors.black.withOpacity(.2),
-              ),
-              Tooltip(
-                message: "Complete address",
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.location_on_rounded,
-                        color: _colors.top,
-                        size: 20,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Expanded(
-                        child: Text(
-                          widget.job.address,
-                          maxLines: 20,
-                          textAlign: TextAlign.right,
-                          style: TextStyle(
-                            color: Colors.black.withOpacity(.7),
-                            decoration: TextDecoration.underline,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (widget.job.landmark != null ||
-                  widget.job.landmark!.isNotEmpty) ...{
-                Divider(
-                  color: Colors.black.withOpacity(.2),
-                ),
-                Row(
-                  children: [
-                    Text(
-                      "Nearest landmark:",
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Text(
-                        widget.job.landmark!,
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                          color: _colors.bot,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              },
-              Divider(
-                color: Colors.black.withOpacity(.2),
-              ),
-              Row(
-                children: [
-                  Text(
-                    "Employer Price:",
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text("₱${widget.job.price.toStringAsFixed(2)}",
-                          style: TextStyle(
-                            color: _colors.bot,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w700,
-                          )),
-                    ),
-                  )
-                ],
-              ),
-              if (negotiatedPrice != widget.job.price) ...{
-                Row(
-                  children: [
-                    Text(
-                      "Negotiated Price:",
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.centerRight,
-                        child: Text("₱${negotiatedPrice.toStringAsFixed(2)}",
-                            style: TextStyle(
-                              color: _colors.bot,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            )),
-                      ),
-                    )
-                  ],
-                ),
-              },
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 500),
-                height: isNegotiating ? 50 : 0,
-                child: Row(
-                  children: [
-                    Text(
-                      "Your Price:",
-                      style: TextStyle(
-                        color: Colors.grey.shade700,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 30,
-                    ),
-                    if (isNegotiating) ...{
-                      Expanded(
-                        child: TextField(
-                          controller: _negotiate,
-                          keyboardType: TextInputType.number,
-                        ),
-                      )
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text("Job Detail"),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                    onPressed: () async {
+                      await Navigator.push(
+                        context,
+                        PageTransition(
+                            child: MapPage(
+                                targetLocation: widget.task.coordinates),
+                            type: PageTransitionType.leftToRight),
+                      );
                     },
-                  ],
-                ),
-                // child: isNegotiating ? : Container(),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              if (widget.job.hasApplied) ...{
-                MaterialButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop(null);
-                    cancelApplication();
-                  },
-                  height: 50,
-                  color: Colors.red,
-                  child: Center(
-                    child: Text(
-                      "cancel application".toUpperCase(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              } else ...{
-                Row(
-                  children: [
-                    if (widget.job.isNegotiable) ...{
-                      Expanded(
-                        child: MaterialButton(
-                          onPressed: () async {
-                            setState(() {
-                              isNegotiating = !isNegotiating;
-                            });
-                            if (!isNegotiating) {
-                              negotiatedPrice = double.parse(_negotiate.text);
-                            } else {
-                              _negotiate.text =
-                                  negotiatedPrice.toStringAsFixed(2);
-                            }
-                            if (mounted) setState(() {});
-                            // Navigator.of(context).pop(null);
-                            // apply(widget.job.isNegotiable
-                            //     ? negotiatedPrice
-                            //     : widget.job.price);
-                            // if (widget.job.isNegotiable) {
-                            // } else {
-
-                            // }
-                          },
-                          height: 50,
-                          color: _colors.bot,
-                          child: Center(
+                    icon: const Icon(cup.CupertinoIcons.location))
+              ],
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            gradient: LinearGradient(
+                              colors: [_colors.top, _colors.bot],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(.3),
+                                offset: const Offset(3, 3),
+                                blurRadius: 4,
+                              )
+                            ],
+                          ),
+                          padding: const EdgeInsets.all(5),
+                          child: Image.network(
+                            widget.task.category.icon,
+                            height: 50,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          widget.task.category.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            height: 1,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          widget.task.address,
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(.5),
+                            fontWeight: FontWeight.w300,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        if (widget.task.isNegotiable) ...{
+                          Align(
+                            alignment: AlignmentDirectional.center,
                             child: Text(
-                              isNegotiating
-                                  ? "Apply negotiation price"
-                                  : "Negotiate Price",
+                              "To negotiate, you can edit the allocated prize by clicking on `Negotiable Price`.",
                               textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
+                              style: TextStyle(
+                                color: Colors.black.withOpacity(.3),
+                                fontSize: 12,
+                                height: 1,
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                    },
-                    Expanded(
-                      child: MaterialButton(
-                        onPressed: () async {
-                          Navigator.of(context).pop(null);
-                          apply(widget.job.isNegotiable
-                              ? negotiatedPrice
-                              : widget.job.price);
-                          // if (widget.job.isNegotiable) {
-                          // } else {
-
-                          // }
+                          const SizedBox(
+                            height: 5,
+                          )
                         },
-                        height: 50,
-                        color: _colors.top,
-                        child: const Center(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            InputChip(
+                              avatar: Image.asset(
+                                "assets/icons/money.png",
+                                width: 20,
+                                height: 20,
+                                color: Colors.black54,
+                              ),
+                              // disabledColor: Colors.red,
+                              surfaceTintColor: Colors.red,
+                              selectedShadowColor: Colors.red,
+                              onPressed: widget.task.isNegotiable
+                                  ? () {
+                                      isNegotiating = !isNegotiating;
+                                      if (mounted) setState(() {});
+                                    }
+                                  : null,
+                              label: Text(widget.task.isNegotiable
+                                  ? "Negotiable Price"
+                                  : "Fixed Price"),
+                            ),
+                            Chip(
+                              avatar: Image.asset(
+                                "assets/icons/urgency.png",
+                                width: 20,
+                                height: 20,
+                                color: Colors.black54,
+                              ),
+                              label: Text(widget.task.urgency == 1
+                                  ? "NOT URGENT"
+                                  : widget.task.urgency == 2
+                                      ? "MILD URGENCY"
+                                      : "URGENT"),
+                            ),
+                          ],
+                        ),
+                        if (widget.task.isNegotiable) ...{
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          AnimatedContainer(
+                            duration: const Duration(milliseconds: 500),
+                            height: isNegotiating ? 60 : 0,
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Your Price:",
+                                  style: TextStyle(
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 30,
+                                ),
+                                if (isNegotiating) ...{
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _negotiate,
+                                      keyboardType: TextInputType.number,
+                                      onSubmitted: (text) {
+                                        negotiatedPrice = double.parse(text);
+                                        if (mounted) setState(() {});
+                                      },
+                                    ),
+                                  )
+                                },
+                              ],
+                            ),
+                            // child: isNegotiating ? : Container(),
+                          ),
+                        },
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        if (widget.task.message != null) ...{
+                          Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Job Description",
+                                    textAlign: TextAlign.left,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(widget.task.message!),
+                                ],
+                              )),
+                          const SizedBox(
+                            height: 20,
+                          )
+                        },
+                        const Align(
+                          alignment: AlignmentDirectional.centerStart,
                           child: Text(
-                            "APPLY NOW",
-                            textAlign: TextAlign.center,
+                            "Posted by",
                             style: TextStyle(
-                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(60),
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              color: Colors.white,
+                              child: Image.network(
+                                widget.task.postedBy.avatar,
+                                height: 40,
+                                width: 40,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          trailing: widget.task.hasApplied
+                              ? IconButton(
+                                  onPressed: () async {
+                                    await _chatService
+                                        .gegtOrCreateChatRoom(
+                                            userId1:
+                                                widget.task.postedBy.firebaseId,
+                                            userId2: loggedUser!.firebaseId,
+                                            name1:
+                                                widget.task.postedBy.fullname,
+                                            name2: loggedUser!.fullName)
+                                        .then((val) async {
+                                      if (val == null) return;
+                                      await Navigator.push(
+                                          context,
+                                          PageTransition(
+                                              child: MessageConversationPage(
+                                                chatroomId: val,
+                                                target: widget.task.postedBy,
+                                              ),
+                                              type: PageTransitionType
+                                                  .leftToRight));
+                                    });
+                                  },
+                                  icon: Icon(
+                                    cup.CupertinoIcons.bubble_left_fill,
+                                    color: _colors.top,
+                                  ),
+                                )
+                              : null,
+                          title: Text(
+                            "${widget.task.postedBy.firstname[0].toUpperCase()}${widget.task.postedBy.firstname.substring(1).toLowerCase()}${widget.task.postedBy.middlename != null ? " ${widget.task.postedBy.middlename![0].toUpperCase()}${widget.task.postedBy.middlename!.substring(1).toLowerCase()}" : ""} ${widget.task.postedBy.lastname[0].toUpperCase()}${widget.task.postedBy.lastname.substring(1).toLowerCase()}",
+                          ),
+                          subtitle: Text(
+                            timeago.format(
+                              widget.task.datePosted,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        const Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            "Pricing",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Employer price",
+                                  ),
+                                  Text(
+                                    "\u20b1${(widget.task.rate ?? 0).toStringAsFixed(2)}",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: _colors.bot,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              if (negotiatedPrice != widget.task.rate) ...{
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      "Negotiated price",
+                                    ),
+                                    Text(
+                                      "\u20b1${negotiatedPrice.toStringAsFixed(2)}",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: _colors.bot,
+                                      ),
+                                    )
+                                  ],
+                                )
+                              }
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SafeArea(
+                  top: false,
+                  child: MaterialButton(
+                    onPressed: () async {
+                      if (!widget.task.hasApplied) {
+                        apply(negotiatedPrice);
+                      } else {
+                        cancelApplication();
+                      }
+                    },
+                    height: 80,
+                    color: widget.task.hasApplied ? _colors.bot : _colors.top,
+                    child: Center(
+                      child: Text(
+                        widget.task.hasApplied
+                            ? "Cancel Application"
+                            : "Apply Now",
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ],
+                  ),
                 )
-              }
-              // Text(
-              //   widget.job.title,
-              // )
-            ],
+              ],
+            ),
           ),
         ),
-      ),
+        if (_isLoading) ...{
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(.5),
+              child: Center(
+                child: Image.asset("assets/images/loader.gif"),
+              ),
+            ),
+          ),
+        },
+      ],
     );
   }
 }

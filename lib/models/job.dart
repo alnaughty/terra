@@ -38,7 +38,7 @@ class Job {
 
   factory Job.fromJson(Map<String, dynamic> json) => Job(
         id: json['id'].toInt(),
-        title: json['title'],
+        title: json['title'] ?? "",
         address: json['complete_address'],
         brgy: json['barangay'],
         city: json['city'],

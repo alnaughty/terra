@@ -14,6 +14,7 @@ class RawJob {
   final String status;
   final String latlong;
   final int categoryId;
+  final Category? category;
   final bool isNegotiable;
   final int limit;
   bool hasApplied;
@@ -34,27 +35,30 @@ class RawJob {
     required this.hasApplied,
     required this.categoryId,
     required this.limit,
+    required this.category,
   });
 
   factory RawJob.fromJson(Map<String, dynamic> json) => RawJob(
-        id: json['id'].toInt(),
-        title: json['title'],
-        address: json['complete_address'],
-        brgy: json['barangay'],
-        city: json['city'],
-        urgency: json['urgency'].toInt(),
-        isNegotiable: json['is_negotiable'] == null
-            ? false
-            : json['is_negotiable'].toInt() == 1,
-        details: json['details'],
-        landmark: json['landmark'] ?? "",
-        latlong: json['latlong'],
-        price: json['rate'].toDouble(),
-        status: json["status"] ?? "Unavailable",
-        hasApplied: json['is_apply'] == null ? false : json['is_apply'] == 1,
-        categoryId: json['category_id'].toInt(),
-        limit: json['employee_limit'] ?? 1,
-      );
+      id: json['id'].toInt(),
+      title: json['title'],
+      address: json['complete_address'],
+      brgy: json['barangay'],
+      city: json['city'],
+      urgency: json['urgency'].toInt(),
+      isNegotiable: json['is_negotiable'] == null
+          ? false
+          : json['is_negotiable'].toInt() == 1,
+      details: json['details'],
+      landmark: json['landmark'] ?? "",
+      latlong: json['latlong'],
+      price: json['rate'].toDouble(),
+      status: json["status"] ?? "Unavailable",
+      hasApplied: json['is_apply'] == null ? false : json['is_apply'] == 1,
+      categoryId: json['category_id'].toInt(),
+      limit: json['employee_limit'] ?? 1,
+      category: json['category'] == null
+          ? null
+          : Category.fromJson(json['category']));
 
   Map<String, dynamic> toJson() => {
         "id": id,

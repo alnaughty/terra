@@ -103,37 +103,37 @@ class _ProfilePageState extends State<ProfilePage> {
                           const SizedBox(
                             height: 10,
                           ),
-                          Center(
-                            child: SizedBox(
-                              width: size.width * .4,
-                              height: 25,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: List.generate(
-                                  5,
-                                  (index) => Container(
-                                    width: 25,
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          _colors.top,
-                                          _colors.bot,
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                          // Center(
+                          //   child: SizedBox(
+                          //     width: size.width * .4,
+                          //     height: 25,
+                          //     child: Row(
+                          //       mainAxisAlignment:
+                          //           MainAxisAlignment.spaceBetween,
+                          //       children: List.generate(
+                          //         5,
+                          //         (index) => Container(
+                          //           width: 25,
+                          //           height: 25,
+                          //           decoration: BoxDecoration(
+                          //             borderRadius: BorderRadius.circular(5),
+                          //             gradient: LinearGradient(
+                          //               begin: Alignment.topCenter,
+                          //               end: Alignment.bottomCenter,
+                          //               colors: [
+                          //                 _colors.top,
+                          //                 _colors.bot,
+                          //               ],
+                          //             ),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
+                          // const SizedBox(
+                          //   height: 10,
+                          // ),
                           Align(
                             alignment: Alignment.center,
                             child: Row(
@@ -269,9 +269,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               (states) => Colors.red.withOpacity(.2))),
                       onPressed: () async {
                         widget.loadingCallback(true);
-                        await _api
-                            .logout(context)
-                            .whenComplete(() => widget.loadingCallback(false));
+                        await _api.logout(context).whenComplete(
+                              () => widget.loadingCallback(false),
+                            );
                       },
                       icon: const Icon(
                         Icons.exit_to_app,

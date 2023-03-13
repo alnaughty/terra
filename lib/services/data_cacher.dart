@@ -11,6 +11,12 @@ class DataCacher {
     _prefs = await SharedPreferences.getInstance();
   }
 
+  Future<void> saveFcmToken(String tok) async {
+    await _prefs.setString("fcm-token", tok);
+  }
+
+  Future<void> removeFcmToken() async => await _prefs.remove('fcm-token');
+  String? getFcmToken() => _prefs.getString('fcm-token');
   bool initApp() => _prefs.getBool("initial") ?? true;
   Future<void> setToOld() async {
     await _prefs.setBool("initial", false);
