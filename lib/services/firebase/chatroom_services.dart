@@ -12,7 +12,9 @@ class ChatRoomService {
       {required String userId1,
       required String userId2,
       required String name1,
-      required String name2}) async {
+      required String name2,
+      required String avatar1,
+      required String avatar2}) async {
     try {
       final DatabaseReference chatRoomsRef =
           databaseReference.child('chat_rooms');
@@ -31,8 +33,10 @@ class ChatRoomService {
         final Map<String, dynamic> chatRoomData = {
           'user1_id': userId1,
           "user1_name": name1,
+          "user1_avatar": avatar1,
           "user2_name": name2,
           'user2_id': userId2,
+          "user2_avatar": avatar2,
           'created_at': ServerValue.timestamp,
         };
         await newChatRoomRef.set(chatRoomData);

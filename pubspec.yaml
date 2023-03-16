@@ -55,6 +55,7 @@ dependencies:
   url_launcher: ^6.1.7
   firebase_database: ^10.0.15
   timeago: ^3.3.0
+  flutter_svg: ^2.0.4
 
 dev_dependencies:
   flutter_test:

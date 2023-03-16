@@ -11,6 +11,7 @@ import 'package:terra/views/home_page_children/home_page_main.dart';
 import 'package:terra/views/home_page_children/notification_page.dart';
 import 'package:terra/views/home_page_children/profile_page.dart';
 import 'package:terra/views/home_page_children/wallet_page.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,12 +22,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, UserApi, CategoryApi {
+  final List<String> icons = ["home", "chats", "jobs", "profile"];
   late final TabController _tabController;
   late final List<Widget> _body = [
     HomePageMain(
       onLoading: (s) => setState(() => _isLoading = s),
     ),
-    const WalletPage(),
     const NotificationPage(),
     const ActivityHistory(),
     ProfilePage(
@@ -97,42 +98,30 @@ class _HomePageState extends State<HomePage>
                 ? null
                 : BottomNavigationBar(
                     currentIndex: _currentIndex,
-                    unselectedItemColor: Colors.black38,
+                    unselectedItemColor: _colors.top.withOpacity(.3),
                     selectedItemColor: _colors.top,
+                    showUnselectedLabels: false,
+                    showSelectedLabels: true,
                     onTap: (i) async {
                       setState(() => _currentIndex = i);
                       _tabController.animateTo(i);
                     },
-                    items: const [
-                        BottomNavigationBarItem(
-                          icon: Icon(
-                            Icons.home_filled,
-                          ),
-                          label: "Home",
+                    items: icons.map((e) {
+                      final int index = icons.indexOf(e);
+                      return BottomNavigationBarItem(
+                        icon: SvgPicture.asset(
+                          "assets/icons/$e${_tabController.index == index ? "_solid" : ""}.svg",
+                          width: 20,
+                          height: 20,
+                          color: _tabController.index == index
+                              ? _colors.top
+                              : _colors.top.withOpacity(.3),
                         ),
-                        BottomNavigationBarItem(
-                          icon: Icon(
-                            Icons.wallet,
-                          ),
-                          label: "Wallet",
-                        ),
-                        BottomNavigationBarItem(
-                          icon: Icon(
-                            Icons.notifications,
-                          ),
-                          label: "Notifications",
-                        ),
-                        BottomNavigationBarItem(
-                            icon: Icon(
-                              Icons.history,
-                            ),
-                            label: "Activity History"),
-                        BottomNavigationBarItem(
-                            icon: Icon(
-                              Icons.person,
-                            ),
-                            label: "Profile"),
-                      ]),
+                        label:
+                            "${e[0].toUpperCase()}${e.substring(1).toLowerCase()}",
+                      );
+                    }).toList(),
+                  ),
           ),
         ),
         if (_isLoading) ...{

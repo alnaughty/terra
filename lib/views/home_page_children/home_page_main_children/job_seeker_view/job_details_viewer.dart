@@ -299,12 +299,13 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                   onPressed: () async {
                                     await _chatService
                                         .gegtOrCreateChatRoom(
-                                            userId1:
-                                                widget.task.postedBy.firebaseId,
-                                            userId2: loggedUser!.firebaseId,
-                                            name1:
-                                                widget.task.postedBy.fullname,
-                                            name2: loggedUser!.fullName)
+                                      userId1: widget.task.postedBy.firebaseId,
+                                      userId2: loggedUser!.firebaseId,
+                                      name1: widget.task.postedBy.fullname,
+                                      name2: loggedUser!.fullName,
+                                      avatar1: widget.task.postedBy.avatar,
+                                      avatar2: loggedUser!.avatar,
+                                    )
                                         .then((val) async {
                                       if (val == null) return;
                                       await Navigator.push(
@@ -312,7 +313,10 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                           PageTransition(
                                               child: MessageConversationPage(
                                                 chatroomId: val,
-                                                target: widget.task.postedBy,
+                                                targetName: widget
+                                                    .task.postedBy.fullname,
+                                                targetAvatar:
+                                                    widget.task.postedBy.avatar,
                                               ),
                                               type: PageTransitionType
                                                   .leftToRight));

@@ -41,8 +41,9 @@ class _HomePageMainState extends State<HomePageMain> {
       final double h = c.maxHeight;
       return SingleChildScrollView(
         child: Column(
-          children: [
-            content,
+          children: const [
+            Text("TEST"),
+            // content,
             // if (loggedUser!.accountType == 1) ...{
             //   const JobSeekerHeader(),
             // } else ...{
@@ -50,24 +51,24 @@ class _HomePageMainState extends State<HomePageMain> {
             //     isLoading: widget.onLoading,
             //   ),
             // },
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  viewCategory(c.maxHeight),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  viewList(),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(
+            //     horizontal: 20,
+            //   ),
+            //   child: Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       const SizedBox(
+            //         height: 20,
+            //       ),
+            //       viewCategory(c.maxHeight),
+            //       const SizedBox(
+            //         height: 20,
+            //       ),
+            //       viewList(),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       );

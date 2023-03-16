@@ -7,11 +7,16 @@ import 'package:terra/utils/global.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_widget.dart';
 
 class MessageConversationPage extends StatefulWidget {
-  const MessageConversationPage(
-      {super.key, required this.chatroomId, required this.target});
+  const MessageConversationPage({
+    super.key,
+    required this.chatroomId,
+    required this.targetName,
+    required this.targetAvatar,
+  });
   final String chatroomId;
-
-  final Terran target;
+  final String targetName;
+  final String targetAvatar;
+  // final Terran target;
   @override
   State<MessageConversationPage> createState() =>
       _MessageConversationPageState();
@@ -65,7 +70,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                   height: 40,
                   color: Colors.white,
                   child: Image.network(
-                    widget.target.avatar,
+                    widget.targetAvatar,
                     height: 40,
                     width: 40,
                     fit: BoxFit.cover,
@@ -77,7 +82,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
               ),
               Expanded(
                 child: Text(
-                  widget.target.fullname.toUpperCase(),
+                  widget.targetName.toUpperCase(),
                 ),
               )
             ],
@@ -112,7 +117,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                           senderName: message.value['sender_id'] ==
                                   loggedUser!.firebaseId
                               ? loggedUser!.fullName
-                              : widget.target.fullname,
+                              : widget.targetName,
                           time: DateTime.fromMillisecondsSinceEpoch(
                               message.value['timestamp']),
                           isMe: message.value['sender_id'] ==

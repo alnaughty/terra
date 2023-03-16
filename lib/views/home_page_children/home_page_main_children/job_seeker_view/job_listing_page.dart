@@ -176,15 +176,19 @@ class _JobListingPageState extends State<JobListingPage> {
                                                   onPressed: () async {
                                                     await _chatService
                                                         .gegtOrCreateChatRoom(
-                                                            userId1: task
-                                                                .postedBy
-                                                                .firebaseId,
-                                                            userId2: loggedUser!
-                                                                .firebaseId,
-                                                            name1: task.postedBy
-                                                                .fullname,
-                                                            name2: loggedUser!
-                                                                .fullName)
+                                                      userId1: task
+                                                          .postedBy.firebaseId,
+                                                      userId2: loggedUser!
+                                                          .firebaseId,
+                                                      name1: task
+                                                          .postedBy.fullname,
+                                                      name2:
+                                                          loggedUser!.fullName,
+                                                      avatar1:
+                                                          task.postedBy.avatar,
+                                                      avatar2:
+                                                          loggedUser!.avatar,
+                                                    )
                                                         .then((val) async {
                                                       if (val == null) return;
                                                       await Navigator.push(
@@ -193,8 +197,12 @@ class _JobListingPageState extends State<JobListingPage> {
                                                               child:
                                                                   MessageConversationPage(
                                                                 chatroomId: val,
-                                                                target: task
-                                                                    .postedBy,
+                                                                targetName: task
+                                                                    .postedBy
+                                                                    .fullname,
+                                                                targetAvatar:
+                                                                    task.postedBy
+                                                                        .avatar,
                                                               ),
                                                               type: PageTransitionType
                                                                   .leftToRight));
