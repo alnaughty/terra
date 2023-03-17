@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:terra/services/API/category_api.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/services/firebase_messaging.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/view_data_component/user_position.dart';
 import 'package:terra/views/home_page_children/activity_history.dart';
 import 'package:terra/views/home_page_children/home_page_main.dart';
 import 'package:terra/views/home_page_children/notification_page.dart';
@@ -22,6 +26,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, UserApi, CategoryApi {
+  static final UserPosition _pos = UserPosition.instance;
   final List<String> icons = ["home", "chats", "jobs", "profile"];
   late final TabController _tabController;
   late final List<Widget> _body = [
@@ -38,8 +43,24 @@ class _HomePageState extends State<HomePage>
   int _currentIndex = 0;
   final AppColors _colors = AppColors.instance;
   final DataCacher _cacher = DataCacher.instance;
+  Future<void> initLocation() async {
+    await Geolocator.requestPermission().then((permission) async {
+      if (permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse) {
+        Geolocator.getPositionStream().listen((Position pos) {
+          _pos.populate(
+            LatLng(pos.latitude, pos.longitude),
+          );
+        });
+      } else {
+        Navigator.of(context).pop();
+        Fluttertoast.showToast(msg: "Please enable location permission.");
+      }
+    });
+    if (mounted) setState(() {});
+  }
 
-  init() async {
+  Future<void> init() async {
     await details().then((value) async {
       if (value != null) {
         loggedUser = value;
@@ -61,7 +82,10 @@ class _HomePageState extends State<HomePage>
     // TODO: implement initState
     _tabController = TabController(length: _body.length, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await init();
+      await Future.wait([
+        init(),
+        initLocation(),
+      ]);
     });
     super.initState();
   }
@@ -81,18 +105,64 @@ class _HomePageState extends State<HomePage>
       children: [
         Positioned.fill(
           child: Scaffold(
-            backgroundColor: Colors.white,
-            body: SafeArea(
-              top: false,
-              child: loggedUser == null
-                  ? Center(
-                      child: Image.asset("assets/images/loader.gif"),
-                    )
-                  : TabBarView(
-                      controller: _tabController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: _body,
+            backgroundColor: Colors.grey.shade200,
+            body: Stack(
+              children: [
+                Positioned(
+                  top: -20,
+                  right: -10,
+                  child: Container(
+                    height: 100,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      // shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(130),
+                      color: Colors.transparent,
+                      boxShadow: [
+                        BoxShadow(
+                          offset: const Offset(2, 4),
+                          color: _colors.top.withOpacity(.3),
+                          blurRadius: 10,
+                        )
+                      ],
                     ),
+                  ),
+                ),
+                Positioned(
+                  top: -10,
+                  right: 50,
+                  child: Container(
+                    height: 150,
+                    width: 150,
+                    decoration: BoxDecoration(
+                      // shape: BoxShape.circle,
+                      borderRadius: BorderRadius.circular(150),
+                      color: Colors.transparent,
+                      boxShadow: [
+                        BoxShadow(
+                          offset: const Offset(2, 4),
+                          color: _colors.bot.withOpacity(.6),
+                          blurRadius: 10,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: SafeArea(
+                    top: false,
+                    child: loggedUser == null
+                        ? Center(
+                            child: Image.asset("assets/images/loader.gif"),
+                          )
+                        : TabBarView(
+                            controller: _tabController,
+                            physics: const NeverScrollableScrollPhysics(),
+                            children: _body,
+                          ),
+                  ),
+                ),
+              ],
             ),
             bottomNavigationBar: loggedUser == null
                 ? null
