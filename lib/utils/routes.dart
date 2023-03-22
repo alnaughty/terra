@@ -109,10 +109,13 @@ class RouteData {
           reverseDuration: _transitionDuration,
         );
       case "/job_listing":
-        final int? catId = settings.arguments as int?;
+        final List args = settings.arguments as List;
+        final int? catId = args[0];
+        final String? keyword = args[1];
         return PageTransition(
           child: JobListingPage(
             catId: catId,
+            keyword: keyword,
           ),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,

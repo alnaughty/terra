@@ -6,11 +6,14 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:terra/services/API/category_api.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
+import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/services/firebase_messaging.dart';
+import 'package:terra/services/landing_processes.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
 import 'package:terra/views/home_page_children/activity_history.dart';
+import 'package:terra/views/home_page_children/chats/chat_rooms.dart';
 import 'package:terra/views/home_page_children/home_page_main.dart';
 import 'package:terra/views/home_page_children/notification_page.dart';
 import 'package:terra/views/home_page_children/profile_page.dart';
@@ -26,6 +29,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, UserApi, CategoryApi {
+  static final LandingProcesses _process = LandingProcesses.instance;
+  static final ChatRoomService chatRoomService = ChatRoomService.instance;
   static final UserPosition _pos = UserPosition.instance;
   final List<String> icons = ["home", "chats", "jobs", "profile"];
   late final TabController _tabController;
@@ -33,7 +38,7 @@ class _HomePageState extends State<HomePage>
     HomePageMain(
       onLoading: (s) => setState(() => _isLoading = s),
     ),
-    const NotificationPage(),
+    const ChatRoomsPage(),
     const ActivityHistory(),
     ProfilePage(
       loadingCallback: (s) => setState(() => _isLoading = s),
@@ -42,6 +47,7 @@ class _HomePageState extends State<HomePage>
   static final MyFCMService _fcm = MyFCMService.instance;
   int _currentIndex = 0;
   final AppColors _colors = AppColors.instance;
+
   final DataCacher _cacher = DataCacher.instance;
   Future<void> initLocation() async {
     await Geolocator.requestPermission().then((permission) async {
@@ -68,6 +74,7 @@ class _HomePageState extends State<HomePage>
         print("USER : $value");
         await fetchAll();
         _fcm.init();
+        await listenMessages();
         if (mounted) setState(() {});
       } else {
         await _cacher.removeToken();
@@ -75,6 +82,11 @@ class _HomePageState extends State<HomePage>
         await Navigator.pushReplacementNamed(context, "/login_page");
       }
     });
+    await _process.loadProcesses();
+  }
+
+  Future<void> listenMessages() async {
+    chatRoomService.getChatRoomsForUser(loggedUser!.firebaseId);
   }
 
   @override
@@ -105,49 +117,60 @@ class _HomePageState extends State<HomePage>
       children: [
         Positioned.fill(
           child: Scaffold(
+            appBar: _tabController.index == 0
+                ? AppBar(
+                    backgroundColor: Colors.grey.shade200,
+                    title: Image.asset(
+                      "assets/images/Terra-name.png",
+                      height: 40,
+                    ),
+                    centerTitle: true,
+                    elevation: 0,
+                  )
+                : null,
             backgroundColor: Colors.grey.shade200,
             body: Stack(
               children: [
-                Positioned(
-                  top: -20,
-                  right: -10,
-                  child: Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                      // shape: BoxShape.circle,
-                      borderRadius: BorderRadius.circular(130),
-                      color: Colors.transparent,
-                      boxShadow: [
-                        BoxShadow(
-                          offset: const Offset(2, 4),
-                          color: _colors.top.withOpacity(.3),
-                          blurRadius: 10,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: -10,
-                  right: 50,
-                  child: Container(
-                    height: 150,
-                    width: 150,
-                    decoration: BoxDecoration(
-                      // shape: BoxShape.circle,
-                      borderRadius: BorderRadius.circular(150),
-                      color: Colors.transparent,
-                      boxShadow: [
-                        BoxShadow(
-                          offset: const Offset(2, 4),
-                          color: _colors.bot.withOpacity(.6),
-                          blurRadius: 10,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
+                // Positioned(
+                //   top: -20,
+                //   right: -10,
+                //   child: Container(
+                //     height: 100,
+                //     width: 100,
+                //     decoration: BoxDecoration(
+                //       // shape: BoxShape.circle,
+                //       borderRadius: BorderRadius.circular(130),
+                //       color: Colors.transparent,
+                //       boxShadow: [
+                //         BoxShadow(
+                //           offset: const Offset(2, 4),
+                //           color: _colors.top.withOpacity(.3),
+                //           blurRadius: 10,
+                //         )
+                //       ],
+                //     ),
+                //   ),
+                // ),
+                // Positioned(
+                //   top: -10,
+                //   right: 50,
+                //   child: Container(
+                //     height: 150,
+                //     width: 150,
+                //     decoration: BoxDecoration(
+                //       // shape: BoxShape.circle,
+                //       borderRadius: BorderRadius.circular(150),
+                //       color: Colors.transparent,
+                //       boxShadow: [
+                //         BoxShadow(
+                //           offset: const Offset(2, 4),
+                //           color: _colors.bot.withOpacity(.6),
+                //           blurRadius: 10,
+                //         )
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 Positioned.fill(
                   child: SafeArea(
                     top: false,

@@ -1,6 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:terra/models/v2/terran.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
@@ -28,6 +27,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
   late final TextEditingController _text;
   late final ScrollController _scroll;
   late final DatabaseReference _chatRoomRef;
+  bool isInit = true;
   @override
   void initState() {
     // TODO: implement initState
@@ -38,12 +38,16 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
         .child('chat_rooms')
         .child(widget.chatroomId);
     _chatRoomRef.child('messages').onChildAdded.listen((event) {
-      setState(() {});
-      _scroll.animateTo(
-        _scroll.position.minScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      try {
+        _scroll.animateTo(
+          _scroll.position.minScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      } catch (e) {
+        print("SCROLL ERROR");
+      }
+      if (mounted) setState(() {});
     });
     super.initState();
   }
@@ -87,6 +91,11 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
               )
             ],
           ),
+          titleTextStyle: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
         ),
         body: Column(
           children: [
@@ -123,42 +132,11 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                           isMe: message.value['sender_id'] ==
                               loggedUser!.firebaseId,
                         );
-                        // return Text(message.value['message'].toString());
                       },
                       separatorBuilder: (_, i) => const SizedBox(
                             height: 10,
                           ),
                       itemCount: messageList.length);
-                  // messages.forEach((key, value) {
-                  //   final message = value as Map<dynamic, dynamic>;
-                  // final messageWidget = MessageWidget(
-                  // senderName: message['sender_id'] == loggedUser!.firebaseId
-                  //     ? loggedUser!.fullName
-                  //     : widget.target.fullname,
-                  //   messageText: message['text'],
-                  //   isMe: message['sender_id'] == loggedUser!.firebaseId,
-                  //   time: DateTime.parse(message['timestamp']),
-                  // );
-                  //   messageList.add(messageWidget);
-                  // });
-                  // return ListView(
-                  //   controller: _scroll,
-                  //   children: [Text(messageList.toString())],
-                  // );
-                  // return ListView.separated(
-                  //   controller: _scroll,
-                  //   itemBuilder: (_, i) {
-                  //     final message = messageList[i].value;
-                  //     final bool isOwnMessage =
-                  //         message['user_id'] == loggedUser!.firebaseId;
-                  //     return Container();
-                  //   },
-                  //   separatorBuilder: (_, i) => const SizedBox(
-                  //     height: 1,
-                  //   ),
-                  //   reverse: true,
-                  //   itemCount: messageList.length,
-                  // );
                 },
               ),
             ),
@@ -180,20 +158,17 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                     ),
                     const SizedBox(width: 8.0),
                     IconButton(
-                        onPressed: () async {
-                          FocusScope.of(context).unfocus();
-                          await _chatService.sendChatMessage(widget.chatroomId,
-                              loggedUser!.firebaseId, _text.text);
-                          _text.clear();
-                        },
-                        icon: Icon(
-                          Icons.send,
-                          color: _colors.top,
-                        ))
-                    // FloatingActionButton(
-                    //   onPressed: () {},
-                    //   child: Icon(Icons.send),
-                    // ),
+                      onPressed: () async {
+                        FocusScope.of(context).unfocus();
+                        await _chatService.sendChatMessage(widget.chatroomId,
+                            loggedUser!.firebaseId, _text.text);
+                        _text.clear();
+                      },
+                      icon: Icon(
+                        Icons.send,
+                        color: _colors.top,
+                      ),
+                    ),
                   ],
                 ),
               ),

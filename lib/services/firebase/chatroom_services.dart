@@ -1,9 +1,14 @@
 import 'dart:async';
 
 import 'package:firebase_database/firebase_database.dart';
+import 'package:terra/models/chat/chat_conversation.dart';
+import 'package:terra/models/chat/chat_room.dart';
+import 'package:terra/models/chat/chat_room_member.dart';
+import 'package:terra/view_model/chat_rooms_vm.dart';
 
 class ChatRoomService {
   ChatRoomService._pr();
+  static final ChatRoomsVm _vm = ChatRoomsVm.instance;
   static final ChatRoomService _instance = ChatRoomService._pr();
   static ChatRoomService get instance => _instance;
   static final DatabaseReference databaseReference =
@@ -16,6 +21,7 @@ class ChatRoomService {
       required String avatar1,
       required String avatar2}) async {
     try {
+      print("CREATE OR GET");
       final DatabaseReference chatRoomsRef =
           databaseReference.child('chat_rooms');
       // Check if a chatroom already exists with both users
@@ -120,19 +126,63 @@ class ChatRoomService {
     print("SENT");
   }
 
+  Stream<DatabaseEvent> streamChatRoomsForUser(String userId) =>
+      databaseReference.child('chat_rooms').onValue;
   void getChatRoomsForUser(String userId) {
+    print("INIT LISTENING MESSAGE for $userId");
     DatabaseReference chatRoomsRef = databaseReference.child('chat_rooms');
     chatRoomsRef.onValue.listen((event) {
+      print("VALUE: ${event.snapshot.value}");
       if (event.snapshot.value != null) {
         Map<dynamic, dynamic> chatRooms =
             (event.snapshot.value as Map<dynamic, dynamic>);
-        List<String> chatRoomIds = [];
-        chatRooms.forEach((key, value) {
+        final List<ChatRoom> _result = [];
+        chatRooms.forEach((key, value) async {
           if ((value['user1_id'] == userId || value['user2_id'] == userId)) {
-            chatRoomIds.add(key);
+            final Query messagesRef = databaseReference
+                .child('chat_rooms/$key/messages')
+                .orderByChild('timestamp')
+                .limitToLast(1);
+            DatabaseEvent messageSnapshot = await messagesRef.once();
+            Map<dynamic, dynamic>? messageData =
+                messageSnapshot.snapshot.value == null
+                    ? null
+                    : (messageSnapshot.snapshot.value as Map<dynamic, dynamic>);
+            ChatConversation? convo = messageData == null
+                ? null
+                : ChatConversation.fromMap(messageData);
+            // Query to get the last message in this chat room
+            // DatabaseReference messagesRef = databaseReference
+            //     .child('chat_rooms/$key/messages')
+            //     .orderByChild('timestamp')
+            //     .limitToLast(1);
+
+            // DataSnapshot messageSnapshot = await messagesRef.once();
+            // Map<dynamic, dynamic> messageData =
+            //     (messageSnapshot.value as Map<dynamic, dynamic>);
+
+            final ChatRoom chatroom = ChatRoom(
+              id: key,
+              createdAt: DateTime.fromMillisecondsSinceEpoch(
+                  value['created_at'] as int),
+              lastMessage: convo,
+              members: [
+                ChatRoomMember(
+                  id: value['user1_id'],
+                  displayName: value['user1_name'],
+                  avatar: value['user1_avatar'],
+                ),
+                ChatRoomMember(
+                  id: value['user2_id'],
+                  displayName: value['user2_name'],
+                  avatar: value['user2_avatar'],
+                ),
+              ],
+            );
+            _result.add(chatroom);
           }
         });
-        // navigateToChatRoomsScreen(chatRoomIds);
+        _vm.populate(_result);
       }
     });
   }

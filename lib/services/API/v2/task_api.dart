@@ -13,7 +13,7 @@ class TaskAPIV2 {
   static final TaskAPIV2 _instance = TaskAPIV2._pr();
   static TaskAPIV2 get instance => _instance;
 
-  Future<List<Task>?> getEmployeeTasks({int? categoryId}) async {
+  Future<List<Task>?> getTasks({int? categoryId}) async {
     try {
       return await http.get(
           "${Network.domain}/api/tasks?category_id=${categoryId ?? ""}".toUri,

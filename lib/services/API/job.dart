@@ -209,7 +209,9 @@ class JobAPI {
         );
         return null;
       });
-    } catch (e) {
+    } catch (e, s) {
+      print("ERROR : $e");
+      print("STACK : $s");
       Fluttertoast.showToast(
         msg: "An unexpected error occurred while processing the request.",
       );

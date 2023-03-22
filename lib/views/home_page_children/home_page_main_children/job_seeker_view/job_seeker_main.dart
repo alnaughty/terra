@@ -161,7 +161,10 @@ class _JobSeekerHeaderState extends State<JobSeekerHeader> {
                           TextButton(
                             onPressed: () async {
                               await Navigator.pushNamed(
-                                  context, "/job_listing");
+                                context,
+                                "/job_listing",
+                                arguments: [null, null],
+                              );
                             },
                             style: ButtonStyle(
                               backgroundColor:

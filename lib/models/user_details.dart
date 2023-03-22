@@ -51,7 +51,7 @@ class UserDetails {
       country: json['country'],
       street: json['barangay'],
       skills: _skills.map((e) => Category.fromJson(e)).toList(),
-      firebaseId: json['firebase_id'],
+      firebaseId: json['firebase_id'] ?? "Anonymous User",
     );
   }
 

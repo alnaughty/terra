@@ -42,7 +42,7 @@ class Task {
         .toList();
     return Task(
       id: json['id'].toInt(),
-      address: json['complete_address'],
+      address: json['complete_address'] ?? "",
       category: Category.fromJson(json['category']),
       postedBy: Terran.fromJson(json['user']),
       hasApplied: json['is_apply'] == 1,

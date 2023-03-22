@@ -82,10 +82,8 @@ class _AllCategoriesState extends State<AllCategories> {
                                 onPressed: () async {
                                   await Navigator.pushNamed(
                                     context,
-                                    loggedUser!.accountType == 1
-                                        ? "/job_listing"
-                                        : "/browse_employees_page",
-                                    arguments: _result[index].id,
+                                    "/job_listing",
+                                    arguments: [_result[index].id, null],
                                   );
                                 },
                                 child: Column(
