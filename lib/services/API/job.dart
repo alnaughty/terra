@@ -65,24 +65,23 @@ class JobAPI {
       final Map body = {
         "title": title,
         "complete_address": completeAddress,
-        "barangay": brgy,
-        "landmark": landmark,
+        // "barangay": brgy,
+        "message": landmark,
         "city": city,
         "urgency": "$urgency",
         "rate": "$rate",
         "latlong": latlong,
         "category_id": "$categoryId",
-        "is_negotiable": "$isNegotiable",
+        "is_negotiable": "${isNegotiable ? 1 : 0}",
       };
       if (details != null) {
         body.addAll({
           "details": details,
         });
       }
-      print(body);
       return await http
           .post(
-        "${Network.domain}/api/jobs".toUri,
+        "${Network.domain}/api/task".toUri,
         headers: {
           "accept": "application/json",
           HttpHeaders.authorizationHeader: "Bearer $accessToken"
@@ -91,10 +90,12 @@ class JobAPI {
       )
           .then((response) {
         var data = json.decode(response.body);
+        print(data);
         if (response.statusCode == 200) {
           Fluttertoast.showToast(msg: "Job posted successfully");
           return true;
         }
+        print(response.statusCode);
         Fluttertoast.showToast(
             msg: "Unable to process request, please try again");
         return false;

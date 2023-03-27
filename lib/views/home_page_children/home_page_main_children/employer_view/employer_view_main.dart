@@ -156,6 +156,8 @@ class _EmployerHeaderState extends State<EmployerHeader> {
                                         child: AlertDialog(
                                           title: const Text("Post a job"),
                                           content: JobPostingPage(
+                                            scrollController:
+                                                ScrollController(),
                                             loadingCallback: widget.isLoading,
                                             // onPost: () async {
                                             //   Navigator.of(context).pop(null);

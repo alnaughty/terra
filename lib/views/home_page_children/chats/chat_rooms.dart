@@ -9,9 +9,15 @@ import 'package:terra/utils/global.dart';
 import 'package:terra/view_model/chat_rooms_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_conversation_page.dart';
 
-class ChatRoomsPage extends StatelessWidget {
+class ChatRoomsPage extends StatefulWidget {
   const ChatRoomsPage({super.key});
   static final ChatRoomsVm _vm = ChatRoomsVm.instance;
+
+  @override
+  State<ChatRoomsPage> createState() => _ChatRoomsPageState();
+}
+
+class _ChatRoomsPageState extends State<ChatRoomsPage> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -34,9 +40,25 @@ class ChatRoomsPage extends StatelessWidget {
             height: 15,
           ),
           StreamBuilder<List<ChatRoom>>(
-              stream: _vm.stream,
+              stream: ChatRoomsPage._vm.stream,
               builder: (_, snapshot) {
-                if (snapshot.hasError || !snapshot.hasData) {
+                if (snapshot.hasError) {
+                  return SizedBox(
+                    width: size.width,
+                    height: size.height - 200,
+                    child: const Center(
+                      child: Text(
+                        "Unable to load message",
+                        style: TextStyle(
+                          color: Colors.black38,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return SizedBox(
                     width: size.width,
                     height: size.height - 200,

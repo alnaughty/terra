@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:terra/services/API/job.dart';
+import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
@@ -21,7 +22,7 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
   final AppColors _colors = AppColors.instance;
   final JobAPI _api = JobAPI.instance;
   late final TextEditingController _negotiate;
-  final ChatRoomService _chatService = ChatRoomService.instance;
+  final ChatService _chatService = ChatService.instance;
   bool _isLoading = false;
   void apply(double price) async {
     // widget.loadingCallback(true);
@@ -177,7 +178,7 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                           children: [
                             InputChip(
                               avatar: Image.asset(
-                                "assets/icons/money.png",
+                                "assets/icons/negotiation.png",
                                 width: 20,
                                 height: 20,
                                 color: Colors.black54,
@@ -297,17 +298,10 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                           trailing: widget.task.hasApplied
                               ? IconButton(
                                   onPressed: () async {
-                                    await _chatService
-                                        .gegtOrCreateChatRoom(
-                                      userId1: widget.task.postedBy.firebaseId,
-                                      userId2: loggedUser!.firebaseId,
-                                      name1: widget.task.postedBy.fullname,
-                                      name2: loggedUser!.fullName,
-                                      avatar1: widget.task.postedBy.avatar,
-                                      avatar2: loggedUser!.avatar,
-                                    )
-                                        .then((val) async {
-                                      if (val == null) return;
+                                    await _chatService.getOrCreateChatroom([
+                                      widget.task.postedBy.toMember(),
+                                      loggedUser!.toMember(),
+                                    ]).then((val) async {
                                       await Navigator.push(
                                           context,
                                           PageTransition(
@@ -359,15 +353,26 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    "Employer price",
+                                    "Original Price",
                                   ),
-                                  Text(
-                                    "\u20b1${(widget.task.rate ?? 0).toStringAsFixed(2)}",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: _colors.bot,
-                                    ),
-                                  )
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/icons/peso.png",
+                                        width: 20,
+                                        height: 20,
+                                        color: Colors.black54,
+                                      ),
+                                      Text(
+                                        (widget.task.rate ?? 0)
+                                            .toStringAsFixed(2),
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: _colors.bot,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
                               if (negotiatedPrice != widget.task.rate) ...{
@@ -378,12 +383,22 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                     const Text(
                                       "Negotiated price",
                                     ),
-                                    Text(
-                                      "\u20b1${negotiatedPrice.toStringAsFixed(2)}",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: _colors.bot,
-                                      ),
+                                    cup.Row(
+                                      children: [
+                                        Image.asset(
+                                          "assets/icons/peso.png",
+                                          width: 20,
+                                          height: 20,
+                                          color: Colors.black54,
+                                        ),
+                                        Text(
+                                          negotiatedPrice.toStringAsFixed(2),
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            color: _colors.bot,
+                                          ),
+                                        ),
+                                      ],
                                     )
                                   ],
                                 )
@@ -410,8 +425,8 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                     child: Center(
                       child: Text(
                         widget.task.hasApplied
-                            ? "Cancel Application"
-                            : "Apply Now",
+                            ? "Cancel ${loggedUser!.accountType == 1 ? "Application" : loggedUser!.accountType == 2 ? "Hiring" : widget.task.postedBy.accountType == 1 ? "Hiring" : "Application"}"
+                            : "${loggedUser!.accountType == 1 ? "Apply" : loggedUser!.accountType == 2 ? "Hire" : widget.task.postedBy.accountType == 1 ? "Hire" : "Apply"} Now",
                         style: const TextStyle(
                           color: Colors.white,
                         ),

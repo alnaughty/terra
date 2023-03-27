@@ -1,4 +1,5 @@
 import 'package:terra/models/category.dart';
+import 'package:terra/models/chat/chat_room_member.dart';
 import 'package:terra/utils/network.dart';
 
 class UserDetails {
@@ -67,4 +68,7 @@ class UserDetails {
       };
   @override
   String toString() => "${toJson()}";
+
+  ChatRoomMember toMember() =>
+      ChatRoomMember(id: firebaseId, displayName: fullName, avatar: avatar);
 }

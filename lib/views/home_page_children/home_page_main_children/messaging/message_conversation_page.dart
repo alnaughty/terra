@@ -1,5 +1,7 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:terra/models/chat/chat_conversation.dart';
+import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
@@ -22,7 +24,7 @@ class MessageConversationPage extends StatefulWidget {
 }
 
 class _MessageConversationPageState extends State<MessageConversationPage> {
-  final ChatRoomService _chatService = ChatRoomService.instance;
+  final ChatService _chatService = ChatService.instance;
   final AppColors _colors = AppColors.instance;
   late final TextEditingController _text;
   late final ScrollController _scroll;
@@ -100,43 +102,51 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
         body: Column(
           children: [
             Expanded(
-              child: StreamBuilder<DatabaseEvent>(
-                stream: _chatService.getChatMessages(widget.chatroomId),
+              child: StreamBuilder<List<ChatConversation>>(
+                stream: _chatService.getChatroomMessages(widget.chatroomId),
                 builder: (_, snapshot) {
-                  if (!snapshot.hasData ||
-                      snapshot.data?.snapshot.value == null) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: CircularProgressIndicator(),
                     );
                   }
-
-                  final DatabaseEvent event = snapshot.data!;
-                  final Map<String, dynamic> messages =
-                      Map<String, dynamic>.from(event.snapshot.value as Map);
-                  final List messageList = messages.entries.toList()
-                    ..sort((a, b) =>
-                        b.value['timestamp'].compareTo(a.value['timestamp']));
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "No conversation found",
+                        style: TextStyle(
+                          color: Colors.black.withOpacity(.5),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }
+                  final List<ChatConversation> event = snapshot.data!;
+                  event.sort((a, b) => b.timeStamp.compareTo(a.timeStamp));
+                  // final Map<String, dynamic> messages =
+                  //     Map<String, dynamic>.from(event.snapshot.value as Map);
+                  // final List messageList = messages.entries.toList()
+                  //   ..sort((a, b) =>
+                  //       b.value['timestamp'].compareTo(a.value['timestamp']));
                   return ListView.separated(
                       controller: _scroll,
                       reverse: true,
                       itemBuilder: (_, i) {
-                        final MapEntry message = messageList[i];
+                        final ChatConversation message = event[i];
                         return MessageWidget(
-                          messageText: message.value['message'],
-                          senderName: message.value['sender_id'] ==
-                                  loggedUser!.firebaseId
+                          messageText: message.message,
+                          senderName: message.senderId == loggedUser!.firebaseId
                               ? loggedUser!.fullName
                               : widget.targetName,
-                          time: DateTime.fromMillisecondsSinceEpoch(
-                              message.value['timestamp']),
-                          isMe: message.value['sender_id'] ==
-                              loggedUser!.firebaseId,
+                          time: message.timeStamp,
+                          isMe: message.senderId == loggedUser!.firebaseId,
                         );
                       },
                       separatorBuilder: (_, i) => const SizedBox(
                             height: 10,
                           ),
-                      itemCount: messageList.length);
+                      itemCount: event.length);
                 },
               ),
             ),
@@ -160,8 +170,11 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                     IconButton(
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        await _chatService.sendChatMessage(widget.chatroomId,
-                            loggedUser!.firebaseId, _text.text);
+                        await _chatService.sendMessage(
+                          widget.chatroomId,
+                          _text.text,
+                          loggedUser!.firebaseId,
+                        );
                         _text.clear();
                       },
                       icon: Icon(

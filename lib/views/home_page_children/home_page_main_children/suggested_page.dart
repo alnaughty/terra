@@ -41,7 +41,13 @@ class SuggestedPostPage extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                        onPressed: () async {},
+                        onPressed: () async {
+                          await Navigator.pushNamed(
+                            context,
+                            "/job_listing",
+                            arguments: [null, null],
+                          );
+                        },
                         style: ButtonStyle(
                           foregroundColor: MaterialStateProperty.resolveWith(
                             (states) => _colors.bot,

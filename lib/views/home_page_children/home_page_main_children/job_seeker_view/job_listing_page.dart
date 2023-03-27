@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:terra/services/API/v2/task_api.dart';
+import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
@@ -25,7 +26,7 @@ class _JobListingPageState extends State<JobListingPage> {
   List<Task> _displayData = [];
   final TaskAPIV2 _api = TaskAPIV2.instance;
   bool isFetching = true;
-  final ChatRoomService _chatService = ChatRoomService.instance;
+  final ChatService _chatService = ChatService.instance;
   late int? catId = widget.catId;
 
   fetch() async {
@@ -73,7 +74,7 @@ class _JobListingPageState extends State<JobListingPage> {
             appBar: AppBar(
               backgroundColor: Colors.white,
               title: Text(
-                  "Jobs (${loggedUser!.accountType == 1 ? "Jobseeker" : loggedUser!.accountType == 0 ? "Employer" : "Hybrid"})"),
+                  "Jobs (${loggedUser!.accountType == 1 ? "Jobseeker" : loggedUser!.accountType == 2 ? "Employer" : "Hybrid"})"),
               elevation: 1,
               titleTextStyle: TextStyle(
                 fontSize: 20,

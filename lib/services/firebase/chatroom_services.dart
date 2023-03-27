@@ -6,11 +6,11 @@ import 'package:terra/models/chat/chat_room.dart';
 import 'package:terra/models/chat/chat_room_member.dart';
 import 'package:terra/view_model/chat_rooms_vm.dart';
 
-class ChatRoomService {
-  ChatRoomService._pr();
+class ChatRoomServicse {
+  ChatRoomServicse._pr();
   static final ChatRoomsVm _vm = ChatRoomsVm.instance;
-  static final ChatRoomService _instance = ChatRoomService._pr();
-  static ChatRoomService get instance => _instance;
+  static final ChatRoomServicse _instance = ChatRoomServicse._pr();
+  static ChatRoomServicse get instance => _instance;
   static final DatabaseReference databaseReference =
       FirebaseDatabase.instance.ref();
   Future<String?> gegtOrCreateChatRoom(

@@ -12,4 +12,17 @@ class ChatRoom {
     required this.createdAt,
     this.lastMessage,
   });
+  ChatRoom copyWith({
+    String? id,
+    List<ChatRoomMember>? members,
+    DateTime? createdAt,
+    ChatConversation? lastMessage,
+  }) {
+    return ChatRoom(
+      id: id ?? this.id,
+      members: members ?? this.members,
+      createdAt: createdAt ?? this.createdAt,
+      lastMessage: lastMessage ?? this.lastMessage,
+    );
+  }
 }

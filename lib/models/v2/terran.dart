@@ -1,4 +1,5 @@
 /* THIS IS A REGISTERED USER */
+import 'package:terra/models/chat/chat_room_member.dart';
 import 'package:terra/utils/network.dart';
 
 class Terran {
@@ -56,5 +57,11 @@ class Terran {
         birthdate: json['birthdate'] == null
             ? null
             : DateTime.parse(json['birthdate']),
+      );
+
+  ChatRoomMember toMember() => ChatRoomMember(
+        id: firebaseId,
+        displayName: fullname,
+        avatar: avatar,
       );
 }

@@ -3,15 +3,18 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:terra/models/chat/chat_room.dart';
 import 'package:terra/services/API/category_api.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
+import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/services/firebase_messaging.dart';
 import 'package:terra/services/landing_processes.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
+import 'package:terra/view_model/chat_rooms_vm.dart';
 import 'package:terra/views/home_page_children/activity_history.dart';
 import 'package:terra/views/home_page_children/chats/chat_rooms.dart';
 import 'package:terra/views/home_page_children/home_page_main.dart';
@@ -30,7 +33,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, UserApi, CategoryApi {
   static final LandingProcesses _process = LandingProcesses.instance;
-  static final ChatRoomService chatRoomService = ChatRoomService.instance;
+  static final ChatService chatRoomService = ChatService.instance;
   static final UserPosition _pos = UserPosition.instance;
   final List<String> icons = ["home", "chats", "jobs", "profile"];
   late final TabController _tabController;
@@ -85,8 +88,12 @@ class _HomePageState extends State<HomePage>
     await _process.loadProcesses();
   }
 
+  static final ChatRoomsVm _vm = ChatRoomsVm.instance;
   Future<void> listenMessages() async {
-    chatRoomService.getChatRoomsForUser(loggedUser!.firebaseId);
+    chatRoomService.getUserChatrooms().listen((List<ChatRoom> rooms) {
+      print(rooms.length);
+      _vm.populate(rooms);
+    });
   }
 
   @override
@@ -117,17 +124,18 @@ class _HomePageState extends State<HomePage>
       children: [
         Positioned.fill(
           child: Scaffold(
-            appBar: _tabController.index == 0
-                ? AppBar(
-                    backgroundColor: Colors.grey.shade200,
-                    title: Image.asset(
-                      "assets/images/Terra-name.png",
-                      height: 40,
-                    ),
-                    centerTitle: true,
-                    elevation: 0,
-                  )
-                : null,
+            resizeToAvoidBottomInset: true,
+            // appBar: _tabController.index == 0
+            //     ? AppBar(
+            //         backgroundColor: Colors.grey.shade200,
+            //         title: Image.asset(
+            //           "assets/images/Terra-name.png",
+            //           height: 40,
+            //         ),
+            //         centerTitle: true,
+            //         elevation: 0,
+            //       )
+            //     : null,
             backgroundColor: Colors.grey.shade200,
             body: Stack(
               children: [

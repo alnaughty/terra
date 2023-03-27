@@ -12,6 +12,7 @@ import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
 import 'package:terra/views/home_page_children/category_listview_horizontal.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/employer_view/employer_view_main.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/employer_view/job_posting.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/job_seeker_view/job_seeker_main.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/search_field.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/suggested_page.dart';
@@ -300,7 +301,31 @@ class _HomePageMainState extends State<HomePageMain> {
                             ),
                             Positioned.fill(
                               child: MaterialButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  await showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    barrierColor: Colors.black45,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (_) => SafeArea(
+                                      top: false,
+                                      child: DraggableScrollableSheet(
+                                        maxChildSize: 1,
+                                        minChildSize: .5,
+                                        initialChildSize: 1,
+                                        snap: true,
+                                        snapAnimationDuration:
+                                            const Duration(milliseconds: 500),
+                                        builder: (_, scroll) => JobPostingPage(
+                                          scrollController: scroll,
+                                          loadingCallback: (bool f) {
+                                            widget.onLoading(f);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
