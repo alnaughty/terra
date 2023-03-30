@@ -52,12 +52,17 @@ dependencies:
   firebase_messaging: ^14.2.0
   google_maps_flutter: ^2.2.2
   geocoding: ^2.0.5
-  url_launcher: ^6.1.7
+  url_launcher: ^6.1.10
   firebase_database: ^10.0.16
   timeago: ^3.3.0
   flutter_svg: ^2.0.4
   cached_network_image: ^3.2.3
   cloud_firestore: ^4.4.5
+  image_cropper: ^3.0.2
+  image_picker: ^0.8.7+1
+  file_picker: ^5.2.6
+  firebase_storage: ^11.0.16
+  liquid_pull_to_refresh: ^3.0.1
 
 dev_dependencies:
   flutter_test:

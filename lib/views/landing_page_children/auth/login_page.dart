@@ -1,9 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/helpers/authentication.dart';
 import 'package:terra/utils/color.dart';
+import 'package:terra/views/landing_page_children/auth/forgot_password.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -169,7 +171,15 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                                   ),
                                 ),
                                 TextButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    await Navigator.push(
+                                      context,
+                                      PageTransition(
+                                        child: const ForgotPasswordPage(),
+                                        type: PageTransitionType.rightToLeft,
+                                      ),
+                                    );
+                                  },
                                   child: const Text(
                                     "Forgot your password?",
                                   ),

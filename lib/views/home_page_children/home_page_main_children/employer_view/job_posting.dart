@@ -9,6 +9,7 @@ import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/category.dart';
 import 'package:terra/services/API/job.dart';
 import 'package:terra/utils/color.dart';
+import 'package:terra/utils/global.dart';
 import 'package:terra/view_model/categories_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/map_update.dart';
 
@@ -135,49 +136,49 @@ class _JobPostingPageState extends State<JobPostingPage> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                text: "Title",
-                                style: TextStyle(
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                children: [
-                                  TextSpan(
-                                      text: " *",
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                      )),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            SizedBox(
-                              // height: 55,
-                              child: TextFormField(
-                                validator: (text) {
-                                  if (text == null) {
-                                    return "Error initializing widget";
-                                  } else if (text.isEmpty) {
-                                    return "Field is required";
-                                  }
-                                },
-                                controller: _title,
-                                decoration: const InputDecoration(
-                                  hintText: "Tell us about your offer",
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        // Column(
+                        //   crossAxisAlignment: CrossAxisAlignment.start,
+                        //   children: [
+                        //     const Text.rich(
+                        //       TextSpan(
+                        //         text: "Title",
+                        //         style: TextStyle(
+                        //           fontSize: 13.5,
+                        //           fontWeight: FontWeight.w600,
+                        //         ),
+                        //         children: [
+                        //           TextSpan(
+                        //               text: " *",
+                        //               style: TextStyle(
+                        //                 color: Colors.red,
+                        //               )),
+                        //         ],
+                        //       ),
+                        //     ),
+                        //     const SizedBox(
+                        //       height: 5,
+                        //     ),
+                        //     SizedBox(
+                        //       // height: 55,
+                        //       child: TextFormField(
+                        //         validator: (text) {
+                        //           if (text == null) {
+                        //             return "Error initializing widget";
+                        //           } else if (text.isEmpty) {
+                        //             return "Field is required";
+                        //           }
+                        //         },
+                        //         controller: _title,
+                        //         decoration: const InputDecoration(
+                        //           hintText: "Tell us about your offer",
+                        //         ),
+                        //       ),
+                        //     )
+                        //   ],
+                        // ),
+                        // const SizedBox(
+                        //   height: 10,
+                        // ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -297,7 +298,7 @@ class _JobPostingPageState extends State<JobPostingPage> {
                           children: [
                             const Text.rich(
                               TextSpan(
-                                text: "Landmark",
+                                text: "Description",
                                 style: TextStyle(
                                   fontSize: 13.5,
                                   fontWeight: FontWeight.w600,
@@ -326,7 +327,7 @@ class _JobPostingPageState extends State<JobPostingPage> {
                                   }
                                 },
                                 decoration: const InputDecoration(
-                                  hintText: "Put landmark or describe location",
+                                  hintText: "Describe or specify the job",
                                 ),
                               ),
                             )
@@ -512,7 +513,10 @@ class _JobPostingPageState extends State<JobPostingPage> {
                             if (snapshot.hasError || !snapshot.hasData) {
                               return const Text("Unable to fetch skills");
                             }
-                            final List<Category> _result = snapshot.data!;
+                            final List<Category> _result =
+                                loggedUser!.accountType == 1
+                                    ? loggedUser!.skills
+                                    : snapshot.data!;
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -535,36 +539,53 @@ class _JobPostingPageState extends State<JobPostingPage> {
                                 const SizedBox(
                                   height: 5,
                                 ),
-                                Wrap(
-                                  spacing: 10,
-                                  children:
-                                      List.generate(_result.length, (index) {
-                                    final Category _cat = _result[index];
-                                    return InputChip(
-                                      selected: selectedSkillId == _cat.id,
-                                      showCheckmark: false,
-                                      selectedColor: _colors.bot,
-                                      onSelected: (t) {
-                                        print(t);
-                                        if (t) {
-                                          selectedSkillId = _cat.id;
-                                        } else {
-                                          selectedSkillId = null;
-                                        }
-                                        if (mounted) setState(() {});
-                                      },
-                                      avatar: Image.network(_cat.icon),
-                                      label: Text(
-                                        _cat.name,
-                                        style: TextStyle(
-                                          color: selectedSkillId == _cat.id
-                                              ? Colors.white
-                                              : Colors.black,
+                                _result.isEmpty
+                                    ? SizedBox(
+                                        height: 60,
+                                        width: double.maxFinite,
+                                        child: Center(
+                                          child: Text(
+                                            "You need to add some skills to post",
+                                            style: TextStyle(
+                                              color: Colors.grey.shade300,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }),
-                                )
+                                      )
+                                    : Wrap(
+                                        spacing: 10,
+                                        children: List.generate(_result.length,
+                                            (index) {
+                                          final Category _cat = _result[index];
+                                          return InputChip(
+                                            selected:
+                                                selectedSkillId == _cat.id,
+                                            showCheckmark: false,
+                                            selectedColor: _colors.bot,
+                                            onSelected: (t) {
+                                              print(t);
+                                              if (t) {
+                                                selectedSkillId = _cat.id;
+                                                _title.text = _cat.name;
+                                              } else {
+                                                selectedSkillId = null;
+                                                _title.clear();
+                                              }
+                                              if (mounted) setState(() {});
+                                            },
+                                            avatar: Image.network(_cat.icon),
+                                            label: Text(
+                                              _cat.name,
+                                              style: TextStyle(
+                                                color:
+                                                    selectedSkillId == _cat.id
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      )
                               ],
                             );
                           },

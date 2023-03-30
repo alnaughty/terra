@@ -1,4 +1,5 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:terra/models/chat/chat_conversation.dart';
 import 'package:terra/models/chat/chat_room.dart';
 
 class ChatRoomsVm {
@@ -12,11 +13,18 @@ class ChatRoomsVm {
   void populate(List<ChatRoom> data) {
     _subject.add(data);
   }
+
   // void append(ChatRoom chatroom) {
   //   final List<ChatRoom> _res = List.from(current ?? []);
   //   _res.add(chatroom);
   //   _subject.add(_res);
   // }
+  void updateLastMessage(String chatroomId, ChatConversation convo) {
+    final List<ChatRoom> _f = List.from(current ?? []);
+    if (_f.isEmpty) return;
+    _f.where((element) => element.id == chatroomId).first.lastMessage = convo;
+    _subject.add(_f);
+  }
 
   void dispose() {
     _subject = BehaviorSubject<List<ChatRoom>>();

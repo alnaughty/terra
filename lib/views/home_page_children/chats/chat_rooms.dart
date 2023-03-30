@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/chat/chat_room.dart';
+import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_model/chat_rooms_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_conversation_page.dart';
@@ -18,26 +19,30 @@ class ChatRoomsPage extends StatefulWidget {
 }
 
 class _ChatRoomsPageState extends State<ChatRoomsPage> {
+  static final AppColors _colors = AppColors.instance;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(0),
+      child: Column(
+        // padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         children: [
-          const SizedBox(
-            height: 20,
-          ),
-          Text(
-            "Messages",
-            style: TextStyle(
-              color: Colors.grey.shade900,
-              fontWeight: FontWeight.w600,
-              fontSize: 17,
+          Container(
+            width: double.maxFinite,
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 25),
+            decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [_colors.top, _colors.bot])),
+            child: SafeArea(
+              child: Text(
+                "Messages",
+                style: TextStyle(
+                  color: Colors.grey.shade200,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 15,
           ),
           StreamBuilder<List<ChatRoom>>(
               stream: ChatRoomsPage._vm.stream,
@@ -92,6 +97,7 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                     .compareTo(a.lastMessage?.timeStamp ?? a.createdAt));
                 return ListView.separated(
                   shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (_, i) {
                     final ChatRoom room = _rooms[i];
@@ -191,22 +197,6 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
               })
         ],
       ),
-      // child: Column(
-      //   crossAxisAlignment: CrossAxisAlignment.start,
-      //   children: [
-      // const SizedBox(
-      //   height: 20,
-      // ),
-      // Text(
-      //   "Messages",
-      //   style: TextStyle(
-      //     color: Colors.grey.shade900,
-      //     fontWeight: FontWeight.w600,
-      //     fontSize: 17,
-      //   ),
-      // ),
-      //   ],
-      // ),
     );
   }
 }

@@ -1,10 +1,15 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:terra/models/chat/chat_conversation.dart';
 import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/view_model/chat_rooms_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_widget.dart';
 
 class MessageConversationPage extends StatefulWidget {
@@ -29,18 +34,16 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
   late final TextEditingController _text;
   late final ScrollController _scroll;
   late final DatabaseReference _chatRoomRef;
+  static final ChatRoomsVm _vm = ChatRoomsVm.instance;
   bool isInit = true;
   @override
   void initState() {
     // TODO: implement initState
     _scroll = ScrollController();
     _text = TextEditingController();
-    _chatRoomRef = FirebaseDatabase.instance
-        .ref()
-        .child('chat_rooms')
-        .child(widget.chatroomId);
-    _chatRoomRef.child('messages').onChildAdded.listen((event) {
+    _chatService.getChatroomMessages(widget.chatroomId).listen((event) {
       try {
+        _vm.updateLastMessage(widget.chatroomId, event.last);
         _scroll.animateTo(
           _scroll.position.minScrollExtent,
           duration: const Duration(milliseconds: 300),
@@ -49,8 +52,23 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
       } catch (e) {
         print("SCROLL ERROR");
       }
-      if (mounted) setState(() {});
     });
+    // _chatRoomRef = FirebaseDatabase.instance
+    //     .ref()
+    //     .child('chat_rooms')
+    //     .child(widget.chatroomId);
+    // _chatRoomRef.child('messages').onChildAdded.listen((event) {
+    // try {
+    //   _scroll.animateTo(
+    //     _scroll.position.minScrollExtent,
+    //     duration: const Duration(milliseconds: 300),
+    //     curve: Curves.easeOut,
+    //   );
+    // } catch (e) {
+    //   print("SCROLL ERROR");
+    // }
+    //   if (mounted) setState(() {});
+    // });
     super.initState();
   }
 
@@ -135,6 +153,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                       itemBuilder: (_, i) {
                         final ChatConversation message = event[i];
                         return MessageWidget(
+                          file: message.file,
                           messageText: message.message,
                           senderName: message.senderId == loggedUser!.firebaseId
                               ? loggedUser!.fullName
@@ -169,13 +188,58 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                     const SizedBox(width: 8.0),
                     IconButton(
                       onPressed: () async {
+                        await FilePicker.platform.pickFiles(
+                          allowMultiple: false,
+                          type: FileType.custom,
+                          allowedExtensions: [
+                            'doc',
+                            'docx',
+                            'docm',
+                            'xls',
+                            'xlsx',
+                            'slk',
+                            'dif',
+                            'txt',
+                            'pdf'
+                          ],
+                        ).then((FilePickerResult? file) async {
+                          if (file == null) return;
+                          final storageRef = FirebaseStorage.instance
+                              .ref()
+                              .child('chatroom_files')
+                              .child(widget.chatroomId)
+                              .child(
+                                  '${DateTime.now().millisecondsSinceEpoch}');
+                          final UploadTask task = storageRef.putFile(
+                            File(file.files.first.path!),
+                          );
+                          await task.whenComplete(() => null);
+                          final downloadUrl = await storageRef.getDownloadURL();
+                          await _chatService.sendMessage(
+                            widget.chatroomId,
+                            _text.text,
+                            loggedUser!.firebaseId,
+                            file: downloadUrl,
+                          );
+                          _text.clear();
+                        });
+                      },
+                      icon: Icon(
+                        Icons.attach_file,
+                        color: _colors.top,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () async {
                         FocusScope.of(context).unfocus();
-                        await _chatService.sendMessage(
-                          widget.chatroomId,
-                          _text.text,
-                          loggedUser!.firebaseId,
-                        );
-                        _text.clear();
+                        if (_text.text.isNotEmpty) {
+                          await _chatService.sendMessage(
+                            widget.chatroomId,
+                            _text.text,
+                            loggedUser!.firebaseId,
+                          );
+                          _text.clear();
+                        }
                       },
                       icon: Icon(
                         Icons.send,

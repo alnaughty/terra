@@ -3,8 +3,10 @@ import 'dart:io';
 
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
+import 'package:terra/models/v2/raw_task.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:http/http.dart' as http;
+import 'package:terra/models/v2/todo.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/utils/network.dart';
 
@@ -12,6 +14,50 @@ class TaskAPIV2 {
   TaskAPIV2._pr();
   static final TaskAPIV2 _instance = TaskAPIV2._pr();
   static TaskAPIV2 get instance => _instance;
+
+  Future<List<RawTaskV2>?> getPostedTasks() async {
+    try {
+      return await http
+          .get("${Network.domain}/api/posted-tasks".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        if (response.statusCode == 200) {
+          var data = json.decode(response.body);
+          final List _result = data['tasks']['data'];
+          return _result.map((e) => RawTaskV2.fromJson(e)).toList();
+        }
+        Fluttertoast.showToast(
+          msg: "Error ${response.statusCode}: ${response.reasonPhrase}",
+        );
+        return null;
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<List<TodoTask>?> getTodos() async {
+    try {
+      return await http
+          .get("${Network.domain}/api/employee-todos".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        if (response.statusCode == 200) {
+          var data = json.decode(response.body);
+          final List _result = data['todos'];
+          return _result.map((e) => TodoTask.fromJson(e)).toList();
+        }
+        Fluttertoast.showToast(
+          msg: "Error ${response.statusCode}: ${response.reasonPhrase}",
+        );
+        return null;
+      });
+    } catch (e) {
+      return null;
+    }
+  }
 
   Future<List<Task>?> getTasks({int? categoryId}) async {
     try {
@@ -24,6 +70,7 @@ class TaskAPIV2 {
         if (response.statusCode == 200) {
           var data = json.decode(response.body);
           final List _result = data['data'];
+          print("TASK RESULT : $_result");
           return _result.map((e) => Task.fromJson(e)).toList();
         }
         Fluttertoast.showToast(

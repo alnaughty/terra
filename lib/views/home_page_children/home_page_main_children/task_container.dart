@@ -91,7 +91,7 @@ class TaskContainer extends StatelessWidget {
                           },
                         ],
                       ),
-                      if (task.message != null || task.message!.isNotEmpty) ...{
+                      if (task.message != null) ...{
                         Text(
                           task.message!,
                           style: const TextStyle(

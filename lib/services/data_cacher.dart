@@ -1,4 +1,12 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:terra/utils/global.dart';
+import 'package:terra/view_data_component/user_position.dart';
+import 'package:terra/view_model/applications.dart';
+import 'package:terra/view_model/categories_vm.dart';
+import 'package:terra/view_model/chat_rooms_vm.dart';
+import 'package:terra/view_model/posted_jobs.dart';
+import 'package:terra/view_model/tasks_vm.dart';
+import 'package:terra/view_model/todo_vm.dart';
 
 class DataCacher {
   DataCacher._pr();
@@ -6,6 +14,26 @@ class DataCacher {
   static DataCacher get instance => _instance;
 
   late final SharedPreferences _prefs;
+  static final UserPosition _pos = UserPosition.instance;
+  static final ApplicationsVm _appliVm = ApplicationsVm.instance;
+  static final CategoriesVm _catVm = CategoriesVm.instance;
+  static final ChatRoomsVm _chatrooms = ChatRoomsVm.instance;
+  static final TasksVm _taskVm = TasksVm.instance;
+  static final PostedJobsVm _postedVm = PostedJobsVm.instance;
+  static final TaskTodoVm _todoVm = TaskTodoVm.instance;
+  Future<void> clearAll() async {
+    await removeFcmToken();
+    await removeToken();
+    _pos.dispose();
+    _appliVm.dispose();
+    _catVm.dispose();
+    _chatrooms.dispose();
+    _taskVm.dispose();
+    _postedVm.dispose();
+    _todoVm.dispose();
+    loggedUser = null;
+    accessToken = null;
+  }
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();

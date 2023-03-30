@@ -1,12 +1,9 @@
-import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
@@ -271,6 +268,108 @@ class _HomePageMainState extends State<HomePageMain> {
                           ],
                         ),
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        height: 130,
+                        width: double.maxFinite,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          gradient: LinearGradient(
+                            end: Alignment.bottomCenter,
+                            begin: Alignment.topCenter,
+                            colors: [_colors.top, _colors.bot],
+                          ),
+                        ),
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: MaterialButton(
+                                onPressed: () async {
+                                  await showModalBottomSheet(
+                                    isScrollControlled: true,
+                                    context: context,
+                                    barrierColor: Colors.black45,
+                                    backgroundColor: Colors.transparent,
+                                    builder: (_) => SafeArea(
+                                      top: false,
+                                      child: DraggableScrollableSheet(
+                                        maxChildSize: 1,
+                                        minChildSize: .5,
+                                        initialChildSize: 1,
+                                        snap: true,
+                                        snapAnimationDuration:
+                                            const Duration(milliseconds: 500),
+                                        builder: (_, scroll) => JobPostingPage(
+                                          scrollController: scroll,
+                                          loadingCallback: (bool f) {
+                                            widget.onLoading(f);
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: const EdgeInsets.all(20),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerLeft,
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "Post a skill".toUpperCase(),
+                                              style: const TextStyle(
+                                                fontSize: 22,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            Text(
+                                              "Let your skills shine and be discovered",
+                                              style: TextStyle(
+                                                color: Colors.white
+                                                    .withOpacity(.7),
+                                                fontSize: 13,
+                                                height: 1,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Image.asset(
+                                      "assets/images/Logo.png",
+                                      width: size.width * .25,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // ignore: equal_elements_in_set
                       const SizedBox(
                         height: 10,
                       ),

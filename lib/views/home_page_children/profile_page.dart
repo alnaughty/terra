@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -5,10 +8,16 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/services/API/auth.dart';
+import 'package:terra/services/API/user_api.dart';
+import 'package:terra/services/data_cacher.dart';
+import 'package:terra/services/image_processor.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
+import 'package:terra/view_model/posted_jobs.dart';
+import 'package:terra/view_model/todo_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/skill_update.dart';
+import 'package:terra/views/home_page_children/profile_page_children/password_reset_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -22,13 +31,238 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   final AppColors _colors = AppColors.instance;
+  final DataCacher _cacher = DataCacher.instance;
+  final ImageProcessor _image = ImageProcessor.instance;
   final AuthApi _api = AuthApi();
   final double headerHeight = 350;
   static final UserPosition _pos = UserPosition.instance;
+  static final UserApi _userApi = UserApi();
+  static final PostedJobsVm _posted = PostedJobsVm.instance;
+  static final TaskTodoVm _tasksTodo = TaskTodoVm.instance;
+
+  @override
+  void initState() {
+    print("PRFILE");
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      // await Future.delayed(timeStamp);
+      if (loggedUser!.accountType != 1) {
+        _posted.stream.listen((event) {
+          if (event.isNotEmpty) {
+            accountContent.add({
+              "title": "Posted Jobs",
+              "avatar": "posts.svg",
+              "initial_data":
+                  "${event.length} Job${event.length > 1 ? "s" : ""}",
+              "onTap": () async {
+                await Navigator.pushNamed(context, '/posted-jobs');
+              },
+            });
+          }
+        });
+      } else {
+        _tasksTodo.stream.listen((event) {
+          if (event.isNotEmpty) {
+            accountContent.add({
+              "title": "Todo",
+              "avatar": "todo.svg",
+              "initial_data":
+                  "${event.length} Task${event.length > 1 ? "s" : ""}",
+              "onTap": () async {
+                await Navigator.pushNamed(context, '/todo-tasks');
+              },
+            });
+          }
+        });
+      }
+      if (mounted) setState(() {});
+    });
+    super.initState();
+  }
+
+  late List<Map> accountContent = [
+    {
+      "title": "Details",
+      "avatar": "profile_picture.png",
+      "initial_data": loggedUser!.fullName.capitalizeWords(),
+      "onTap": () async {
+        await showModalBottomSheet(
+          context: context,
+          useSafeArea: true,
+          builder: (_) => Container(),
+        );
+      },
+    },
+    {
+      "title": "Profile Picture",
+      "avatar": "profile_picture.png",
+      "initial_data": null,
+      "onTap": () async {
+        await showModalBottomSheet(
+          context: context,
+          barrierColor: Colors.black.withOpacity(.5),
+          isDismissible: true,
+          useSafeArea: true,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(20),
+          // ),
+          constraints: const BoxConstraints(
+            maxHeight: 180,
+          ),
+          builder: (_) => SafeArea(
+            top: false,
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 20,
+              ),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20), color: Colors.white),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ListTile(
+                    onTap: () async {
+                      await _image.pickImageGallery().then((File? value) async {
+                        if (value == null) return;
+                        print(value.path);
+                        await _image.cropImage(value).then((ba) async {
+                          if (ba == null) return;
+                          Navigator.of(context).pop(null);
+                          widget.loadingCallback(true);
+                          await _userApi
+                              .updateAvatar(base64Image: ba)
+                              .whenComplete(() async {
+                            await _userApi.details().then((u) {
+                              loggedUser = u;
+                              if (mounted) setState(() {});
+                            });
+                            widget.loadingCallback(false);
+                          });
+                        });
+                      });
+                    },
+                    leading: const Icon(
+                      CupertinoIcons.photo,
+                    ),
+                    title: const Text("Gallery"),
+                  ),
+                  ListTile(
+                    onTap: () async {
+                      await _image.pickImageCamera().then((value) async {
+                        if (value == null) return;
+                        await _image.cropImage(value).then((ba) async {
+                          if (ba == null) return;
+                          Navigator.of(context).pop(null);
+                          widget.loadingCallback(true);
+                          await _userApi
+                              .updateAvatar(base64Image: ba)
+                              .whenComplete(() async {
+                            await _userApi.details().then((u) {
+                              loggedUser = u;
+                              if (mounted) setState(() {});
+                            });
+                            widget.loadingCallback(false);
+                          });
+                        });
+                      });
+                    },
+                    leading: const Icon(
+                      CupertinoIcons.camera,
+                    ),
+                    title: const Text("Camera"),
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    },
+    {
+      "title": "Password",
+      "avatar": "lock.svg",
+      "initial_data": "*****",
+      "onTap": () async {
+        await showGeneralDialog(
+          context: context,
+          barrierDismissible: true,
+          barrierLabel: '',
+          transitionDuration: const Duration(milliseconds: 500),
+          transitionBuilder: (BuildContext context, Animation<double> animation,
+              Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, 1.0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            );
+          },
+          pageBuilder: (_, a1, a2) => Align(
+            alignment: Alignment.topCenter,
+            child: PasswordResetPage(
+              onLoading: widget.loadingCallback,
+            ),
+          ),
+        );
+        // await showModalBottomSheet(
+        //   context: context,
+        //   barrierColor: Colors.black.withOpacity(.5),
+        //   isDismissible: true,
+        //   useSafeArea: true,
+        //   elevation: 0,
+        //   backgroundColor: Colors.transparent,
+        //   constraints: const BoxConstraints(
+        //     maxHeight: 250,
+        //   ),
+        //   builder: (_) => PasswordResetPage(
+        //     onLoading: widget.loadingCallback,
+        //   ),
+        // );
+      },
+    },
+    if (loggedUser!.accountType != 2) ...{
+      {
+        "title": "Skills",
+        "avatar": "skills.png",
+        "initial_data": "${loggedUser!.skills.length} Skills",
+        "onTap": () async {
+          await showModalBottomSheet(
+            context: context,
+            builder: (_) => SafeArea(
+              top: false,
+              child: SkillUpdateView(
+                currentSkills: loggedUser!.skills,
+                loadingCallback: (bool value) {
+                  widget.loadingCallback(value);
+                  if (mounted && !value) setState(() {});
+                },
+              ),
+            ),
+          );
+        },
+      },
+    },
+    {
+      "title": "Type",
+      "avatar": "types.png",
+      "initial_data": loggedUser!.accountType == 2
+          ? "Employer"
+          : loggedUser!.accountType == 1
+              ? "Job Seeker"
+              : "Hybrid",
+      "onTap": () {
+        print("DATA");
+      },
+    },
+  ];
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
+      // resizeToAvoidBottomInset: true,
       body: Column(
         children: [
           Container(
@@ -89,8 +323,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () async {
                       widget.loadingCallback(true);
                       await _api.logout(context).whenComplete(
-                            () => widget.loadingCallback(false),
-                          );
+                        () async {
+                          await _cacher.clearAll();
+                          widget.loadingCallback(false);
+                        },
+                      );
                     },
                     style: ButtonStyle(
                         foregroundColor: MaterialStateProperty.resolveWith(
@@ -134,52 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ),
                 ),
-                ...[
-                  {
-                    "title": "User Data",
-                    "avatar": "profile_picture.png",
-                    "initial_data": loggedUser!.fullName.capitalizeWords(),
-                    "onTap": () {
-                      print("DATA");
-                    },
-                  },
-                  {
-                    "title": "Profile Picture",
-                    "avatar": "profile_picture.png",
-                    "initial_data": null,
-                    "onTap": () {
-                      print("DATA");
-                    },
-                  },
-                  {
-                    "title": "Password",
-                    "avatar": "lock.svg",
-                    "initial_data": "*****",
-                    "onTap": () {
-                      print("DATA");
-                    },
-                  },
-                  {
-                    "title": "Skills",
-                    "avatar": "skills.png",
-                    "initial_data": "${loggedUser!.skills.length} Skills",
-                    "onTap": () {
-                      print("DATA");
-                    },
-                  },
-                  {
-                    "title": "Type",
-                    "avatar": "types.png",
-                    "initial_data": loggedUser!.accountType == 2
-                        ? "Employer"
-                        : loggedUser!.accountType == 1
-                            ? "Job Seeker"
-                            : "Hybrid",
-                    "onTap": () {
-                      print("DATA");
-                    },
-                  },
-                ].map(
+                ...accountContent.map(
                   (e) => ListTile(
                     onTap: e['onTap'] as Function(),
                     leading: e['avatar'].toString().contains(".svg")
@@ -276,17 +468,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 "title": "Country",
                                 "avatar": "country.png",
                                 "initial_data": placemark.country ?? "UNSET",
-                                // "onTap": () {
-                                //   print("DATA");
-                                // },
                               },
                               {
                                 "title": "City",
                                 "avatar": "city.png",
                                 "initial_data": placemark.locality ?? "UNSET",
-                                // "onTap": () {
-                                //   print("DATA");
-                                // },
                               },
                             ].map(
                               (e) => ListTile(
@@ -344,13 +530,6 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ],
                         );
-                        // return Text(
-                        //   "${placemark.street ?? ""} ${placemark.locality ?? ""} ${placemark.country}",
-                        //   style: TextStyle(
-                        //     fontSize: 14.5,
-                        //     color: Colors.grey.shade600,
-                        //   ),
-                        // );
                       },
                     );
                   },
@@ -360,328 +539,6 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      // body: SingleChildScrollView(
-      //   child: Column(
-      //     children: [
-      //       SizedBox(
-      //         width: size.width,
-      //         height: headerHeight,
-      //         child: Stack(
-      //           children: [
-      //             Container(
-      //               width: size.width,
-      //               height: headerHeight * .5,
-      //               decoration: BoxDecoration(
-      //                   gradient: LinearGradient(
-      //                 colors: [
-      //                   _colors.top,
-      //                   _colors.bot,
-      //                 ],
-      //               )),
-      //             ),
-      //             Positioned(
-      //               top: (headerHeight * .5) - 50,
-      //               child: SizedBox(
-      //                 width: size.width,
-      //                 height: headerHeight * .65,
-      //                 child: Column(
-      //                   crossAxisAlignment: CrossAxisAlignment.center,
-      //                   children: [
-      // ClipRRect(
-      //   borderRadius: BorderRadius.circular(100),
-      //   child: Container(
-      //     color: Colors.white,
-      //     child: Image.network(
-      //       loggedUser!.avatar,
-      //       width: 100,
-      //       height: 100,
-      //     ),
-      //   ),
-      //   // child: Container(
-      //   //   width: 100,
-      //   //   height: 100,
-      //   //   // decoration: BoxDecoration(
-      //   //   //   borderRadius: BorderRadius.circular(100),
-      //   //   //   color: Colors.orange,
-      //   //   // ),
-      //   // ),
-      // ),
-      //                     const SizedBox(
-      //                       height: 5,
-      //                     ),
-      //                     Row(
-      //                       mainAxisAlignment: MainAxisAlignment.center,
-      //                       children: List.generate(
-      //                         5,
-      //                         (index) => Icon(
-      //                           index < 4 ? Icons.star : Icons.star_border,
-      //                           color: index < 4 ? Colors.orange : Colors.grey,
-      //                           size: 15,
-      //                         ),
-      //                       ),
-      //                     ),
-      //                     const SizedBox(
-      //                       height: 5,
-      //                     ),
-      //                     Text(
-      //                       loggedUser!.fullName,
-      //                       style: const TextStyle(
-      //                         fontWeight: FontWeight.w600,
-      //                         fontSize: 16,
-      //                       ),
-      //                     ),
-      //                     Text(
-      //                       loggedUser!.email,
-      //                       style: TextStyle(
-      //                         fontWeight: FontWeight.w300,
-      //                         fontSize: 12,
-      //                         color: Colors.black.withOpacity(.6),
-      //                       ),
-      //                     ),
-      //                     const SizedBox(
-      //                       height: 10,
-      //                     ),
-      //                     // Center(
-      //                     //   child: SizedBox(
-      //                     //     width: size.width * .4,
-      //                     //     height: 25,
-      //                     //     child: Row(
-      //                     //       mainAxisAlignment:
-      //                     //           MainAxisAlignment.spaceBetween,
-      //                     //       children: List.generate(
-      //                     //         5,
-      //                     //         (index) => Container(
-      //                     //           width: 25,
-      //                     //           height: 25,
-      //                     //           decoration: BoxDecoration(
-      //                     //             borderRadius: BorderRadius.circular(5),
-      //                     //             gradient: LinearGradient(
-      //                     //               begin: Alignment.topCenter,
-      //                     //               end: Alignment.bottomCenter,
-      //                     //               colors: [
-      //                     //                 _colors.top,
-      //                     //                 _colors.bot,
-      //                     //               ],
-      //                     //             ),
-      //                     //           ),
-      //                     //         ),
-      //                     //       ),
-      //                     //     ),
-      //                     //   ),
-      //                     // ),
-      //                     // const SizedBox(
-      //                     //   height: 10,
-      //                     // ),
-      //                     Align(
-      //                       alignment: Alignment.center,
-      //                       child: Row(
-      //                         mainAxisAlignment: MainAxisAlignment.center,
-      //                         children: const [
-      //                           Icon(
-      //                             Icons.verified_user,
-      //                             color: Colors.green,
-      //                             size: 20,
-      //                           ),
-      //                           SizedBox(
-      //                             width: 10,
-      //                           ),
-      //                           Text(
-      //                             "Verified",
-      //                             style: TextStyle(
-      //                               color: Colors.green,
-      //                               fontSize: 13,
-      //                             ),
-      //                           )
-      //                         ],
-      //                       ),
-      //                     )
-      //                   ],
-      //                 ),
-      //               ),
-      //             )
-      //           ],
-      //         ),
-      //       ),
-      //       const SizedBox(
-      //         height: 30,
-      //       ),
-      //       Container(
-      //         width: size.width,
-      //         padding: const EdgeInsets.symmetric(
-      //           horizontal: 20,
-      //           vertical: 0,
-      //         ),
-      //         child: Column(
-      //           crossAxisAlignment: CrossAxisAlignment.start,
-      //           children: [
-      //             ListTile(
-      //               contentPadding: const EdgeInsets.all(0),
-      //               title: const Text("Country"),
-      //               subtitle: Text(
-      //                 loggedUser!.country ?? "Unknown",
-      //               ),
-      //             ),
-      //             ListTile(
-      //               contentPadding: const EdgeInsets.all(0),
-      //               title: const Text("Location"),
-      //               subtitle: Text(
-      //                 loggedUser!.city ?? "Unknown",
-      //               ),
-      //             ),
-      //             ListTile(
-      //               contentPadding: const EdgeInsets.all(0),
-      //               title: Row(
-      //                 children: [
-      //                   const Expanded(
-      //                     child: Text("Skills"),
-      //                   ),
-      //                   IconButton(
-      //                     onPressed: () async {
-      //                       await showGeneralDialog(
-      //                         context: context,
-      //                         pageBuilder: (_, a1, a2) => Container(),
-      //                         barrierColor: Colors.black.withOpacity(0.5),
-      //                         transitionBuilder: (context, a1, a2, c) {
-      //                           return Transform.scale(
-      //                             scale: a1.value,
-      //                             child: Opacity(
-      //                               opacity: a1.value,
-      //                               child: AlertDialog(
-      //                                 shape: OutlineInputBorder(
-      //                                   borderRadius:
-      //                                       BorderRadius.circular(16.0),
-      //                                 ),
-      //                                 title: Text(
-      //                                     "${loggedUser!.skills.isEmpty ? 'Add' : "Update"} your skills"),
-      //                                 content: SkillUpdateView(
-      //                                   loadingCallback:
-      //                                       (bool isLoading) async {
-      //                                     print("ROMAR : $isLoading");
-      //                                     widget.loadingCallback(isLoading);
-      //                                     if (!isLoading) {
-      //                                       if (mounted) setState(() {});
-      //                                     } else {}
-      //                                   },
-      //                                   currentSkills: loggedUser!.skills,
-      //                                 ),
-      //                               ),
-      //                             ),
-      //                           );
-      //                         },
-      //                         transitionDuration:
-      //                             const Duration(milliseconds: 200),
-      //                         barrierDismissible: true,
-      //                         barrierLabel: '',
-      //                       );
-      //                     },
-      //                     icon: const Icon(Icons.add),
-      //                   )
-      //                 ],
-      //               ),
-      //               subtitle: loggedUser!.skills.isNotEmpty
-      //                   ? SizedBox(
-      //                       height: 50,
-      //                       child: ListView.separated(
-      //                         scrollDirection: Axis.horizontal,
-      //                         itemBuilder: (_, i) => InputChip(
-      //                           avatar:
-      //                               Image.network(loggedUser!.skills[i].icon),
-      //                           label: Text(loggedUser!.skills[i].name),
-      //                           onPressed: () {},
-      //                         ),
-      //                         separatorBuilder: (_, i) => const SizedBox(
-      //                           width: 10,
-      //                         ),
-      //                         itemCount: loggedUser!.skills.length,
-      //                       ),
-      //                     )
-      //                   : Container(),
-      //             ),
-      //             const SizedBox(
-      //               height: 30,
-      //             ),
-      //             Center(
-      //               child: TextButton.icon(
-      //                 style: ButtonStyle(
-      //                     overlayColor: MaterialStateProperty.resolveWith(
-      //                         (states) => Colors.red.withOpacity(.2))),
-      //                 onPressed: () async {
-      // widget.loadingCallback(true);
-      // await _api.logout(context).whenComplete(
-      //       () => widget.loadingCallback(false),
-      //     );
-      //                 },
-      //                 icon: const Icon(
-      //                   Icons.exit_to_app,
-      //                   color: Colors.red,
-      //                 ),
-      //                 label: const Text(
-      //                   "LOGOUT",
-      //                   style: TextStyle(
-      //                     color: Colors.red,
-      //                   ),
-      //                 ),
-      //               ),
-      //             )
-      //             // ListTile(
-      //             //   contentPadding: const EdgeInsets.all(0),
-      //             //   title: const Text(
-      //             //     "Work Album",
-      //             //   ),
-      //             //   subtitle: Container(
-      //             //     height: 100,
-      //             //     width: size.width - 40,
-      //             //     child: Row(
-      //             //       children: [
-      //             //         Container(
-      //             //           width: 85,
-      //             //           height: 100,
-      //             //           decoration: BoxDecoration(
-      //             //             color: Colors.grey.shade400,
-      //             //             borderRadius: BorderRadius.circular(10),
-      //             //           ),
-      //             //           child: MaterialButton(
-      //             //             onPressed: () {},
-      //             //             height: 100,
-      //             //             child: Center(
-      //             //               child: Icon(
-      //             //                 Icons.add,
-      //             //                 color: _colors.mid,
-      //             //                 size: 30,
-      //             //               ),
-      //             //             ),
-      //             //           ),
-      //             //         ),
-      //             //         const SizedBox(
-      //             //           width: 10,
-      //             //         ),
-      //             //         Expanded(
-      //             //           child: ListView.separated(
-      //             //             scrollDirection: Axis.horizontal,
-      //             //             itemBuilder: (_, i) => Container(
-      //             //               width: 85,
-      //             //               height: 100,
-      //             //               decoration: BoxDecoration(
-      //             //                 color: Colors.grey.shade400,
-      //             //                 borderRadius: BorderRadius.circular(10),
-      //             //               ),
-      //             //             ),
-      //             //             separatorBuilder: (_, i) => const SizedBox(
-      //             //               width: 10,
-      //             //             ),
-      //             //             itemCount: 5,
-      //             //           ),
-      //             //         )
-      //             //       ],
-      //             //     ),
-      //             //   ),
-      //             // )
-      //           ],
-      //         ),
-      //       )
-      //     ],
-      //   ),
-      // ),
     );
   }
 }

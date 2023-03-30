@@ -43,6 +43,7 @@ class UserApi {
   // }
   Future<bool> updateAvatar({required String base64Image}) async {
     try {
+      print("data:image/png;base64,$base64Image");
       return await http
           .post("${Network.domain}/api/update-profile".toUri, headers: {
         "Accept": "application/json",
@@ -50,7 +51,18 @@ class UserApi {
       }, body: {
         "avatar": "data:image/png;base64,$base64Image"
       }).then((response) {
-        return response.statusCode == 200;
+        var data = json.decode(response.body);
+        print("UPDATE DATA AVATAR DATA : $data");
+        if (response.statusCode == 200) {
+          // loggedUser = UserDetails.fromJson(data);
+          Fluttertoast.showToast(msg: "Profile Picture Updated");
+          return true;
+        }
+        print("${response.statusCode} - ${response.reasonPhrase}");
+        Fluttertoast.showToast(
+          msg: "An unexpected error occurred while processing.",
+        );
+        return false;
       });
     } catch (e, s) {
       print("ERROR : $e $s");

@@ -26,7 +26,7 @@ class UserPosition {
     }
   }
 
-  dispose() {
+  void dispose() {
     _subject = BehaviorSubject<LatLng>();
   }
 }

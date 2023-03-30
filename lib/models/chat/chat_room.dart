@@ -5,8 +5,8 @@ class ChatRoom {
   final String id;
   final List<ChatRoomMember> members;
   final DateTime createdAt;
-  final ChatConversation? lastMessage;
-  const ChatRoom({
+  ChatConversation? lastMessage;
+  ChatRoom({
     required this.id,
     required this.members,
     required this.createdAt,

@@ -9,7 +9,7 @@ class UserDetails {
   final String email;
   final int accountType;
   final String phoneNumber;
-  final String avatar;
+  String avatar;
   final String? street;
   final String? city;
   final String? country;

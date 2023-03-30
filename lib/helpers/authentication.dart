@@ -98,8 +98,6 @@ class AuthenticationHelper {
                 }
               },
             );
-          } else {
-            Fluttertoast.showToast(msg: "Unable to connect to provider.");
           }
         },
       );

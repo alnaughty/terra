@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:terra/models/chat/chat_conversation.dart';
@@ -81,42 +80,21 @@ class ChatService {
             for (final snapshot in snapshots) {
               if (snapshot.docs.isNotEmpty) {
                 final lastDoc = snapshot.docs.last;
-                print(lastDoc.data());
                 final lastMessage = ChatConversation.fromJson(lastDoc.data());
                 lastMessages.add(lastMessage);
               } else {
                 lastMessages.add(null);
               }
             }
+            print("LAST MESSAGE : $lastMessages");
             for (ChatRoom room in chatrooms) {
               room = room.copyWith(
                   lastMessage: lastMessages[chatrooms.indexOf(room)]);
             }
-            // for (var i = 0; i < chatrooms.length; i++) {
-            //   chatrooms[i] = chatrooms[i].copyWith(lastMessage: lastMessages[i]);
-            // }
-
             return chatrooms;
           },
         ).asBroadcastStream();
       });
-      // final userId = loggedUser!.firebaseId;
-      // final DocumentReference<Map<String, dynamic>> userRef =
-      //     _firestore.collection('users').doc(userId);
-      // return userRef.snapshots().transform(StreamTransformer<
-      //     DocumentSnapshot<Map<String, dynamic>>,
-      //     List<ChatRoom>>.fromHandlers(handleData: (docSnapshot, sink) async {
-      //   final data = docSnapshot.data();
-      //   final chatroomIds = List<String>.from(data?['chatrooms'] ?? []);
-      //   final chatrooms = <ChatRoom>[];
-      //   for (final String chatroomId in chatroomIds) {
-      //     final chatroom = await _getChatroom(chatroomId).first;
-      //     if (chatroom != null) {
-      //       chatrooms.add(chatroom);
-      //     }
-      //   }
-      //   sink.add(chatrooms);
-      // }));
     } catch (e, s) {
       print("ERROR : LISTENING $e");
       print("STACK : $s");
@@ -153,7 +131,7 @@ class ChatService {
             )
             .toList();
         final lastMessageData = data['lastMessage'];
-        print("LASTMESSAGE $lastMessageData");
+        print("LAST MESSAGE $lastMessageData");
         final ChatConversation? lastMessage = lastMessageData != null
             ? ChatConversation.fromJson(lastMessageData)
             : null;
@@ -187,6 +165,7 @@ class ChatService {
                 timeStamp: DateTime.fromMillisecondsSinceEpoch(
                     e.get("timestamp") as int),
                 senderId: e.get('senderId'),
+                file: e.data()['file'],
               );
             }).toList(),
           );
@@ -197,30 +176,34 @@ class ChatService {
     }
   }
 
-  Future<void> sendMessage(
-    String chatroomId,
-    String message,
-    String senderId,
-  ) async {
-    final chatroomRef = _firestore.collection('chatrooms').doc(chatroomId);
-    final messagesRef = chatroomRef.collection('messages');
-    final int timestamp = DateTime.now().millisecondsSinceEpoch;
-    final ChatConversation conversation = ChatConversation(
-      id: '',
-      message: message,
-      senderId: senderId,
-      timeStamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
-    );
-    final messageData = conversation.toJson();
-    final messageRef = await messagesRef.add(messageData);
-    final messageId = messageRef.id;
-    conversation.id = messageId;
-    await chatroomRef.update({
-      'lastMessage': {
-        'message': message,
-        'timestamp': timestamp,
-        'senderId': senderId,
-      },
-    });
+  Future<void> sendMessage(String chatroomId, String message, String senderId,
+      {String? file}) async {
+    try {
+      final chatroomRef = _firestore.collection('chatrooms').doc(chatroomId);
+      final messagesRef = chatroomRef.collection('messages');
+      final int timestamp = DateTime.now().millisecondsSinceEpoch;
+      final ChatConversation conversation = ChatConversation(
+        id: '',
+        message: message,
+        senderId: senderId,
+        timeStamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
+        file: file,
+      );
+      final messageData = conversation.toJson();
+      final messageRef = await messagesRef.add(messageData);
+      final messageId = messageRef.id;
+      conversation.id = messageId;
+      await chatroomRef.update({
+        'lastMessage': {
+          'message': message,
+          'timestamp': timestamp,
+          'senderId': senderId,
+          'file': file,
+        },
+      });
+    } catch (e) {
+      print("ERROR SENDING MESSAGE");
+      return;
+    }
   }
 }

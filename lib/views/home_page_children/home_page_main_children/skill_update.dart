@@ -1,8 +1,8 @@
-import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/models/category.dart';
 import 'package:terra/services/API/user_api.dart';
+import 'package:terra/services/landing_processes.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_model/categories_vm.dart';
@@ -19,6 +19,7 @@ class SkillUpdateView extends StatefulWidget {
 
 class _SkillUpdateViewState extends State<SkillUpdateView> {
   final UserApi _api = UserApi();
+  static final LandingProcesses _process = LandingProcesses.instance;
   final CategoriesVm _vm = CategoriesVm.instance;
   late final List<int> _selected =
       widget.currentSkills.map((e) => e.id).toList();
@@ -47,8 +48,24 @@ class _SkillUpdateViewState extends State<SkillUpdateView> {
           ),
           child: Column(
             children: [
+              const SizedBox(
+                height: 20,
+              ),
+              Center(
+                child: Container(
+                  width: 80,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
               Expanded(
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 15,
+                  ),
                   child: Column(
                     children: [
                       Wrap(
@@ -107,9 +124,12 @@ class _SkillUpdateViewState extends State<SkillUpdateView> {
                     }
                     widget.loadingCallback(true);
                     Navigator.of(context).pop(null);
-                    await _api.updateSkills(_selected.join(',')).then((value) {
+                    await _api
+                        .updateSkills(_selected.join(','))
+                        .then((value) async {
                       if (value) {
                         distinct();
+                        await _process.loadProcesses();
                       }
                     }).whenComplete(() => widget.loadingCallback(false));
                   },

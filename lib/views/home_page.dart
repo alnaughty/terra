@@ -4,23 +4,22 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:terra/models/chat/chat_room.dart';
+import 'package:terra/services/API/application.dart';
 import 'package:terra/services/API/category_api.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/services/firebase/chat_service.dart';
-import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/services/firebase_messaging.dart';
 import 'package:terra/services/landing_processes.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
+import 'package:terra/view_model/applications.dart';
 import 'package:terra/view_model/chat_rooms_vm.dart';
-import 'package:terra/views/home_page_children/activity_history.dart';
+import 'package:terra/views/home_page_children/application_recruitements.dart';
 import 'package:terra/views/home_page_children/chats/chat_rooms.dart';
 import 'package:terra/views/home_page_children/home_page_main.dart';
-import 'package:terra/views/home_page_children/notification_page.dart';
 import 'package:terra/views/home_page_children/profile_page.dart';
-import 'package:terra/views/home_page_children/wallet_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,9 +31,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin, UserApi, CategoryApi {
+  static final ApplicationApi _appApi = ApplicationApi.instance;
   static final LandingProcesses _process = LandingProcesses.instance;
   static final ChatService chatRoomService = ChatService.instance;
   static final UserPosition _pos = UserPosition.instance;
+  static final ApplicationsVm _applicationVM = ApplicationsVm.instance;
   final List<String> icons = ["home", "chats", "jobs", "profile"];
   late final TabController _tabController;
   late final List<Widget> _body = [
@@ -42,7 +43,7 @@ class _HomePageState extends State<HomePage>
       onLoading: (s) => setState(() => _isLoading = s),
     ),
     const ChatRoomsPage(),
-    const ActivityHistory(),
+    const JobsRecordPage(),
     ProfilePage(
       loadingCallback: (s) => setState(() => _isLoading = s),
     ),
@@ -75,8 +76,12 @@ class _HomePageState extends State<HomePage>
         loggedUser = value;
         if (mounted) setState(() {});
         print("USER : $value");
-        await fetchAll();
+
         _fcm.init();
+        await fetchAll();
+        await _appApi
+            .fetchUserApplication()
+            .then((value) => _applicationVM.populate(value));
         await listenMessages();
         if (mounted) setState(() {});
       } else {
@@ -91,7 +96,9 @@ class _HomePageState extends State<HomePage>
   static final ChatRoomsVm _vm = ChatRoomsVm.instance;
   Future<void> listenMessages() async {
     chatRoomService.getUserChatrooms().listen((List<ChatRoom> rooms) {
-      print(rooms.length);
+      print("ROOMS LENGTH : ${rooms.length}");
+      print(rooms.last.lastMessage);
+
       _vm.populate(rooms);
     });
   }

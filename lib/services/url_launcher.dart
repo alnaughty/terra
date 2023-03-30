@@ -10,6 +10,7 @@ class Launcher {
     if (await isLaunchable(url)) {
       await launchUrl(
         Uri.parse(url),
+        webOnlyWindowName: "Terra App",
       );
     } else {
       Fluttertoast.showToast(msg: "Impossible de lancer $url");

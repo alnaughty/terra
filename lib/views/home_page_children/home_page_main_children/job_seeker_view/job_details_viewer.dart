@@ -295,33 +295,36 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                               ),
                             ),
                           ),
-                          trailing: widget.task.hasApplied
-                              ? IconButton(
-                                  onPressed: () async {
-                                    await _chatService.getOrCreateChatroom([
-                                      widget.task.postedBy.toMember(),
-                                      loggedUser!.toMember(),
-                                    ]).then((val) async {
-                                      await Navigator.push(
-                                          context,
-                                          PageTransition(
-                                              child: MessageConversationPage(
-                                                chatroomId: val,
-                                                targetName: widget
-                                                    .task.postedBy.fullname,
-                                                targetAvatar:
-                                                    widget.task.postedBy.avatar,
-                                              ),
-                                              type: PageTransitionType
-                                                  .leftToRight));
-                                    });
-                                  },
-                                  icon: Icon(
-                                    cup.CupertinoIcons.bubble_left_fill,
-                                    color: _colors.top,
-                                  ),
-                                )
-                              : null,
+                          trailing: loggedUser!.accountType == 1
+                              ? null
+                              : widget.task.hasApplied
+                                  ? IconButton(
+                                      onPressed: () async {
+                                        await _chatService.getOrCreateChatroom([
+                                          widget.task.postedBy.toMember(),
+                                          loggedUser!.toMember(),
+                                        ]).then((val) async {
+                                          await Navigator.push(
+                                              context,
+                                              PageTransition(
+                                                  child:
+                                                      MessageConversationPage(
+                                                    chatroomId: val,
+                                                    targetName: widget
+                                                        .task.postedBy.fullname,
+                                                    targetAvatar: widget
+                                                        .task.postedBy.avatar,
+                                                  ),
+                                                  type: PageTransitionType
+                                                      .leftToRight));
+                                        });
+                                      },
+                                      icon: Icon(
+                                        cup.CupertinoIcons.bubble_left_fill,
+                                        color: _colors.top,
+                                      ),
+                                    )
+                                  : null,
                           title: Text(
                             "${widget.task.postedBy.firstname[0].toUpperCase()}${widget.task.postedBy.firstname.substring(1).toLowerCase()}${widget.task.postedBy.middlename != null ? " ${widget.task.postedBy.middlename![0].toUpperCase()}${widget.task.postedBy.middlename!.substring(1).toLowerCase()}" : ""} ${widget.task.postedBy.lastname[0].toUpperCase()}${widget.task.postedBy.lastname.substring(1).toLowerCase()}",
                           ),

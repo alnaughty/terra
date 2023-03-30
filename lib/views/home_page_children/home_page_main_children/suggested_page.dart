@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:terra/utils/color.dart';
+import 'package:terra/utils/global.dart';
 import 'package:terra/view_model/tasks_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/task_container.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -32,7 +33,7 @@ class SuggestedPostPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          "Suggested jobs for you",
+                          "Suggested ${loggedUser!.accountType == 1 ? "jobs" : ""} for you",
                           style: TextStyle(
                             color: Colors.grey.shade900,
                             fontWeight: FontWeight.w600,
