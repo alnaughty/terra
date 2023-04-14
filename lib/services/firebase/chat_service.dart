@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/chat/chat_conversation.dart';
 import 'package:terra/models/chat/chat_room.dart';
 import 'package:terra/models/chat/chat_room_member.dart';
 import 'package:terra/utils/global.dart';
+import 'package:http/http.dart' as http;
+import 'package:terra/utils/network.dart';
 
 class ChatService {
   ChatService._pr();
@@ -176,8 +180,24 @@ class ChatService {
     }
   }
 
+  Future<void> sendNotification(
+      {required String receiverId, required String message}) async {
+    try {
+      await http
+          .post("${Network.domain}/api/message-notification".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken",
+      }, body: {
+        "receiver_id": receiverId,
+        "message": message,
+      });
+    } catch (e, f) {
+      return;
+    }
+  }
+
   Future<void> sendMessage(String chatroomId, String message, String senderId,
-      {String? file}) async {
+      {String? file, required String receiverId}) async {
     try {
       final chatroomRef = _firestore.collection('chatrooms').doc(chatroomId);
       final messagesRef = chatroomRef.collection('messages');
@@ -201,6 +221,7 @@ class ChatService {
           'file': file,
         },
       });
+      await sendNotification(receiverId: receiverId, message: message);
     } catch (e) {
       print("ERROR SENDING MESSAGE");
       return;

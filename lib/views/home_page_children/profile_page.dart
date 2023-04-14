@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:terra/extension/string_extensions.dart';
+import 'package:terra/extension/user.dart';
 import 'package:terra/services/API/auth.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
@@ -18,6 +19,7 @@ import 'package:terra/view_model/posted_jobs.dart';
 import 'package:terra/view_model/todo_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/skill_update.dart';
 import 'package:terra/views/home_page_children/profile_page_children/password_reset_page.dart';
+import 'package:terra/views/home_page_children/profile_page_children/security_choice.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -85,11 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
       "avatar": "profile_picture.png",
       "initial_data": loggedUser!.fullName.capitalizeWords(),
       "onTap": () async {
-        await showModalBottomSheet(
-          context: context,
-          useSafeArea: true,
-          builder: (_) => Container(),
-        );
+        await Navigator.pushNamed(context, "/update_user_details_page");
       },
     },
     {
@@ -207,20 +205,39 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         );
-        // await showModalBottomSheet(
-        //   context: context,
-        //   barrierColor: Colors.black.withOpacity(.5),
-        //   isDismissible: true,
-        //   useSafeArea: true,
-        //   elevation: 0,
-        //   backgroundColor: Colors.transparent,
-        //   constraints: const BoxConstraints(
-        //     maxHeight: 250,
-        //   ),
-        //   builder: (_) => PasswordResetPage(
-        //     onLoading: widget.loadingCallback,
-        //   ),
-        // );
+      },
+    },
+    {
+      "title": "Security Level",
+      "avatar": "shield-check.svg",
+      "initial_data": loggedUser!.toSecurityName,
+      "onTap": () async {
+        await showModalBottomSheet(
+          context: context,
+          barrierColor: Colors.black.withOpacity(.5),
+          isDismissible: true,
+          useSafeArea: true,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          // shape: RoundedRectangleBorder(
+          //   borderRadius: BorderRadius.circular(20),
+          // ),
+          constraints: const BoxConstraints(
+            maxHeight: 220,
+          ),
+          builder: (_) => SafeArea(
+            top: false,
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 20,
+              ),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20), color: Colors.white),
+              child: const SecurityChoice(),
+            ),
+          ),
+        );
       },
     },
     if (loggedUser!.accountType != 2) ...{
@@ -255,6 +272,24 @@ class _ProfilePageState extends State<ProfilePage> {
               : "Hybrid",
       "onTap": () {
         print("DATA");
+      },
+    },
+    {
+      "title": "Completed Tasks",
+      "avatar": "complete_task.svg",
+      "initial_data": "",
+      "onTap": () async {
+        await Navigator.pushNamed(context, "/completed_tasks_page");
+      },
+    },
+    if (loggedUser!.accountType == 2) ...{
+      {
+        "title": "Active Tasks",
+        "avatar": "todo.svg",
+        "initial_data": "",
+        "onTap": () async {
+          await Navigator.pushNamed(context, "/employer_active_tasks");
+        },
       },
     },
   ];

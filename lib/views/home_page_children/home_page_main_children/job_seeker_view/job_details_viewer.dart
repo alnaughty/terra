@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart' as cup;
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:terra/extension/user.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:terra/services/API/job.dart';
 import 'package:terra/services/firebase/chat_service.dart';
@@ -88,19 +89,19 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
             appBar: AppBar(
               title: const Text("Job Detail"),
               centerTitle: true,
-              actions: [
-                IconButton(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        PageTransition(
-                            child: MapPage(
-                                targetLocation: widget.task.coordinates),
-                            type: PageTransitionType.leftToRight),
-                      );
-                    },
-                    icon: const Icon(cup.CupertinoIcons.location))
-              ],
+              // actions: [
+              //   IconButton(
+              //       onPressed: () async {
+              // await Navigator.push(
+              //   context,
+              //   PageTransition(
+              //       child: MapPage(
+              //           targetLocation: widget.task.coordinates),
+              //       type: PageTransitionType.leftToRight),
+              // );
+              //       },
+              //       icon: const Icon(cup.CupertinoIcons.location))
+              // ],
             ),
             body: Column(
               children: [
@@ -248,6 +249,44 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                           ),
                         },
                         const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.black),
+                          ),
+                          child: MaterialButton(
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            // color: Colors.grey.shade200,
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                PageTransition(
+                                    child: MapPage(
+                                        targetLocation:
+                                            widget.task.coordinates),
+                                    type: PageTransitionType.leftToRight),
+                              );
+                            },
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 15),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.location_on_rounded,
+                                ),
+                                SizedBox(width: 10),
+                                Text("Show Location")
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
                           height: 20,
                         ),
                         if (widget.task.message != null) ...{
@@ -314,6 +353,8 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                                         .task.postedBy.fullname,
                                                     targetAvatar: widget
                                                         .task.postedBy.avatar,
+                                                    targetId: widget.task
+                                                        .postedBy.firebaseId,
                                                   ),
                                                   type: PageTransitionType
                                                       .leftToRight));
@@ -328,13 +369,23 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                           title: Text(
                             "${widget.task.postedBy.firstname[0].toUpperCase()}${widget.task.postedBy.firstname.substring(1).toLowerCase()}${widget.task.postedBy.middlename != null ? " ${widget.task.postedBy.middlename![0].toUpperCase()}${widget.task.postedBy.middlename!.substring(1).toLowerCase()}" : ""} ${widget.task.postedBy.lastname[0].toUpperCase()}${widget.task.postedBy.lastname.substring(1).toLowerCase()}",
                           ),
-                          subtitle: Text(
-                            timeago.format(
-                              widget.task.datePosted,
-                            ),
-                            style: const TextStyle(
-                              fontSize: 12,
-                            ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.task.postedBy.toSecurityName,
+                                style: TextStyle(
+                                    color: Colors.black.withOpacity(.5)),
+                              ),
+                              Text(
+                                timeago.format(
+                                  widget.task.datePosted,
+                                ),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black.withOpacity(.5)),
+                              ),
+                            ],
                           ),
                         ),
                         const Align(

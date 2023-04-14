@@ -10,8 +10,13 @@ import 'package:terra/views/home_page_children/home_page_main_children/my_messag
 import 'package:terra/views/home_page_children/home_page_main_children/my_task.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/task_history.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/transaction_history_page.dart';
+import 'package:terra/views/home_page_children/profile_page_children/completed_tasks.dart';
+import 'package:terra/views/home_page_children/profile_page_children/employer_active_tasks.dart';
 import 'package:terra/views/home_page_children/profile_page_children/posted_jobs.dart';
 import 'package:terra/views/home_page_children/profile_page_children/todo_tasks.dart';
+import 'package:terra/views/home_page_children/profile_page_children/update_user_details_page.dart';
+import 'package:terra/views/home_page_children/profile_page_children/upload_id_page.dart';
+import 'package:terra/views/home_page_children/profile_page_children/verify_email_page.dart';
 import 'package:terra/views/landing_page.dart';
 import 'package:terra/views/landing_page_children/auth/login_page.dart';
 import 'package:terra/views/landing_page_children/auth/register_page.dart';
@@ -36,6 +41,41 @@ class RouteData {
           child: BrowseEmployeePage(
             initialCategoryId: id,
           ),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/upload_id_page":
+        return PageTransition(
+          child: const UploadIDPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/update_user_details_page":
+        return PageTransition(
+          child: const UpdateUserDetailsPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/completed_tasks_page":
+        return PageTransition(
+          child: const CompletedTasksPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/employer_active_tasks":
+        return PageTransition(
+          child: const EmployerActiveTasks(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+      case "/verify_email_page":
+        return PageTransition(
+          child: const VerifyEmailPage(),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,

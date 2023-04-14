@@ -18,10 +18,12 @@ class MessageConversationPage extends StatefulWidget {
     required this.chatroomId,
     required this.targetName,
     required this.targetAvatar,
+    required this.targetId,
   });
   final String chatroomId;
   final String targetName;
   final String targetAvatar;
+  final String targetId;
   // final Terran target;
   @override
   State<MessageConversationPage> createState() =>
@@ -53,22 +55,6 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
         print("SCROLL ERROR");
       }
     });
-    // _chatRoomRef = FirebaseDatabase.instance
-    //     .ref()
-    //     .child('chat_rooms')
-    //     .child(widget.chatroomId);
-    // _chatRoomRef.child('messages').onChildAdded.listen((event) {
-    // try {
-    //   _scroll.animateTo(
-    //     _scroll.position.minScrollExtent,
-    //     duration: const Duration(milliseconds: 300),
-    //     curve: Curves.easeOut,
-    //   );
-    // } catch (e) {
-    //   print("SCROLL ERROR");
-    // }
-    //   if (mounted) setState(() {});
-    // });
     super.initState();
   }
 
@@ -220,6 +206,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                             _text.text,
                             loggedUser!.firebaseId,
                             file: downloadUrl,
+                            receiverId: widget.targetId,
                           );
                           _text.clear();
                         });
@@ -237,6 +224,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                             widget.chatroomId,
                             _text.text,
                             loggedUser!.firebaseId,
+                            receiverId: widget.targetId,
                           );
                           _text.clear();
                         }

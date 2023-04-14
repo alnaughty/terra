@@ -3,9 +3,6 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/cli_commands.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:terra/models/v2/todo.dart';
 import 'package:terra/services/API/v2/task_api.dart';
@@ -13,36 +10,29 @@ import 'package:terra/utils/color.dart';
 import 'package:terra/views/home_page_children/profile_page_children/todo_task_details.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class TodoTasks extends StatefulWidget {
-  const TodoTasks({super.key});
+class CompletedTasksPage extends StatefulWidget {
+  const CompletedTasksPage({super.key});
 
   @override
-  State<TodoTasks> createState() => _TodoTasksState();
+  State<CompletedTasksPage> createState() => _CompletedTasksPageState();
 }
 
-class _TodoTasksState extends State<TodoTasks> {
-  final TaskAPIV2 _api = TaskAPIV2.instance;
+class _CompletedTasksPageState extends State<CompletedTasksPage> {
   List<TodoTask>? _displayData;
+  final TaskAPIV2 _api = TaskAPIV2.instance;
   final AppColors _colors = AppColors.instance;
-  Future<void> fetch() async {
-    _displayData = await _api.getTodos();
-    if (_displayData == null) {
-      // ignore: use_build_context_synchronously
-      Navigator.of(context).pop(null);
-    }
+  Future<void> initPlatformState() async {
+    _displayData = await _api.getCompletedTasks();
     _displayData!.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    _displayData = _displayData!
-        .where((element) => element.task.status != "completed")
-        .toList();
     if (mounted) setState(() {});
     return;
   }
 
   @override
   void initState() {
+    initPlatformState();
     // TODO: implement initState
     super.initState();
-    fetch();
   }
 
   @override
@@ -56,7 +46,8 @@ class _TodoTasksState extends State<TodoTasks> {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Tasks to do"),
+        title: const Text("Completed Tasks"),
+        centerTitle: true,
       ),
       body: _displayData == null
           ? SafeArea(
@@ -69,64 +60,55 @@ class _TodoTasksState extends State<TodoTasks> {
               ),
             )
           : _displayData!.isEmpty
-              ? const SafeArea(
+              ? SafeArea(
                   top: false,
-                  child: Center(
-                    child: Text(
-                      "No Jobs Posted",
-                      style: TextStyle(
-                        color: Colors.black38,
-                        fontSize: 17,
-                      ),
-                    ),
-                  ),
-                )
-              : LiquidPullToRefresh(
-                  onRefresh: () async {
-                    final Completer<void> completer = Completer<void>();
-                    await fetch().whenComplete(() {
-                      completer.complete();
-                    });
-                    return completer.future;
-                  },
-                  child: ListView.separated(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                    itemBuilder: (_, i) {
-                      final TodoTask task = _displayData![i];
-                      return LayoutBuilder(builder: (context, c) {
-                        return Slidable(
-                          key: Key(task.id.toString()),
-                          enabled: task.task.status == "pending",
-                          endActionPane: ActionPane(
-                            motion: const ScrollMotion(),
-                            children: [
-                              SlidableAction(
-                                onPressed: (_) async {
-                                  await _api.markAsPaid(task.id).then((value) {
-                                    if (value) {
-                                      Fluttertoast.showToast(
-                                          msg: "Task is paid!");
-                                      setState(() {
-                                        task.task.status = "paid";
-                                      });
-                                    }
-                                  });
-                                  // await _api
-                                  //     .approveApplication(_app.id)
-                                  //     .whenComplete(() {
-                                  //   _app.status = "approved";
-                                  //   if (mounted) setState(() {});
-                                  // });
-                                },
-                                backgroundColor: _colors.top,
-                                foregroundColor: Colors.white,
-                                icon: Icons.check,
-                                label: 'Mark as paid',
+                  child: LayoutBuilder(builder: (context, c) {
+                    return LiquidPullToRefresh(
+                      onRefresh: () async {
+                        final Completer<void> completer = Completer<void>();
+                        await initPlatformState().whenComplete(() {
+                          completer.complete();
+                        });
+                        return completer.future;
+                      },
+                      child: ListView(
+                        children: [
+                          SizedBox(
+                            height: c.maxHeight,
+                            child: const Center(
+                              child: Text(
+                                "No Completed Jobs Yet",
+                                style: TextStyle(
+                                  color: Colors.black38,
+                                  fontSize: 17,
+                                ),
                               ),
-                            ],
-                          ),
-                          child: MaterialButton(
+                            ),
+                          )
+                        ],
+                      ),
+                    );
+                  }),
+                )
+              : SafeArea(
+                  top: false,
+                  child: LiquidPullToRefresh(
+                    onRefresh: () async {
+                      final Completer<void> completer = Completer<void>();
+                      await initPlatformState().whenComplete(() {
+                        completer.complete();
+                      });
+                      return completer.future;
+                    },
+                    child: ListView.separated(
+                      separatorBuilder: (_, i) => const SizedBox(
+                        height: 5,
+                      ),
+                      itemCount: _displayData!.length,
+                      itemBuilder: (_, i) {
+                        final TodoTask task = _displayData![i];
+                        return LayoutBuilder(builder: (context, c) {
+                          return MaterialButton(
                             onPressed: () async {
                               await showGeneralDialog(
                                 context: context,
@@ -264,14 +246,10 @@ class _TodoTasksState extends State<TodoTasks> {
                                 )
                               ],
                             ),
-                          ),
-                        );
-                      });
-                    },
-                    separatorBuilder: (_, i) => const SizedBox(
-                      height: 5,
+                          );
+                        });
+                      },
                     ),
-                    itemCount: _displayData!.length,
                   ),
                 ),
     );

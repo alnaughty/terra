@@ -27,7 +27,7 @@ class ImageProcessor {
     });
   }
 
-  Future<String?> cropImage(File image) async {
+  Future<String?> cropImage(File image, {bool forId = false}) async {
     try {
       return await ImageCropper().cropImage(
         sourcePath: image.path,
@@ -35,13 +35,20 @@ class ImageProcessor {
         compressQuality: 100,
         aspectRatioPresets: [
           CropAspectRatioPreset.square,
+          if (forId) ...{
+            CropAspectRatioPreset.ratio16x9,
+            CropAspectRatioPreset.ratio7x5,
+            CropAspectRatioPreset.ratio5x3,
+          },
         ],
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Cropper',
             toolbarColor: Colors.deepOrange,
             toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.square,
+            initAspectRatio: forId
+                ? CropAspectRatioPreset.ratio7x5
+                : CropAspectRatioPreset.square,
             lockAspectRatio: false,
           )
         ],

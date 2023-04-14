@@ -8,7 +8,7 @@ class RawTaskV2 {
   final int? urgency;
   final double? rate;
   final String? message;
-  final String status;
+  String status;
   final LatLng coordinates;
   final bool isNegotiable;
   final int type;

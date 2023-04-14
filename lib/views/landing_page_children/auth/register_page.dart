@@ -14,8 +14,6 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
   final AppColors _colors = AppColors.instance;
-  final GlobalKey<FormState> _kForm = GlobalKey<FormState>();
-  final GlobalKey<FormState> _kEmailForm = GlobalKey<FormState>();
   late final ScrollController _scrollController;
   late final TextEditingController _email;
   late final TextEditingController _password;

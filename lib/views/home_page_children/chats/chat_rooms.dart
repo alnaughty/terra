@@ -118,6 +118,10 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                             .capitalizeWords()
                                         : room.members[0].displayName
                                             .capitalizeWords(),
+                                targetId:
+                                    room.members[0].id == loggedUser!.firebaseId
+                                        ? room.members[1].id.capitalizeWords()
+                                        : room.members[0].id,
                               ),
                               type: PageTransitionType.leftToRight,
                             ));

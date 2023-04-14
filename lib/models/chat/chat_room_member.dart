@@ -1,5 +1,6 @@
 class ChatRoomMember {
   final String id;
+
   final String displayName;
   final String avatar;
   const ChatRoomMember(

@@ -1,4 +1,5 @@
 /* THIS IS A REGISTERED USER */
+import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/chat/chat_room_member.dart';
 import 'package:terra/utils/network.dart';
 
@@ -19,8 +20,11 @@ class Terran {
   final DateTime? birthdate;
   final String status;
   final String fullname;
+  bool hasVerifiedEmail;
+  bool hasUploadedId;
+  bool hasVerifiedNumber;
 
-  const Terran({
+  Terran({
     required this.id,
     required this.firstname,
     required this.lastname,
@@ -37,6 +41,9 @@ class Terran {
     required this.status,
     this.gender,
     this.birthdate,
+    required this.hasUploadedId,
+    required this.hasVerifiedEmail,
+    required this.hasVerifiedNumber,
   });
   factory Terran.fromJson(Map<String, dynamic> json) => Terran(
         id: json['id'].toInt(),
@@ -54,6 +61,10 @@ class Terran {
         fullname: json['fullname'] ?? "None",
         status: json['status'],
         gender: json['gender'],
+        hasUploadedId: json['has_id_email'].toString().toInt() == 1,
+        hasVerifiedEmail: json['has_valid_email'].toString().toInt() == 1,
+        hasVerifiedNumber:
+            json['has_mobile_number_email'].toString().toInt() == 1,
         birthdate: json['birthdate'] == null
             ? null
             : DateTime.parse(json['birthdate']),

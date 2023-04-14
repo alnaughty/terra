@@ -41,6 +41,40 @@ class UserApi {
   // Future<bool> updatePassword({required String newPassword}) async {
 
   // }
+  Future<bool> updateDetails(Map<String, dynamic> body) async {
+    try {
+      return await http
+          .post(
+        "${Network.domain}/api/update-details".toUri,
+        headers: {
+          "Accept": "application/json",
+          HttpHeaders.authorizationHeader: "Bearer $accessToken"
+        },
+        body: body,
+      )
+          .then((response) {
+        var data = json.decode(response.body);
+        print("USER DATA $data");
+        if (response.statusCode == 200) {
+          // loggedUser = UserDetails.fromJson(data);
+          Fluttertoast.showToast(msg: "Account Updated");
+          return true;
+        }
+        print("${response.statusCode} - ${response.reasonPhrase}");
+        Fluttertoast.showToast(
+          msg: "An unexpected error occurred while processing.",
+        );
+        return false;
+      });
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return false;
+    }
+  }
+
   Future<bool> updateAvatar({required String base64Image}) async {
     try {
       print("data:image/png;base64,$base64Image");
@@ -144,6 +178,77 @@ class UserApi {
         msg: "An unexpected error occurred while processing.",
       );
       return null;
+    }
+  }
+
+  Future<void> uploadId(String base64) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/upload-document".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "document": "data:image/jpg;base64,$base64",
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Document uploaded");
+          return;
+        } else if (response.statusCode == 413) {
+          Fluttertoast.showToast(msg: "Unable to send image, file too large!");
+          return;
+        } else {
+          Fluttertoast.showToast(msg: "Unable to send image, please try again");
+          return;
+        }
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Unable to send image, please try again");
+      return;
+    }
+  }
+
+  Future<void> validateEmail() async {
+    try {
+      return await http
+          .post("${Network.domain}/api/send-to-email".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Email sent");
+          return;
+        }
+        Fluttertoast.showToast(
+          msg: "Unable to send verification, please try again later.",
+        );
+        return;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Unable to process your request.");
+      return;
+    }
+  }
+
+  Future<bool> verifyEmailCode(String code) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/verify-email".toUri, headers: {
+        "Accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken",
+      }, body: {
+        "code": code,
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Email verified");
+          return true;
+        }
+        Fluttertoast.showToast(
+            msg: "Unable to validate email with code provided.");
+        return false;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Unable to process your request.");
+      return false;
     }
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -15,6 +16,31 @@ class TaskAPIV2 {
   static final TaskAPIV2 _instance = TaskAPIV2._pr();
   static TaskAPIV2 get instance => _instance;
 
+  Future<List<TodoTask>?> getCompletedTasks() async {
+    try {
+      return await http.get(
+          "${Network.domain}/api/${loggedUser!.accountType == 1 ? "employee" : "employer"}-complete-todos"
+              .toUri,
+          headers: {
+            "accept": "application/json",
+            HttpHeaders.authorizationHeader: "Bearer $accessToken"
+          }).then((response) {
+        var data = json.decode(response.body);
+        if (response.statusCode == 200) {
+          final List _result = data['todos'];
+          if (loggedUser!.accountType == 1) {
+            return _result.map((e) => TodoTask.fromJsonEmployer(e)).toList();
+          } else {
+            return _result.map((e) => TodoTask.fromJson(e)).toList();
+          }
+        }
+        return null;
+      });
+    } catch (e, s) {
+      return null;
+    }
+  }
+
   Future<List<RawTaskV2>?> getPostedTasks() async {
     try {
       return await http
@@ -26,6 +52,60 @@ class TaskAPIV2 {
           var data = json.decode(response.body);
           final List _result = data['tasks']['data'];
           return _result.map((e) => RawTaskV2.fromJson(e)).toList();
+        }
+        Fluttertoast.showToast(
+          msg: "Error ${response.statusCode}: ${response.reasonPhrase}",
+        );
+        return null;
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> markAsPaid(int id) async {
+    try {
+      return await http
+          .put("${Network.domain}/api/mark-as-paid/$id".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        return response.statusCode == 200;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Unable to update task");
+      return false;
+    }
+  }
+
+  Future<bool> markAsComplete(int id) async {
+    try {
+      return await http
+          .put("${Network.domain}/api/mark-as-complete".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "id": "$id",
+      }).then((response) {
+        return response.statusCode == 200;
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<List<TodoTask>?> getEmployerActiveTasks() async {
+    try {
+      return await http
+          .get("${Network.domain}/api/employer-todos".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        if (response.statusCode == 200) {
+          var data = json.decode(response.body);
+          final List _result = data['todos'];
+          print("ACTIVE TASKS $_result");
+          return _result.map((e) => TodoTask.fromJsonEmployer(e)).toList();
         }
         Fluttertoast.showToast(
           msg: "Error ${response.statusCode}: ${response.reasonPhrase}",

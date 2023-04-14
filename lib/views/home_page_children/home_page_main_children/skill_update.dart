@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/models/category.dart';
 import 'package:terra/services/API/user_api.dart';
+import 'package:terra/services/API/v2/task_api.dart';
 import 'package:terra/services/landing_processes.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_model/categories_vm.dart';
+import 'package:terra/view_model/tasks_vm.dart';
 
 class SkillUpdateView extends StatefulWidget {
   const SkillUpdateView(
@@ -21,6 +23,8 @@ class _SkillUpdateViewState extends State<SkillUpdateView> {
   final UserApi _api = UserApi();
   static final LandingProcesses _process = LandingProcesses.instance;
   final CategoriesVm _vm = CategoriesVm.instance;
+  static final TasksVm _tasks = TasksVm.instance;
+  static final TaskAPIV2 _taskApi = TaskAPIV2.instance;
   late final List<int> _selected =
       widget.currentSkills.map((e) => e.id).toList();
   final AppColors _colors = AppColors.instance;
@@ -131,6 +135,10 @@ class _SkillUpdateViewState extends State<SkillUpdateView> {
                         distinct();
                         await _process.loadProcesses();
                       }
+                      await _taskApi.getTasks().then((value) {
+                        if (value == null) return;
+                        _tasks.populate(value);
+                      });
                     }).whenComplete(() => widget.loadingCallback(false));
                   },
                 ),

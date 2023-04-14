@@ -31,3 +31,7 @@ extension CapitalizeFirstLetter on String {
     return words.join(" ");
   }
 }
+
+extension TOINT on String {
+  int toInt() => int.parse(this);
+}

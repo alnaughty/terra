@@ -36,6 +36,7 @@ class AuthApi {
         "account_type": accountType.toString(),
         "mobile_number": phoneNumber,
         "firebase_id": uid,
+        "birthdate": birthdate,
         "barangay": brgy,
         "city": city,
         "country": country,
