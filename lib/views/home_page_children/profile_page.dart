@@ -65,7 +65,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _tasksTodo.stream.listen((event) {
           if (event.isNotEmpty) {
             accountContent.add({
-              "title": "Todo",
+              "title": "Activities",
               "avatar": "todo.svg",
               "initial_data":
                   "${event.length} Task${event.length > 1 ? "s" : ""}",
@@ -222,9 +222,9 @@ class _ProfilePageState extends State<ProfilePage> {
           // shape: RoundedRectangleBorder(
           //   borderRadius: BorderRadius.circular(20),
           // ),
-          constraints: const BoxConstraints(
-            maxHeight: 220,
-          ),
+          // constraints: const BoxConstraints(
+          //   maxHeight: 280,
+          // ),
           builder: (_) => SafeArea(
             top: false,
             child: Container(
@@ -281,6 +281,14 @@ class _ProfilePageState extends State<ProfilePage> {
       "onTap": () async {
         await Navigator.pushNamed(context, "/completed_tasks_page");
       },
+    },
+    {
+      "title": "Task History",
+      "avatar": "todo.svg",
+      "initial_data": "",
+      "onTap": () async {
+        await Navigator.pushNamed(context, "/task_history_page");
+      }
     },
     if (loggedUser!.accountType == 2) ...{
       {
@@ -378,6 +386,39 @@ class _ProfilePageState extends State<ProfilePage> {
                   )
                 ],
               ),
+            ),
+          ),
+          Container(
+            padding:
+                const EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
+            color: Colors.grey.shade100,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    loggedUser!.bio ?? "No Bio yet, provide one",
+                    style: TextStyle(
+                      fontSize: 14.5,
+                      color: Colors.black.withOpacity(.5),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    if (loggedUser!.bio == null) {
+                      // ADD BIO
+                    } else {
+                      // UPDATE BIO
+                    }
+                  },
+                  icon: Icon(
+                    loggedUser!.bio == null
+                        ? Icons.add_circle_outline_rounded
+                        : Icons.edit_note_rounded,
+                    color: _colors.top,
+                  ),
+                )
+              ],
             ),
           ),
           Expanded(

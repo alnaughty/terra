@@ -29,6 +29,23 @@ class SecurityChoice extends StatelessWidget {
                 : null,
           ),
           ListTile(
+            onTap: loggedUser!.hasSelfie
+                ? null
+                : () async {
+                    await Navigator.pushNamed(context, "/selfie_page");
+                  },
+            leading: const Icon(
+              Icons.sentiment_satisfied_alt_rounded,
+            ),
+            title: const Text("Upload Selfie"),
+            trailing: loggedUser!.hasSelfie
+                ? const Icon(
+                    Icons.check,
+                    color: Colors.green,
+                  )
+                : null,
+          ),
+          ListTile(
             onTap: loggedUser!.hasVerifiedEmail
                 ? null
                 : () async {

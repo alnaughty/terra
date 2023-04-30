@@ -7,6 +7,7 @@ import 'package:terra/models/v2/application.dart';
 import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/views/home_page_children/application_and_recruitment/user_details.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_conversation_page.dart';
 
 class ApplicationAndRecruitmentDetails extends StatefulWidget {
@@ -32,6 +33,20 @@ class _ApplicationAndRecruitmentDetailsState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
+              onTap: loggedUser!.accountType != 1
+                  ? () async {
+                      Navigator.of(context).pop(null);
+                      await Navigator.push(
+                        context,
+                        PageTransition(
+                          child: UserDetailsPage(
+                            user: widget.data.applicationFrom,
+                          ),
+                          type: PageTransitionType.leftToRight,
+                        ),
+                      );
+                    }
+                  : null,
               contentPadding: EdgeInsets.zero,
               leading: ClipRRect(
                 borderRadius: BorderRadius.circular(60),

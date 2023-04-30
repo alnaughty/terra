@@ -99,6 +99,33 @@ class ApplicationApi {
     }
   }
 
+  Future<bool> rejectApplication(int id) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/reject-application".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "application_id": "$id",
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Application Rejected!");
+          return true;
+        }
+        Fluttertoast.showToast(
+            msg: "An Error Occurred while processing the request");
+        return false;
+      });
+    } catch (e, s) {
+      print("STACKTRACE : $s");
+      print("ERROR : $e");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing the request.",
+      );
+      return false;
+    }
+  }
+
   Future<bool> approveApplication(int id) async {
     try {
       return await http
@@ -107,7 +134,15 @@ class ApplicationApi {
         HttpHeaders.authorizationHeader: "Bearer $accessToken"
       }, body: {
         "application_id": "$id",
-      }).then((response) => response.statusCode == 200);
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Application Approved!");
+          return true;
+        }
+        Fluttertoast.showToast(
+            msg: "An Error Occurred while processing the request");
+        return false;
+      });
     } catch (e, s) {
       print("STACKTRACE : $s");
       print("ERROR : $e");

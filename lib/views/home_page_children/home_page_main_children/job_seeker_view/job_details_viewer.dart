@@ -8,6 +8,7 @@ import 'package:terra/services/firebase/chat_service.dart';
 import 'package:terra/services/firebase/chatroom_services.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/views/home_page_children/application_and_recruitment/user_details.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_conversation_page.dart';
 import 'package:terra/views/home_page_children/map_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -319,6 +320,19 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                           ),
                         ),
                         ListTile(
+                          onTap: loggedUser!.accountType != 1
+                              ? () async {
+                                  await Navigator.push(
+                                    context,
+                                    PageTransition(
+                                      child: UserDetailsPage(
+                                        user: widget.task.postedBy,
+                                      ),
+                                      type: PageTransitionType.leftToRight,
+                                    ),
+                                  );
+                                }
+                              : null,
                           contentPadding: EdgeInsets.zero,
                           leading: ClipRRect(
                             borderRadius: BorderRadius.circular(60),

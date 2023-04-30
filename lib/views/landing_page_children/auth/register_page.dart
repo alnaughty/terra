@@ -61,6 +61,11 @@ class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
       email: _email,
       password: _password,
       confirmPassword: _confirmPassword,
+      hasAcceptedCallback: (bool f) {
+        setState(() {
+          hasAcceptedTerms = f;
+        });
+      },
     )
   ];
   double opacity = 1;
@@ -72,6 +77,8 @@ class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
     opacity = (op - 1).abs();
     if (mounted) setState(() {});
   }
+
+  bool hasAcceptedTerms = false;
 
   @override
   void dispose() {
@@ -227,65 +234,76 @@ class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
                             decoration: currentIndex == 0
                                 ? null
                                 : BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        _colors.bot,
-                                        _colors.top,
-                                      ],
-                                      begin: Alignment.bottomLeft,
-                                      end: Alignment.topRight,
-                                    ),
+                                    gradient:
+                                        currentIndex == 1 && !hasAcceptedTerms
+                                            ? null
+                                            : LinearGradient(
+                                                colors: [
+                                                  _colors.bot,
+                                                  _colors.top,
+                                                ],
+                                                begin: Alignment.bottomLeft,
+                                                end: Alignment.topRight,
+                                              ),
                                     borderRadius: BorderRadius.circular(10),
+                                    color:
+                                        currentIndex == 1 && !hasAcceptedTerms
+                                            ? Colors.grey.shade400
+                                            : Colors.white,
                                   ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 5,
                             ),
                             child: GestureDetector(
-                              onTap: () async {
-                                print("AF");
+                              onTap: currentIndex == 1 && !hasAcceptedTerms
+                                  ? null
+                                  : () async {
+                                      print("AF");
 
-                                if (currentIndex == 0) {
-                                  if (_kPinfo.currentState!.validate()) {
-                                    currentIndex = 1;
-                                    await _pageController.animateToPage(
-                                      currentIndex,
-                                      duration: const Duration(
-                                        milliseconds: 500,
-                                      ),
-                                      curve: Curves.fastLinearToSlowEaseIn,
-                                    );
-                                    if (mounted) setState(() {});
-                                  }
-                                } else {
-                                  print("ASDASD");
+                                      if (currentIndex == 0) {
+                                        if (_kPinfo.currentState!.validate()) {
+                                          currentIndex = 1;
+                                          await _pageController.animateToPage(
+                                            currentIndex,
+                                            duration: const Duration(
+                                              milliseconds: 500,
+                                            ),
+                                            curve:
+                                                Curves.fastLinearToSlowEaseIn,
+                                          );
+                                          if (mounted) setState(() {});
+                                        }
+                                      } else {
+                                        print("ASDASD");
 
-                                  /// REGISTER API NA!
-                                  if (_kAuth.currentState!.validate()) {
-                                    setState(() {
-                                      _isLoading = true;
-                                    });
+                                        /// REGISTER API NA!
+                                        if (_kAuth.currentState!.validate()) {
+                                          setState(() {
+                                            _isLoading = true;
+                                          });
 
-                                    print("REGIUSTER!");
-                                    await register(
-                                      context,
-                                      email: _email.text,
-                                      password: _password.text,
-                                      firstname: _firstName.text,
-                                      lastName: _lastName.text,
-                                      accountType: _kAuth.currentState!.type,
-                                      birthdate: _birthdate.text,
-                                      phoneNumber: _phoneNumber.text,
-                                      brgy: _street.text,
-                                      city: _city.text,
-                                      country: _country.text,
-                                    ).whenComplete(() {
-                                      _isLoading = false;
-                                      if (mounted) setState(() {});
-                                    });
-                                  }
-                                }
-                              },
+                                          print("REGIUSTER!");
+                                          await register(
+                                            context,
+                                            email: _email.text,
+                                            password: _password.text,
+                                            firstname: _firstName.text,
+                                            lastName: _lastName.text,
+                                            accountType:
+                                                _kAuth.currentState!.type,
+                                            birthdate: _birthdate.text,
+                                            phoneNumber: _phoneNumber.text,
+                                            brgy: _street.text,
+                                            city: _city.text,
+                                            country: _country.text,
+                                          ).whenComplete(() {
+                                            _isLoading = false;
+                                            if (mounted) setState(() {});
+                                          });
+                                        }
+                                      }
+                                    },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

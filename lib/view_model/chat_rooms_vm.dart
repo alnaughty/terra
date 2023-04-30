@@ -11,6 +11,7 @@ class ChatRoomsVm {
   Stream<List<ChatRoom>> get stream => _subject.stream;
   List<ChatRoom>? get current => _subject.value;
   void populate(List<ChatRoom> data) {
+    print("DATA $data");
     _subject.add(data);
   }
 

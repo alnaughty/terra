@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:terra/models/v2/todo.dart';
 import 'package:terra/services/API/v2/task_api.dart';
 import 'package:terra/utils/color.dart';
@@ -23,6 +24,7 @@ class _CompletedTasksPageState extends State<CompletedTasksPage> {
   final AppColors _colors = AppColors.instance;
   Future<void> initPlatformState() async {
     _displayData = await _api.getCompletedTasks();
+    if (mounted) setState(() {});
     _displayData!.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     if (mounted) setState(() {});
     return;
@@ -110,25 +112,32 @@ class _CompletedTasksPageState extends State<CompletedTasksPage> {
                         return LayoutBuilder(builder: (context, c) {
                           return MaterialButton(
                             onPressed: () async {
-                              await showGeneralDialog(
-                                context: context,
-                                barrierDismissible: true,
-                                barrierColor: Colors.black.withOpacity(.5),
-                                barrierLabel: "Details",
-                                transitionBuilder: (_, a1, a2, child) =>
-                                    Transform.scale(
-                                  scale: a1.value,
-                                  child: FadeTransition(
-                                    opacity: a1,
-                                    child: child,
-                                  ),
-                                ),
-                                transitionDuration:
-                                    const Duration(milliseconds: 500),
-                                pageBuilder: (_, a1, a2) => AlertDialog(
-                                  content: TodoTaskDetails(task: task),
+                              await Navigator.push(
+                                context,
+                                PageTransition(
+                                  child: TodoTaskDetails(task: task),
+                                  type: PageTransitionType.leftToRight,
                                 ),
                               );
+                              // await showGeneralDialog(
+                              //   context: context,
+                              //   barrierDismissible: true,
+                              //   barrierColor: Colors.black.withOpacity(.5),
+                              //   barrierLabel: "Details",
+                              //   transitionBuilder: (_, a1, a2, child) =>
+                              //       Transform.scale(
+                              //     scale: a1.value,
+                              //     child: FadeTransition(
+                              //       opacity: a1,
+                              //       child: child,
+                              //     ),
+                              //   ),
+                              //   transitionDuration:
+                              //       const Duration(milliseconds: 500),
+                              //   pageBuilder: (_, a1, a2) => AlertDialog(
+                              //     content: TodoTaskDetails(task: task),
+                              //   ),
+                              // );
                             },
                             color: Colors.grey.shade100,
                             padding: const EdgeInsets.symmetric(
@@ -152,13 +161,16 @@ class _CompletedTasksPageState extends State<CompletedTasksPage> {
                                             )
                                           ]),
                                       child: Center(
-                                        child: CachedNetworkImage(
-                                          imageUrl: task.task.category.icon,
-                                          height: 120,
-                                          fit: BoxFit.fitHeight,
-                                          placeholder: (_, ff) => Image.asset(
-                                            "assets/images/loader.gif",
-                                            height: 100,
+                                        child: Hero(
+                                          tag: "cat-icon",
+                                          child: CachedNetworkImage(
+                                            imageUrl: task.task.category.icon,
+                                            height: 120,
+                                            fit: BoxFit.fitHeight,
+                                            placeholder: (_, ff) => Image.asset(
+                                              "assets/images/loader.gif",
+                                              height: 100,
+                                            ),
                                           ),
                                         ),
                                       ),

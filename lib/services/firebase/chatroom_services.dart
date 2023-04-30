@@ -165,6 +165,8 @@ class ChatRoomServicse {
               id: key,
               createdAt: DateTime.fromMillisecondsSinceEpoch(
                   value['created_at'] as int),
+              hasUser1Archived: value['hasUser1Archived'] ?? false,
+              hasUser2Archived: value['hasUser2Archived'] ?? false,
               lastMessage: convo,
               members: [
                 ChatRoomMember(

@@ -37,6 +37,21 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
   late final ScrollController _scroll;
   late final DatabaseReference _chatRoomRef;
   static final ChatRoomsVm _vm = ChatRoomsVm.instance;
+  static final List<String> imgExts = [
+    'jpg',
+    'png',
+    'jpeg',
+    "gif",
+  ];
+  String? getExtension(String? file) {
+    if (file == null) return null;
+    int extIndex = file.lastIndexOf('.');
+    if (extIndex == -1) {
+      return null; // File path has no extension
+    }
+    return file.substring(extIndex + 1);
+  }
+
   bool isInit = true;
   @override
   void initState() {
@@ -186,13 +201,21 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                             'slk',
                             'dif',
                             'txt',
-                            'pdf'
+                            'pdf',
+                            'jpg',
+                            'png',
+                            'jpeg',
+                            "gif",
                           ],
                         ).then((FilePickerResult? file) async {
                           if (file == null) return;
+                          final String? ext =
+                              getExtension(file.files.first.path!);
                           final storageRef = FirebaseStorage.instance
                               .ref()
-                              .child('chatroom_files')
+                              .child(imgExts.contains(ext)
+                                  ? 'chatroom_images'
+                                  : 'chatroom_files')
                               .child(widget.chatroomId)
                               .child(
                                   '${DateTime.now().millisecondsSinceEpoch}');

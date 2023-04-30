@@ -35,7 +35,7 @@ class ChatConversation {
 
   @override
   String toString() => "${toJson()}";
-  
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "message": message,

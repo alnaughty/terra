@@ -19,6 +19,7 @@ class Terran {
   final String? gender;
   final DateTime? birthdate;
   final String status;
+  final String? bio;
   final String fullname;
   bool hasVerifiedEmail;
   bool hasUploadedId;
@@ -41,6 +42,7 @@ class Terran {
     required this.status,
     this.gender,
     this.birthdate,
+    required this.bio,
     required this.hasUploadedId,
     required this.hasVerifiedEmail,
     required this.hasVerifiedNumber,
@@ -61,6 +63,7 @@ class Terran {
         fullname: json['fullname'] ?? "None",
         status: json['status'],
         gender: json['gender'],
+        bio: json['bio'],
         hasUploadedId: json['has_id_email'].toString().toInt() == 1,
         hasVerifiedEmail: json['has_valid_email'].toString().toInt() == 1,
         hasVerifiedNumber:

@@ -8,10 +8,12 @@ class AuthenticationData extends StatefulWidget {
       {super.key,
       required this.email,
       required this.password,
+      required this.hasAcceptedCallback,
       required this.confirmPassword});
   final TextEditingController email;
   final TextEditingController password;
   final TextEditingController confirmPassword;
+  final ValueChanged<bool> hasAcceptedCallback;
 
   @override
   State<AuthenticationData> createState() => AuthenticationDataState();
@@ -23,6 +25,8 @@ class AuthenticationDataState extends State<AuthenticationData> {
     "Job Seeker",
     "Employer",
   ];
+  bool acceptedF = false;
+  bool acceptedS = false;
   bool hasAccount() {
     if (_accountTypeChoice != null) {
       return true;
@@ -173,12 +177,13 @@ class AuthenticationDataState extends State<AuthenticationData> {
         Row(
           children: [
             Checkbox(
-                value: !_isObscured,
-                onChanged: (val) {
-                  setState(() {
-                    _isObscured = !_isObscured;
-                  });
-                }),
+              value: !_isObscured,
+              onChanged: (val) {
+                setState(() {
+                  _isObscured = !_isObscured;
+                });
+              },
+            ),
             Expanded(
               child: Text(
                 "Show Password",
@@ -228,6 +233,72 @@ class AuthenticationDataState extends State<AuthenticationData> {
               ),
             ),
           ),
+        ),
+        const SizedBox(
+          height: 40,
+        ),
+        Row(
+          children: [
+            Theme(
+              data: ThemeData(
+                unselectedWidgetColor: Colors.black,
+              ),
+              child: Checkbox(
+                fillColor:
+                    MaterialStateProperty.resolveWith((states) => Colors.black),
+                value: acceptedF,
+                onChanged: (val) {
+                  setState(() {
+                    acceptedF = !acceptedF;
+                  });
+                  widget.hasAcceptedCallback(acceptedS &&
+                      acceptedF &&
+                      _kForm.currentState!.validate());
+                },
+              ),
+            ),
+            const Expanded(
+              child: Text(
+                "I agree to the Terms of Services of Terra.Ph",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Theme(
+              data: ThemeData(
+                unselectedWidgetColor: Colors.black,
+              ),
+              child: Checkbox(
+                fillColor:
+                    MaterialStateProperty.resolveWith((states) => Colors.black),
+                value: acceptedS,
+                onChanged: (val) {
+                  setState(() {
+                    acceptedS = !acceptedS;
+                  });
+                  widget.hasAcceptedCallback(acceptedS &&
+                      acceptedF &&
+                      _kForm.currentState!.validate());
+                },
+              ),
+            ),
+            const Expanded(
+              child: Text(
+                "I agree to the processing of my personal data in accordance with the Privacy Policy of Terra.Ph",
+                style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

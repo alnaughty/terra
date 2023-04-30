@@ -13,6 +13,7 @@ import 'package:terra/views/home_page_children/home_page_main_children/transacti
 import 'package:terra/views/home_page_children/profile_page_children/completed_tasks.dart';
 import 'package:terra/views/home_page_children/profile_page_children/employer_active_tasks.dart';
 import 'package:terra/views/home_page_children/profile_page_children/posted_jobs.dart';
+import 'package:terra/views/home_page_children/profile_page_children/selfie_page.dart';
 import 'package:terra/views/home_page_children/profile_page_children/todo_tasks.dart';
 import 'package:terra/views/home_page_children/profile_page_children/update_user_details_page.dart';
 import 'package:terra/views/home_page_children/profile_page_children/upload_id_page.dart';
@@ -31,6 +32,14 @@ class RouteData {
       case "/landing_page":
         return PageTransition(
           child: const LandingPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
+
+      case "/selfie_page":
+        return PageTransition(
+          child: const SelfiePage(),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,

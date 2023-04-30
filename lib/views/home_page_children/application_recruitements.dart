@@ -144,6 +144,20 @@ class _JobsRecordPageState extends State<JobsRecordPage> {
                                   icon: Icons.check,
                                   label: 'Accept',
                                 ),
+                                SlidableAction(
+                                  onPressed: (_) async {
+                                    await _api
+                                        .rejectApplication(_app.id)
+                                        .whenComplete(() {
+                                      _app.status = "approved";
+                                      if (mounted) setState(() {});
+                                    });
+                                  },
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  icon: Icons.close,
+                                  label: 'Reject',
+                                ),
                               },
                             ],
                           ),
@@ -192,7 +206,13 @@ class _JobsRecordPageState extends State<JobsRecordPage> {
                                     color: Colors.green,
                                     size: 20,
                                   )
-                                : null,
+                                : _app.status == "declined"
+                                    ? const Icon(
+                                        Icons.close,
+                                        color: Colors.red,
+                                        size: 20,
+                                      )
+                                    : null,
                             contentPadding:
                                 const EdgeInsets.symmetric(horizontal: 20),
                             tileColor: Colors.grey.shade100,

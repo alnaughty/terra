@@ -333,63 +333,65 @@ class _JobPostingPageState extends State<JobPostingPage> {
                             )
                           ],
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          children: [
-                            const Expanded(
-                              flex: 4,
-                              child: Text.rich(
-                                TextSpan(
-                                  text: "Urgency",
-                                  style: TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w600,
+                        if (loggedUser!.accountType != 1) ...{
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            children: [
+                              const Expanded(
+                                flex: 4,
+                                child: Text.rich(
+                                  TextSpan(
+                                    text: "Urgency",
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                          text: " *",
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          )),
+                                    ],
                                   ),
-                                  children: [
-                                    TextSpan(
-                                        text: " *",
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                        )),
-                                  ],
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Expanded(
-                              flex: 7,
-                              child: SizedBox(
-                                height: 60,
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButtonFormField<int>(
-                                    isExpanded: true,
-                                    // isDense: true,
-                                    value: urgency,
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Expanded(
+                                flex: 7,
+                                child: SizedBox(
+                                  height: 60,
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButtonFormField<int>(
+                                      isExpanded: true,
+                                      // isDense: true,
+                                      value: urgency,
 
-                                    // selectedItemBuilder: (_) => [Text("ASDASD")],
-                                    items: [1, 2, 3]
-                                        .map((e) => DropdownMenuItem<int>(
-                                              value: e,
-                                              child: Text(
-                                                e.toUrgency(),
-                                              ),
-                                            ))
-                                        .toList(),
-                                    onChanged: (v) {
-                                      if (v == null) return;
-                                      urgency = v;
-                                      if (mounted) setState(() {});
-                                    },
+                                      // selectedItemBuilder: (_) => [Text("ASDASD")],
+                                      items: [1, 2, 3]
+                                          .map((e) => DropdownMenuItem<int>(
+                                                value: e,
+                                                child: Text(
+                                                  e.toUrgency(),
+                                                ),
+                                              ))
+                                          .toList(),
+                                      onChanged: (v) {
+                                        if (v == null) return;
+                                        urgency = v;
+                                        if (mounted) setState(() {});
+                                      },
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          ],
-                        ),
+                              )
+                            ],
+                          ),
+                        },
                         const SizedBox(
                           height: 10,
                         ),

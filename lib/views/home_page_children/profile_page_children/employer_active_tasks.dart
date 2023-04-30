@@ -148,7 +148,7 @@ class _EmployerActiveTasksState extends State<EmployerActiveTasks> {
                                         backgroundColor: _colors.top,
                                         foregroundColor: Colors.white,
                                         icon: Icons.check,
-                                        label: 'Mark as complete',
+                                        label: 'Release Payment',
                                       ),
                                     ],
                                   ),

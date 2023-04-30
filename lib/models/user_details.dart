@@ -8,6 +8,7 @@ class UserDetails {
   final String firstName;
   final String lastName;
   final String email;
+  String? bio;
   final int accountType;
   final String phoneNumber;
   String avatar;
@@ -21,6 +22,7 @@ class UserDetails {
   final String firebaseId;
   bool hasVerifiedEmail;
   bool hasUploadedId;
+  bool hasSelfie;
   bool hasVerifiedNumber;
   UserDetails({
     required this.id,
@@ -41,33 +43,38 @@ class UserDetails {
     required this.hasVerifiedNumber,
     required this.firebaseId,
     required this.birthdate,
+    required this.hasSelfie,
+    required this.bio,
   });
 
   factory UserDetails.fromJson(Map<String, dynamic> json) {
     final List _skills = json['skills'] ?? [];
 
     return UserDetails(
-        id: json['id'].toInt(),
-        firstName: json['first_name'] ?? "Unknown",
-        lastName: json['last_name'] ?? "Unknown",
-        email: json['email'] ?? "terra@app.ph",
-        accountType: json['account_type'].toInt(),
-        phoneNumber: json['mobile_number'],
-        avatar: "${Network.domain}${json['avatar']}",
-        status: json['status'],
-        fullName: json['fullname'],
-        city: json['city'],
-        country: json['country'],
-        street: json['barangay'],
-        skills: _skills.map((e) => Category.fromJson(e)).toList(),
-        firebaseId: json['firebase_id'] ?? "Anonymous User",
-        hasUploadedId: json['has_id_email'].toString().toInt() == 1,
-        hasVerifiedEmail: json['has_valid_email'].toString().toInt() == 1,
-        hasVerifiedNumber:
-            json['has_mobile_number_email'].toString().toInt() == 1,
-        birthdate: json['birthdate'] == null
-            ? DateTime.now()
-            : DateTime.parse(json['birthdate']));
+      id: json['id'].toInt(),
+      firstName: json['first_name'] ?? "Unknown",
+      lastName: json['last_name'] ?? "Unknown",
+      email: json['email'] ?? "terra@app.ph",
+      accountType: json['account_type'].toInt(),
+      phoneNumber: json['mobile_number'],
+      avatar: "${Network.domain}${json['avatar']}",
+      status: json['status'],
+      fullName: json['fullname'],
+      city: json['city'],
+      country: json['country'],
+      street: json['barangay'],
+      bio: json['bio'],
+      skills: _skills.map((e) => Category.fromJson(e)).toList(),
+      firebaseId: json['firebase_id'] ?? "Anonymous User",
+      hasUploadedId: json['has_id_email'].toString().toInt() == 1,
+      hasVerifiedEmail: json['has_valid_email'].toString().toInt() == 1,
+      hasVerifiedNumber:
+          json['has_mobile_number_email'].toString().toInt() == 1,
+      birthdate: json['birthdate'] == null
+          ? DateTime.now()
+          : DateTime.parse(json['birthdate']),
+      hasSelfie: json['selfie'] != null,
+    );
   }
 
   Map<String, dynamic> toJson() => {

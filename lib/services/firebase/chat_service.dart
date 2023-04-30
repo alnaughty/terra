@@ -38,6 +38,8 @@ class ChatService {
             .toList(),
         'createdAt': DateTime.now().millisecondsSinceEpoch,
         'lastMessage': null,
+        'hasUser1Archived': false,
+        'hasUser2Archived': false,
       };
       await chatroomRef.set(data);
       // Add chatroom ID to each member's chatroom list
@@ -118,6 +120,16 @@ class ChatService {
   //       );
 
   // }
+  Future<bool> archiveChatroom(chatroomId, int userIndex, bool status) async {
+    try {
+      final DocumentReference chatroomRef =
+          _firestore.collection('chatrooms').doc(chatroomId);
+      chatroomRef.update({"hasUser${userIndex}Archived": status});
+      return status;
+    } catch (e) {
+      return false;
+    }
+  }
 
   Stream<ChatRoom?> _getChatroom(String chatroomId) {
     final chatroomRef = _firestore.collection('chatrooms').doc(chatroomId);
@@ -136,6 +148,7 @@ class ChatService {
             .toList();
         final lastMessageData = data['lastMessage'];
         print("LAST MESSAGE $lastMessageData");
+        print("HAS ARCHIVED : ${data}");
         final ChatConversation? lastMessage = lastMessageData != null
             ? ChatConversation.fromJson(lastMessageData)
             : null;
@@ -144,6 +157,8 @@ class ChatService {
           members: members,
           createdAt: DateTime.fromMillisecondsSinceEpoch(data['createdAt']),
           lastMessage: lastMessage,
+          hasUser1Archived: data['hasUser1Archived'] ?? false,
+          hasUser2Archived: data['hasUser2Archived'] ?? false,
         );
       } else {
         return null;

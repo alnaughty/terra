@@ -6,11 +6,15 @@ class ChatRoom {
   final List<ChatRoomMember> members;
   final DateTime createdAt;
   ChatConversation? lastMessage;
+  bool hasUser1Archived;
+  bool hasUser2Archived;
   ChatRoom({
     required this.id,
     required this.members,
     required this.createdAt,
     this.lastMessage,
+    required this.hasUser1Archived,
+    required this.hasUser2Archived,
   });
   ChatRoom copyWith({
     String? id,
@@ -23,6 +27,18 @@ class ChatRoom {
       members: members ?? this.members,
       createdAt: createdAt ?? this.createdAt,
       lastMessage: lastMessage ?? this.lastMessage,
+      hasUser1Archived: hasUser1Archived,
+      hasUser2Archived: hasUser2Archived,
     );
   }
+
+  @override
+  String toString() => "${toJson()}";
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "members": members,
+        "createdAt": createdAt,
+        "hasUser1Archived": hasUser1Archived,
+        "hasUser2Archived": hasUser2Archived,
+      };
 }

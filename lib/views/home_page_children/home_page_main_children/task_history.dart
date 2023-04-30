@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'dart:math';
-
+import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:terra/models/task_history.dart' as model;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:terra/models/v2/todo.dart';
+import 'package:terra/services/API/v2/task_api.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 
@@ -14,154 +19,79 @@ class TaskHistory extends StatefulWidget {
 
 class _TaskHistoryState extends State<TaskHistory> {
   static final AppColors _colors = AppColors.instance;
+  final BehaviorSubject<List<model.TaskHistory>> _subject =
+      BehaviorSubject<List<model.TaskHistory>>();
+  Stream<List<model.TaskHistory>> get stream => _subject.stream;
+  // List<TodoTask>? _displayData;
+  final TaskAPIV2 _api = TaskAPIV2.instance;
+  Future<void> initPlatformState() async {
+    final List<model.TaskHistory> _result = await _api.getAllHistory();
+    _subject.add(_result);
+  }
 
-  final List<Map<String, dynamic>> _data = List.generate(
-      20,
-      (index) => {
-            "name": categoryList[Random().nextInt(categoryList.length)],
-            "status": Random().nextInt(3),
-            "date": DateTime(
-                2022, Random().nextInt(11) + 1, Random().nextInt(29) + 1),
-          });
+  @override
+  void initState() {
+    initPlatformState();
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Container(
-            width: double.maxFinite,
-            padding: const EdgeInsets.symmetric(vertical: 0),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  _colors.bot,
-                  _colors.top,
-                ],
-                begin: Alignment.bottomLeft,
-                end: Alignment.topRight,
+      appBar: AppBar(
+        title: const Text("Task History"),
+        centerTitle: true,
+      ),
+      body: StreamBuilder<List<model.TaskHistory>>(
+        stream: stream,
+        builder: (_, snapshot) {
+          if (snapshot.hasError || !snapshot.hasData) {
+            return Center(
+              child: Image.asset(
+                "assets/images/loader.gif",
+                width: size.width * .5,
               ),
+            );
+          }
+          final List<model.TaskHistory> _result = snapshot.data!;
+          if (_result.isEmpty) {
+            return const Center(
+              child: Text("No Task history found"),
+            );
+          }
+          _result.sort(
+            (a, b) => b.applcationState.updatedAt.compareTo(
+              a.applcationState.updatedAt,
             ),
-            child: SafeArea(
-              bottom: false,
-              // child: Row(),
-              child: PreferredSize(
-                preferredSize: const Size.fromHeight(60),
-                child: AppBar(
-                  iconTheme: const IconThemeData(
-                    color: Colors.white,
-                  ),
-                  title: const Text(
-                    "Task History",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+          );
+          // return Container();
+          return LiquidPullToRefresh(
+            onRefresh: () async {
+              final Completer<void> completer = Completer<void>();
+              await initPlatformState().whenComplete(() {
+                completer.complete();
+              });
+              return completer.future;
+            },
+            child: ListView.separated(
+              itemBuilder: (_, i) {
+                final model.TaskHistory datum = _result[i];
+              },
+              separatorBuilder: (_, i) => const SizedBox(
+                height: 10,
               ),
+              itemCount: _result.length,
             ),
-          ),
-          Container(
-            width: double.maxFinite,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Legend",
-                  style: TextStyle(
-                      color: Colors.grey.shade900,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600),
-                ),
-                Row(
-                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Map<String, dynamic>>[
-                    {
-                      "name": "Completed",
-                      "color": Colors.green,
-                    },
-                    {
-                      "name": "Unfinished\nTransaction",
-                      "color": Colors.orange,
-                    },
-                    {
-                      "name": "Declined/\nCancelled",
-                      "color": Colors.red,
-                    },
-                  ]
-                      .map((e) => Container(
-                            margin: const EdgeInsets.only(right: 10),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 20,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                      color: e['color'],
-                                      borderRadius: BorderRadius.circular(10)),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  e['name'],
-                                  maxLines: 2,
-                                )
-                              ],
-                            ),
-                          ))
-                      .toList(),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: SafeArea(
-              top: false,
-              child: ListView.separated(
-                padding: const EdgeInsets.all(0),
-                itemBuilder: (_, i) => ListTile(
-                    onTap: () {
-                      print("SHOW TASK DETAILS");
-                    },
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                    title: Text(
-                      _data[i]['name'],
-                    ),
-                    subtitle: Text(
-                        DateFormat("MMMM dd, yyyy").format(_data[i]['date'])),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          _data[i]['status'] == 0
-                              ? Icons.cancel_rounded
-                              : _data[i]['status'] == 1
-                                  ? Icons.stop_circle_rounded
-                                  : Icons.check_circle_rounded,
-                          color: _data[i]['status'] == 0
-                              ? Colors.red
-                              : _data[i]['status'] == 1
-                                  ? Colors.orange
-                                  : Colors.green,
-                        ),
-                      ],
-                    )),
-                separatorBuilder: (_, i) =>
-                    const Divider(color: Colors.black45),
-                itemCount: _data.length,
-              ),
-            ),
-          ),
-          // const SizedBox(
-          //   height: 40,
-          // )
-        ],
+          );
+        },
       ),
     );
   }
