@@ -6,6 +6,7 @@ import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:terra/models/v2/todo.dart';
 import 'package:terra/services/API/v2/task_api.dart';
 import 'package:terra/utils/color.dart';
@@ -56,6 +57,7 @@ class _EmployerActiveTasksState extends State<EmployerActiveTasks> {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text("Active Tasks"),
       ),
       body: _displayData == null
@@ -154,24 +156,11 @@ class _EmployerActiveTasksState extends State<EmployerActiveTasks> {
                                   ),
                                   child: MaterialButton(
                                     onPressed: () async {
-                                      await showGeneralDialog(
-                                        context: context,
-                                        barrierDismissible: true,
-                                        barrierColor:
-                                            Colors.black.withOpacity(.5),
-                                        barrierLabel: "Details",
-                                        transitionBuilder: (_, a1, a2, child) =>
-                                            Transform.scale(
-                                          scale: a1.value,
-                                          child: FadeTransition(
-                                            opacity: a1,
-                                            child: child,
-                                          ),
-                                        ),
-                                        transitionDuration:
-                                            const Duration(milliseconds: 500),
-                                        pageBuilder: (_, a1, a2) => AlertDialog(
-                                          content: TodoTaskDetails(task: task),
+                                      await Navigator.push(
+                                        context,
+                                        PageTransition(
+                                          child: TodoTaskDetails(task: task),
+                                          type: PageTransitionType.leftToRight,
                                         ),
                                       );
                                     },

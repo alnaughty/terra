@@ -46,6 +46,65 @@ class TaskAPIV2 {
     }
   }
 
+  Future<bool> update(int id, Map<String, dynamic> body) async {
+    try {
+      return await http
+          .put("${Network.domain}/api/task/$id".toUri,
+              headers: {
+                "accept": "application/json",
+                HttpHeaders.authorizationHeader: "Bearer $accessToken"
+              },
+              body: body)
+          .then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Updated Successfully");
+          return true;
+        }
+        Fluttertoast.showToast(
+          msg: "Error${response.statusCode} : ${response.reasonPhrase}",
+        );
+        return false;
+      });
+    } catch (e, s) {
+      print("ERROR: $e");
+      print("STACKTRACE : $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing the request.",
+      );
+      return false;
+    }
+  }
+
+  Future<bool> delete(int id) async {
+    try {
+      return await http
+          .delete("${Network.domain}/api/task/$id".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Deleted Successfully");
+          return true;
+        } else if (response.statusCode == 401) {
+          Fluttertoast.showToast(
+              msg: "This task is already active, you cannot delete this.");
+          return false;
+        }
+        Fluttertoast.showToast(
+          msg: "Error${response.statusCode} : ${response.reasonPhrase}",
+        );
+        return false;
+      });
+    } catch (e, s) {
+      print("ERROR: $e");
+      print("STACKTRACE : $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing the request.",
+      );
+      return false;
+    }
+  }
+
   Future<List<RawTaskV2>?> getPostedTasks() async {
     try {
       return await http

@@ -103,6 +103,7 @@ class AuthApi {
           print("DATA : $data");
           if (response.statusCode == 200 || response.statusCode == 201) {
             _cacher.seUserToken(data['access_token']);
+            accessToken = data['access_token'];
             return data['access_token'];
           }
           Fluttertoast.showToast(

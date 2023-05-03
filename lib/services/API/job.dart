@@ -48,6 +48,36 @@ class JobAPI {
     }
   }
 
+  Future<bool> updateTask(int id, Map body) async {
+    try {
+      return await http
+          .put(
+        "${Network.domain}/api/task/$id".toUri,
+        headers: {
+          "accept": "application/json",
+          HttpHeaders.authorizationHeader: "Bearer $accessToken"
+        },
+        body: body,
+      )
+          .then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Updated Successfully");
+          return true;
+        }
+        Fluttertoast.showToast(
+          msg: "Error${response.statusCode} : ${response.reasonPhrase}",
+        );
+        return false;
+      });
+    } catch (e, s) {
+      print("ERROR UPDATE TASK : $e, $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error has occurred while updating the task.",
+      );
+      return false;
+    }
+  }
+
   Future<bool> postAJob({
     required String title,
     required String completeAddress,

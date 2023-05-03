@@ -41,10 +41,11 @@ class _ProfilePageState extends State<ProfilePage> {
   static final UserApi _userApi = UserApi();
   static final PostedJobsVm _posted = PostedJobsVm.instance;
   static final TaskTodoVm _tasksTodo = TaskTodoVm.instance;
-
+  bool isEditingBio = false;
   @override
   void initState() {
     print("PRFILE");
+    _bio = TextEditingController();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       // await Future.delayed(timeStamp);
       if (loggedUser!.accountType != 1) {
@@ -301,319 +302,412 @@ class _ProfilePageState extends State<ProfilePage> {
       },
     },
   ];
+
+  @override
+  void dispose() {
+    _bio.dispose();
+    super.dispose();
+  }
+
+  final GlobalKey<FormState> _kBio = GlobalKey<FormState>();
+  late final TextEditingController _bio;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      // resizeToAvoidBottomInset: true,
-      body: Column(
-        children: [
-          Container(
-            width: size.width,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [_colors.top, _colors.bot],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        // resizeToAvoidBottomInset: true,
+        body: Column(
+          children: [
+            Container(
+              width: size.width,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [_colors.top, _colors.bot],
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              child: SafeArea(
+                bottom: false,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Container(
+                        color: Colors.white,
+                        child: Image.network(
+                          loggedUser!.avatar,
+                          width: 40,
+                          height: 40,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Welcome, ${loggedUser!.firstName.capitalize()}",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 17,
+                            ),
+                          ),
+                          Text(
+                            loggedUser!.email,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(.8),
+                              fontWeight: FontWeight.w300,
+                              height: 1,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        widget.loadingCallback(true);
+                        await _api.logout(context).whenComplete(
+                          () async {
+                            await _cacher.clearAll();
+                            widget.loadingCallback(false);
+                          },
+                        );
+                      },
+                      style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.resolveWith(
+                        (states) => Colors.white,
+                      )),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            child: SafeArea(
-              bottom: false,
+            Container(
+              padding: const EdgeInsets.only(
+                  left: 20, right: 15, top: 15, bottom: 15),
+              color: Colors.grey.shade100,
               child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: Container(
-                      color: Colors.white,
-                      child: Image.network(
-                        loggedUser!.avatar,
-                        width: 40,
-                        height: 40,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Welcome, ${loggedUser!.firstName.capitalize()}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 17,
-                          ),
-                        ),
-                        Text(
-                          loggedUser!.email,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.white.withOpacity(.8),
-                            fontWeight: FontWeight.w300,
-                            height: 1,
-                          ),
-                        )
-                      ],
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 600),
+                      child: isEditingBio
+                          ? Form(
+                              key: _kBio,
+                              child: Column(
+                                children: [
+                                  TextFormField(
+                                    controller: _bio,
+                                    validator: (String? text) {
+                                      if (text == null) {
+                                        return "Something went wrong";
+                                      } else if (text.isEmpty) {
+                                        return "You cannot put an empty bio";
+                                      }
+                                    },
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: 3,
+                                    cursorColor: Colors.black,
+                                    decoration: InputDecoration(
+                                      hintText: loggedUser!.bio ?? "Your Bio",
+                                      hintStyle: TextStyle(
+                                        color: Colors.black.withOpacity(.5),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  MaterialButton(
+                                    onPressed: () async {
+                                      if (_kBio.currentState!.validate()) {
+                                        FocusScope.of(context).unfocus();
+                                        final String b = _bio.text;
+                                        _bio.clear();
+                                        await _userApi
+                                            .updateBio(b)
+                                            .then((value) {
+                                          if (value) {
+                                            loggedUser!.bio = b;
+                                          }
+                                          isEditingBio = false;
+                                          if (mounted) setState(() {});
+                                        });
+                                      }
+                                    },
+                                    height: 55,
+                                    padding: EdgeInsets.zero,
+                                    child: Center(
+                                      child: Container(
+                                        height: 55,
+                                        width: double.maxFinite,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          gradient: LinearGradient(
+                                            colors: [_colors.top, _colors.bot],
+                                          ),
+                                        ),
+                                        child: const Center(
+                                          child: Text(
+                                            "Submit",
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          : Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                loggedUser!.bio ?? "No bio found",
+                                style: TextStyle(
+                                  fontSize: 14.5,
+                                  color: Colors.black.withOpacity(.5),
+                                ),
+                              ),
+                            ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      widget.loadingCallback(true);
-                      await _api.logout(context).whenComplete(
-                        () async {
-                          await _cacher.clearAll();
-                          widget.loadingCallback(false);
-                        },
-                      );
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isEditingBio = !isEditingBio;
+                      });
+                      if (loggedUser!.bio == null) {
+                        // ADD BIO
+                      } else {
+                        // UPDATE BIO
+                      }
                     },
-                    style: ButtonStyle(
-                        foregroundColor: MaterialStateProperty.resolveWith(
-                      (states) => Colors.white,
-                    )),
-                    child: const Text(
-                      "Logout",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w300,
-                      ),
+                    icon: Icon(
+                      loggedUser!.bio == null
+                          ? Icons.add_circle_outline_rounded
+                          : Icons.edit_note_rounded,
+                      color: _colors.top,
                     ),
                   )
                 ],
               ),
             ),
-          ),
-          Container(
-            padding:
-                const EdgeInsets.only(left: 20, right: 15, top: 15, bottom: 15),
-            color: Colors.grey.shade100,
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    loggedUser!.bio ?? "No Bio yet, provide one",
-                    style: TextStyle(
-                      fontSize: 14.5,
-                      color: Colors.black.withOpacity(.5),
-                    ),
-                  ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 20,
                 ),
-                IconButton(
-                  onPressed: () {
-                    if (loggedUser!.bio == null) {
-                      // ADD BIO
-                    } else {
-                      // UPDATE BIO
-                    }
-                  },
-                  icon: Icon(
-                    loggedUser!.bio == null
-                        ? Icons.add_circle_outline_rounded
-                        : Icons.edit_note_rounded,
-                    color: _colors.top,
-                  ),
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(
-                vertical: 0,
-                horizontal: 20,
-              ),
-              children: [
-                Container(
-                  width: size.width,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.black12,
+                children: [
+                  Container(
+                    width: size.width,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.black12,
+                        ),
+                      ),
+                    ),
+                    child: const Text(
+                      "My Account",
+                      style: TextStyle(
+                        color: Colors.black54,
                       ),
                     ),
                   ),
-                  child: const Text(
-                    "My Account",
-                    style: TextStyle(
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ...accountContent.map(
-                  (e) => ListTile(
-                    onTap: e['onTap'] as Function(),
-                    leading: e['avatar'].toString().contains(".svg")
-                        ? SvgPicture.asset(
-                            "assets/icons/${e['avatar']}",
-                            width: 20,
-                            height: 20,
-                            color: Colors.black54,
-                          )
-                        : Image.asset(
-                            "assets/icons/${e['avatar']}",
-                            width: 20,
-                            height: 20,
-                            color: Colors.black54,
-                          ),
-                    trailing: e['onTap'] != null
-                        ? const Icon(
-                            Icons.chevron_right_outlined,
-                            color: Colors.black54,
-                          )
-                        : null,
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            e['title'].toString(),
-                            style: const TextStyle(
+                  ...accountContent.map(
+                    (e) => ListTile(
+                      onTap: e['onTap'] as Function(),
+                      leading: e['avatar'].toString().contains(".svg")
+                          ? SvgPicture.asset(
+                              "assets/icons/${e['avatar']}",
+                              width: 20,
+                              height: 20,
                               color: Colors.black54,
-                              fontSize: 14,
+                            )
+                          : Image.asset(
+                              "assets/icons/${e['avatar']}",
+                              width: 20,
+                              height: 20,
+                              color: Colors.black54,
                             ),
-                          ),
-                        ),
-                        if (e['initial_data'] != null) ...{
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          ConstrainedBox(
-                            constraints: BoxConstraints(
-                              maxWidth: size.width * .3,
-                            ),
+                      trailing: e['onTap'] != null
+                          ? const Icon(
+                              Icons.chevron_right_outlined,
+                              color: Colors.black54,
+                            )
+                          : null,
+                      title: Row(
+                        children: [
+                          Expanded(
                             child: Text(
-                              e['initial_data'].toString(),
-                              maxLines: 1,
-                              textAlign: TextAlign.right,
-                              overflow: TextOverflow.ellipsis,
+                              e['title'].toString(),
                               style: const TextStyle(
-                                color: Colors.black38,
+                                color: Colors.black54,
                                 fontSize: 14,
                               ),
                             ),
-                          )
-                        },
-                      ],
+                          ),
+                          if (e['initial_data'] != null) ...{
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: size.width * .3,
+                              ),
+                              child: Text(
+                                e['initial_data'].toString(),
+                                maxLines: 1,
+                                textAlign: TextAlign.right,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.black38,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            )
+                          },
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                StreamBuilder<LatLng>(
-                  stream: _pos.stream,
-                  builder: (_, snapshot) {
-                    if (snapshot.hasError || !snapshot.hasData) {
-                      return Container();
-                    }
-                    final LatLng pos = snapshot.data!;
-                    return FutureBuilder<Placemark?>(
-                      future: _pos.translateCoordinate(),
-                      builder: (_, future) {
-                        if (future.hasError || !future.hasData) {
-                          return Container();
-                        }
-                        final Placemark placemark = future.data!;
-                        return Column(
-                          children: [
-                            Container(
-                              width: size.width,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 0, vertical: 10),
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.black12,
+                  StreamBuilder<LatLng>(
+                    stream: _pos.stream,
+                    builder: (_, snapshot) {
+                      if (snapshot.hasError || !snapshot.hasData) {
+                        return Container();
+                      }
+                      final LatLng pos = snapshot.data!;
+                      return FutureBuilder<Placemark?>(
+                        future: _pos.translateCoordinate(),
+                        builder: (_, future) {
+                          if (future.hasError || !future.hasData) {
+                            return Container();
+                          }
+                          final Placemark placemark = future.data!;
+                          return Column(
+                            children: [
+                              Container(
+                                width: size.width,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 0, vertical: 10),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: Colors.black12,
+                                    ),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Location",
+                                  style: TextStyle(
+                                    color: Colors.black54,
                                   ),
                                 ),
                               ),
-                              child: const Text(
-                                "Location",
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ),
-                            ...[
-                              {
-                                "title": "Country",
-                                "avatar": "country.png",
-                                "initial_data": placemark.country ?? "UNSET",
-                              },
-                              {
-                                "title": "City",
-                                "avatar": "city.png",
-                                "initial_data": placemark.locality ?? "UNSET",
-                              },
-                            ].map(
-                              (e) => ListTile(
-                                onTap: e['onTap'] as Function()?,
-                                leading: e['avatar'].toString().contains(".svg")
-                                    ? SvgPicture.asset(
-                                        "assets/icons/${e['avatar']}",
-                                        width: 20,
-                                        height: 20,
-                                        color: Colors.black54,
-                                      )
-                                    : Image.asset(
-                                        "assets/icons/${e['avatar']}",
-                                        width: 20,
-                                        height: 20,
-                                        color: Colors.black54,
-                                      ),
-                                trailing: e['onTap'] != null
-                                    ? const Icon(
-                                        Icons.chevron_right_outlined,
-                                        color: Colors.black54,
-                                      )
-                                    : null,
-                                title: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        e['title'].toString(),
-                                        style: const TextStyle(
+                              ...[
+                                {
+                                  "title": "Country",
+                                  "avatar": "country.png",
+                                  "initial_data": placemark.country ?? "UNSET",
+                                },
+                                {
+                                  "title": "City",
+                                  "avatar": "city.png",
+                                  "initial_data": placemark.locality ?? "UNSET",
+                                },
+                              ].map(
+                                (e) => ListTile(
+                                  onTap: e['onTap'] as Function()?,
+                                  leading:
+                                      e['avatar'].toString().contains(".svg")
+                                          ? SvgPicture.asset(
+                                              "assets/icons/${e['avatar']}",
+                                              width: 20,
+                                              height: 20,
+                                              color: Colors.black54,
+                                            )
+                                          : Image.asset(
+                                              "assets/icons/${e['avatar']}",
+                                              width: 20,
+                                              height: 20,
+                                              color: Colors.black54,
+                                            ),
+                                  trailing: e['onTap'] != null
+                                      ? const Icon(
+                                          Icons.chevron_right_outlined,
                                           color: Colors.black54,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ),
-                                    if (e['initial_data'] != null) ...{
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: size.width * .3,
-                                        ),
+                                        )
+                                      : null,
+                                  title: Row(
+                                    children: [
+                                      Expanded(
                                         child: Text(
-                                          e['initial_data'].toString(),
+                                          e['title'].toString(),
                                           style: const TextStyle(
-                                            color: Colors.black38,
+                                            color: Colors.black54,
                                             fontSize: 14,
                                           ),
                                         ),
-                                      )
-                                    },
-                                  ],
+                                      ),
+                                      if (e['initial_data'] != null) ...{
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxWidth: size.width * .3,
+                                          ),
+                                          child: Text(
+                                            e['initial_data'].toString(),
+                                            style: const TextStyle(
+                                              color: Colors.black38,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        )
+                                      },
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
-              ],
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

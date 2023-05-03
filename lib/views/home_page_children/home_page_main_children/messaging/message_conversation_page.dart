@@ -43,6 +43,12 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
     'jpeg',
     "gif",
   ];
+  static final List<String> docxExts = [
+    'doc',
+    'docx',
+    'docm',
+    'xls',
+  ];
   String? getExtension(String? file) {
     if (file == null) return null;
     int extIndex = file.lastIndexOf('.');
@@ -193,14 +199,6 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                           allowMultiple: false,
                           type: FileType.custom,
                           allowedExtensions: [
-                            'doc',
-                            'docx',
-                            'docm',
-                            'xls',
-                            'xlsx',
-                            'slk',
-                            'dif',
-                            'txt',
                             'pdf',
                             'jpg',
                             'png',
@@ -215,7 +213,9 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                               .ref()
                               .child(imgExts.contains(ext)
                                   ? 'chatroom_images'
-                                  : 'chatroom_files')
+                                  : docxExts.contains(ext)
+                                      ? "chatroom_docs"
+                                      : 'chatroom_files')
                               .child(widget.chatroomId)
                               .child(
                                   '${DateTime.now().millisecondsSinceEpoch}');

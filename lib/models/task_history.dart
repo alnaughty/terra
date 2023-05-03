@@ -1,4 +1,6 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:terra/models/category.dart';
+import 'package:terra/models/v2/terran.dart';
 import 'package:terra/utils/global.dart';
 
 class TaskHistory {
@@ -12,7 +14,10 @@ class TaskHistory {
   final bool isNegotiable;
   final int type;
   final int limit;
+  final List<ApplicationState> allApplicants;
+  final Category category;
   final ApplicationState applcationState;
+  final Terran postedBy;
   const TaskHistory({
     required this.id,
     required this.address,
@@ -25,6 +30,9 @@ class TaskHistory {
     required this.rate,
     required this.type,
     required this.urgency,
+    required this.allApplicants,
+    required this.postedBy,
+    required this.category,
   });
 
   factory TaskHistory.fromJson(Map<String, dynamic> json) {
@@ -33,32 +41,37 @@ class TaskHistory {
         .split(',')
         .map((e) => double.parse(e))
         .toList();
+    final List _applicants = json['applicants'] ?? [];
     return TaskHistory(
-      id: json['id'],
-      address: json['complete_address'] ?? "Unknown Address",
-      applcationState: ApplicationState.fromJson(
-        json['applicant'] ??
-            {
-              "id": 0,
-              "created_at": DateTime.now().toString(),
-              "updated_at": DateTime.now().toString(),
-              "status": "pending",
-              "rate": 0.0,
-              "user_id": loggedUser!.id,
-              "task_id": 0,
-            },
-      ),
-      coordinates: json['latlong'] == null
-          ? const LatLng(0.0, 0.0)
-          : LatLng(_latlng.first, _latlng.last),
-      isNegotiable: json['is_negotiable'] == 1,
-      jobStatus: json['status'] ?? "pending",
-      limit: json['limit'],
-      message: json['message'] ?? "",
-      rate: json['rate'] == null ? 0.0 : double.parse(json['rate'].toString()),
-      type: json['type'] ?? 1,
-      urgency: json['urgency'] ?? 1,
-    );
+        id: json['id'],
+        address: json['complete_address'] ?? "Unknown Address",
+        applcationState: ApplicationState.fromJson(
+          json['applicant'] ??
+              {
+                "id": 0,
+                "created_at": DateTime.now().toString(),
+                "updated_at": DateTime.now().toString(),
+                "status": "pending",
+                "rate": 0.0,
+                "user_id": loggedUser!.id,
+                "task_id": 0,
+              },
+        ),
+        coordinates: json['latlong'] == null
+            ? const LatLng(0.0, 0.0)
+            : LatLng(_latlng.first, _latlng.last),
+        isNegotiable: json['is_negotiable'] == 1,
+        jobStatus: json['status'] ?? "pending",
+        limit: json['limit'],
+        message: json['message'] ?? "",
+        rate:
+            json['rate'] == null ? 0.0 : double.parse(json['rate'].toString()),
+        type: json['type'] ?? 1,
+        urgency: json['urgency'] ?? 1,
+        allApplicants:
+            _applicants.map((e) => ApplicationState.fromJson(e)).toList(),
+        postedBy: Terran.fromJson(json['user']),
+        category: Category.fromJson(json['category']));
   }
 }
 

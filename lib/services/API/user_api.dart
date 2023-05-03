@@ -181,6 +181,27 @@ class UserApi {
     }
   }
 
+  Future<bool> updateBio(String bio) async {
+    try {
+      return await http.post(
+        "${Network.domain}/api/update-bio".toUri,
+        headers: {
+          "Accept": "application/json",
+          HttpHeaders.authorizationHeader: "Bearer $accessToken"
+        },
+        body: {
+          "bio": bio,
+        },
+      ).then((response) => response.statusCode == 200);
+    } catch (e, s) {
+      print("ERROR : $e $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing.",
+      );
+      return false;
+    }
+  }
+
   Future<void> uploadSelfie(String base64) async {
     try {
       return await http

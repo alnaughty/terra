@@ -290,8 +290,16 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                         ),
                         subtitle: Text.rich(
                           TextSpan(
-                            text: room.lastMessage?.message ??
-                                "No Conversations Yet",
+                            text: room.lastMessage == null
+                                ? "No Conversations Yet"
+                                : room.lastMessage!.message.isNotEmpty
+                                    ? room.lastMessage!.message
+                                    : room.lastMessage!.file != null
+                                        ? room.lastMessage!.file!
+                                                .contains("chatroom_images")
+                                            ? "Sent an image"
+                                            : "Sent an attachment"
+                                        : "",
                             style: TextStyle(
                               height: 1,
                               color: Colors.grey.shade500,

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart' as cup;
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:terra/extension/int.dart';
 import 'package:terra/extension/user.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:terra/services/API/job.dart';
@@ -205,11 +206,11 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                 height: 20,
                                 color: Colors.black54,
                               ),
-                              label: Text(widget.task.urgency == 1
-                                  ? "NOT URGENT"
-                                  : widget.task.urgency == 2
-                                      ? "MILD URGENCY"
-                                      : "URGENT"),
+                              label: Text(
+                                (widget.task.urgency ?? 1)
+                                    .toUrgency()
+                                    .toUpperCase(),
+                              ),
                             ),
                           ],
                         ),
