@@ -23,6 +23,7 @@ class SuggestedPostPage extends StatelessWidget {
               ? snapshot.data!.sublist(snapshot.data!.length - 5)
               : snapshot.data!;
           _tasks.sort((a, b) => b.datePosted.compareTo(a.datePosted));
+          if (_tasks.isEmpty) return Container();
           return LayoutBuilder(builder: (context, c) {
             final double w = c.maxWidth;
             return Column(

@@ -1,4 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:terra/services/facebook_auth_service.dart';
+import 'package:terra/services/google_auth_service.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/user_position.dart';
 import 'package:terra/view_model/applications.dart';
@@ -21,6 +23,8 @@ class DataCacher {
   static final TasksVm _taskVm = TasksVm.instance;
   static final PostedJobsVm _postedVm = PostedJobsVm.instance;
   static final TaskTodoVm _todoVm = TaskTodoVm.instance;
+  static final FacebookAuthService _fbAuth = FacebookAuthService.instance;
+  static final GoogleAuthService _gAuth = GoogleAuthService.instance;
   Future<void> clearAll() async {
     await removeFcmToken();
     await removeToken();
@@ -33,11 +37,30 @@ class DataCacher {
     _todoVm.dispose();
     loggedUser = null;
     accessToken = null;
+    int? signInType = getSignInMethod();
+    if (signInType == null || signInType == 0) {
+      return;
+    } else if (signInType == 1) {
+      await _gAuth.signOut();
+    } else if (signInType == 2) {
+      await _fbAuth.signOut();
+    }
   }
 
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
   }
+
+  //*
+  //0 = credentials
+  //1 = google
+  //2 = fb
+  //*/
+  Future<void> signInMethod(int i) async => await _prefs.setInt(
+        "sign-in-method",
+        i,
+      );
+  int? getSignInMethod() => _prefs.getInt("sign-in-method");
 
   Future<void> saveFcmToken(String tok) async {
     await _prefs.setString("fcm-token", tok);

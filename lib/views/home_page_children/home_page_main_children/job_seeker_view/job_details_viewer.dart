@@ -11,6 +11,7 @@ import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/views/home_page_children/application_and_recruitment/user_details.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/messaging/message_conversation_page.dart';
+import 'package:terra/views/home_page_children/home_page_main_children/negotiation_page.dart';
 import 'package:terra/views/home_page_children/map_page.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -189,12 +190,8 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                               // disabledColor: Colors.red,
                               surfaceTintColor: Colors.red,
                               selectedShadowColor: Colors.red,
-                              onPressed: widget.task.isNegotiable
-                                  ? () {
-                                      isNegotiating = !isNegotiating;
-                                      if (mounted) setState(() {});
-                                    }
-                                  : null,
+                              disabledColor: Colors.transparent,
+                              onPressed: () {},
                               label: Text(widget.task.isNegotiable
                                   ? "Negotiable Price"
                                   : "Fixed Price"),
@@ -214,42 +211,42 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                             ),
                           ],
                         ),
-                        if (widget.task.isNegotiable) ...{
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 500),
-                            height: isNegotiating ? 60 : 0,
-                            child: Row(
-                              children: [
-                                Text(
-                                  "Your Price:",
-                                  style: TextStyle(
-                                    color: Colors.grey.shade700,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 30,
-                                ),
-                                if (isNegotiating) ...{
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _negotiate,
-                                      keyboardType: TextInputType.number,
-                                      onSubmitted: (text) {
-                                        negotiatedPrice = double.parse(text);
-                                        if (mounted) setState(() {});
-                                      },
-                                    ),
-                                  )
-                                },
-                              ],
-                            ),
-                            // child: isNegotiating ? : Container(),
-                          ),
-                        },
+                        // if (widget.task.isNegotiable) ...{
+                        //   const SizedBox(
+                        //     height: 10,
+                        //   ),
+                        //   AnimatedContainer(
+                        //     duration: const Duration(milliseconds: 500),
+                        //     height: isNegotiating ? 60 : 0,
+                        //     child: Row(
+                        //       children: [
+                        //         Text(
+                        //           "Your Price:",
+                        //           style: TextStyle(
+                        //             color: Colors.grey.shade700,
+                        //             fontWeight: FontWeight.w400,
+                        //           ),
+                        //         ),
+                        //         const SizedBox(
+                        //           width: 30,
+                        //         ),
+                        //         if (isNegotiating) ...{
+                        //           Expanded(
+                        //             child: TextField(
+                        //               controller: _negotiate,
+                        //               keyboardType: TextInputType.number,
+                        //               onSubmitted: (text) {
+                        //                 negotiatedPrice = double.parse(text);
+                        //                 if (mounted) setState(() {});
+                        //               },
+                        //             ),
+                        //           )
+                        //         },
+                        //       ],
+                        //     ),
+                        //     // child: isNegotiating ? : Container(),
+                        //   ),
+                        // },
                         const SizedBox(
                           height: 10,
                         ),
@@ -288,6 +285,55 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                             ),
                           ),
                         ),
+                        if (widget.task.isNegotiable) ...{
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.black),
+                            ),
+                            child: MaterialButton(
+                              elevation: 0,
+                              color: _colors.bot,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              // color: Colors.grey.shade200,
+                              onPressed: () async {
+                                await Navigator.push(
+                                  context,
+                                  PageTransition(
+                                      child: NegotiationPage(
+                                        taskId: widget.task.id,
+                                      ),
+                                      type: PageTransitionType.leftToRight),
+                                );
+                              },
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Image.asset(
+                                    "assets/icons/negotiation.png",
+                                    width: 20,
+                                    height: 20,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  const Text(
+                                    "Start Negotiating",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        },
                         const SizedBox(
                           height: 20,
                         ),

@@ -17,7 +17,6 @@ class SelfiePage extends StatefulWidget {
 class _SelfiePageState extends State<SelfiePage> {
   late CameraController controller;
   final UserApi _api = UserApi();
-  String? _imagePath;
 
   @override
   void initState() {

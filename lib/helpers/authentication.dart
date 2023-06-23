@@ -81,6 +81,7 @@ class AuthenticationHelper {
   Future<void> login(context,
       {required String email, required String password}) async {
     try {
+      await _cacher.clearAll();
       await _authenticator
           .loginViaEmailAndPassword(email: email, password: password)
           .then(
@@ -89,9 +90,11 @@ class AuthenticationHelper {
             return await _api.login(id: value).then(
               (val) async {
                 if (val != null) {
+                  await Future.delayed(const Duration(milliseconds: 700));
                   await _cacher.seUserToken(val);
+                  await _cacher.signInMethod(0);
                   accessToken = val;
-                  await Navigator.pushReplacementNamed(context, "/home_page");
+                  await Navigator.pushReplacementNamed(context, "/check_page");
                   return;
                 } else {
                   print("WARA ACCESSTOKEN");

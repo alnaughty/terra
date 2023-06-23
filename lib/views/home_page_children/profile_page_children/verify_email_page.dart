@@ -263,9 +263,9 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Row(
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
+                              children: [
                                 Icon(
                                   Icons.verified,
                                   color: Colors.white,

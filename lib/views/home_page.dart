@@ -13,6 +13,7 @@ import 'package:terra/services/firebase_messaging.dart';
 import 'package:terra/services/landing_processes.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/view_data_component/splash_screen_dc.dart';
 import 'package:terra/view_data_component/user_position.dart';
 import 'package:terra/view_model/applications.dart';
 import 'package:terra/view_model/chat_rooms_vm.dart';
@@ -30,7 +31,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin, UserApi, CategoryApi {
+    with SingleTickerProviderStateMixin, UserApi, CategoryApi, SplashScreenDc {
   static final ApplicationApi _appApi = ApplicationApi.instance;
   static final LandingProcesses _process = LandingProcesses.instance;
   static final ChatService chatRoomService = ChatService.instance;
@@ -70,7 +71,30 @@ class _HomePageState extends State<HomePage>
     if (mounted) setState(() {});
   }
 
+  // Future<void> initPlatform() async {
+  //   await hasString().then((value) async {
+  //     await Future.delayed(const Duration(milliseconds: 1500));
+  //     if (value) {
+  //       setState(() {
+  //         accessToken = _cacher.getUserToken();
+  //       });
+
+  //       ///GO TO HOME PAGE
+  //       print("GO TO GHOME");
+  //       // ignore: use_build_context_synchronously
+  //       // await Navigator.pushReplacementNamed(context, "/home_page");
+  //     } else {
+  //       /// GO TO LANDING PAGE
+
+  //       print("GO TO LANDING");
+  //       // ignore: use_build_context_synchronously
+  //       await Navigator.pushReplacementNamed(context, "/landing_page");
+  //     }
+  //   });
+  // }
+
   Future<void> init() async {
+    // await initPlatform();
     await details().then((value) async {
       if (value != null) {
         loggedUser = value;

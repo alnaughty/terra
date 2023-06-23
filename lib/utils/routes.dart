@@ -21,6 +21,7 @@ import 'package:terra/views/home_page_children/profile_page_children/verify_emai
 import 'package:terra/views/landing_page.dart';
 import 'package:terra/views/landing_page_children/auth/login_page.dart';
 import 'package:terra/views/landing_page_children/auth/register_page.dart';
+import 'package:terra/views/landing_page_children/check_page.dart';
 
 class RouteData {
   RouteData._pr();
@@ -36,7 +37,13 @@ class RouteData {
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
         );
-
+      case "/check_page":
+        return PageTransition(
+          child: const CheckPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _transitionDuration,
+          reverseDuration: _transitionDuration,
+        );
       case "/selfie_page":
         return PageTransition(
           child: const SelfiePage(),

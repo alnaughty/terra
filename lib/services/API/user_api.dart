@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/user_details.dart';
 import 'package:http/http.dart' as http;
+import 'package:terra/models/v2/negotiation_model.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/utils/network.dart';
@@ -11,6 +12,28 @@ import 'package:terra/utils/network.dart';
 class UserApi {
   final DataCacher _cacher = DataCacher.instance;
   // Future<bool> updateAccountType() async {}
+
+  Future<List<NegotiationModel>> getMyNegotiations() async {
+    try {
+      return await http.get(
+          "${Network.domain}/api/applicant-negotiation/${loggedUser!.id}".toUri,
+          headers: {
+            "Accept": "application/json",
+            HttpHeaders.authorizationHeader: "Bearer $accessToken",
+          }).then((response) {
+        if (response.statusCode == 200) {
+          var data = json.decode(response.body);
+          print("DATA $data");
+          final List result = data['negotiations'] as List;
+          return result.map((e) => NegotiationModel.fromJson(e)).toList();
+        }
+        return List.empty();
+      });
+    } catch (e) {
+      return List.empty();
+    }
+  }
+
   Future<UserDetails?> details() async {
     try {
       print("TOKEN : $accessToken");

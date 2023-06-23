@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/task_history.dart' as model;
+import 'package:terra/models/v2/negotiation_model.dart';
 import 'package:terra/models/v2/raw_task.dart';
 import 'package:terra/models/v2/task.dart';
 import 'package:http/http.dart' as http;
@@ -72,6 +73,88 @@ class TaskAPIV2 {
         msg: "An unexpected error occurred while processing the request.",
       );
       return false;
+    }
+  }
+
+  Future<bool> approveNegotiation(int id) async {
+    try {
+      return await http
+          .put("${Network.domain}/api/approve-negotiation/$id".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "You Approved a Negotiation");
+          return true;
+        }
+        Fluttertoast.showToast(
+            msg: "Error ${response.statusCode} : ${response.reasonPhrase}");
+        return false;
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> negotiate(String price, int taskId) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/negotiation".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "price": price,
+        "task_id": "$taskId",
+        "applicant_id": "${loggedUser!.id}",
+      }).then((response) {
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(msg: "Offer submitted");
+          return true;
+        }
+        Fluttertoast.showToast(
+          msg: "Error${response.statusCode} : ${response.reasonPhrase}",
+        );
+        return false;
+      });
+    } catch (e, s) {
+      print("ERROR: $e");
+      print("STACKTRACE : $s");
+      Fluttertoast.showToast(
+        msg: "An unexpected error occurred while processing the request.",
+      );
+      return false;
+    }
+  }
+
+  Future<List<NegotiationModel>> getNegotiations(int id) async {
+    try {
+      return await http
+          .get("${Network.domain}/api/task-negotiation/$id".toUri, headers: {
+        "accept": "application/json",
+        HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }).then((response) {
+        var data = json.decode(response.body);
+        if (response.statusCode == 200) {
+          print("DATA $data");
+          var nego = data['negotiations'] ?? [];
+          final bool isList = nego.runtimeType == List;
+          if (!isList) {
+            final Map res = nego;
+            final List allData =
+                res.entries.expand((element) => element.value).toList();
+            print("ALL DATA $allData");
+            return allData.map((e) => NegotiationModel.fromJson(e)).toList();
+          }
+          final List res = nego;
+
+          print("IS LIST : $isList");
+
+          return res.map((e) => NegotiationModel.fromJson(e)).toList();
+        }
+        return List.empty();
+      });
+    } catch (e) {
+      return List.empty();
     }
   }
 

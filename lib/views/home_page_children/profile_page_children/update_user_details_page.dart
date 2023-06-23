@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:intl/intl.dart';
+import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
@@ -24,8 +24,10 @@ class _UpdateUserDetailsPageState extends State<UpdateUserDetailsPage> {
   @override
   void initState() {
     // TODO: implement initState
-    _ln = TextEditingController()..text = loggedUser!.lastName.capitalize();
-    _fn = TextEditingController()..text = loggedUser!.firstName.capitalize();
+    _ln = TextEditingController()
+      ..text = loggedUser!.lastName.capitalizeWords();
+    _fn = TextEditingController()
+      ..text = loggedUser!.firstName.capitalizeWords();
     _birthdate = TextEditingController()
       ..text = loggedUser!.birthdate.toString();
     _phoneNumber = TextEditingController()..text = loggedUser!.phoneNumber;

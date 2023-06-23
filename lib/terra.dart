@@ -37,18 +37,23 @@ class TerraApp extends StatelessWidget {
                 MaterialStateProperty.resolveWith((states) => _colors.top),
           ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(
-              color: _colors.top,
-            ),
-          ),
-          hintStyle: const TextStyle(
+        inputDecorationTheme: const InputDecorationTheme(
+          // border: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(10),
+          // ),
+          border: InputBorder.none,
+          // focusedBorder: OutlineInputBorder(
+          //   borderRadius: BorderRadius.circular(10),
+          //   borderSide: BorderSide(
+          //     color: _colors.top,
+          //   ),
+          // ),
+          focusedBorder: InputBorder.none,
+          hintStyle: TextStyle(
             color: Colors.grey,
+          ),
+          labelStyle: TextStyle(
+            color: Color(0xFFB5AEAE),
           ),
         ),
       ),

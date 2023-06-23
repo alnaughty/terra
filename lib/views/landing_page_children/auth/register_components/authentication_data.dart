@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
+import 'package:terra/services/url_launcher.dart';
 import 'package:terra/utils/color.dart';
 
 class AuthenticationData extends StatefulWidget {
@@ -21,6 +23,7 @@ class AuthenticationData extends StatefulWidget {
 
 class AuthenticationDataState extends State<AuthenticationData> {
   final AppColors _colors = AppColors.instance;
+  final Launcher _launcher = Launcher();
   final List<String> _accountType = [
     "Job Seeker",
     "Employer",
@@ -257,14 +260,40 @@ class AuthenticationDataState extends State<AuthenticationData> {
                 },
               ),
             ),
-            const Expanded(
-              child: Text(
-                "I agree to the Terms of Services of Terra.Ph",
-                style: TextStyle(
-                  color: Colors.black,
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                  text: "I agree to the ",
+                  style: const TextStyle(
+                    color: Colors.black,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: "Terms of Services",
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          await _launcher
+                              .launch("https://terra-app.ph/terms-of-services");
+                        },
+                      style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        decorationColor: _colors.top,
+                        color: _colors.top,
+                      ),
+                    ),
+                    const TextSpan(text: " of Terra.Ph")
+                  ],
                 ),
               ),
             ),
+            // const Expanded(
+            //   child: Text(
+            //     "I agree to the Terms of Services of Terra.Ph",
+            // style: TextStyle(
+            //   color: Colors.black,
+            // ),
+            //   ),
+            // ),
           ],
         ),
         const SizedBox(
@@ -290,12 +319,30 @@ class AuthenticationDataState extends State<AuthenticationData> {
                 },
               ),
             ),
-            const Expanded(
-              child: Text(
-                "I agree to the processing of my personal data in accordance with the Privacy Policy of Terra.Ph",
-                style: TextStyle(
-                  color: Colors.black,
-                ),
+            Expanded(
+              child: Text.rich(
+                TextSpan(
+                    text:
+                        "I agree to the processing of my personal data in accordance with the ",
+                    style: const TextStyle(
+                      color: Colors.black,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: "Privacy Policy",
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            await _launcher
+                                .launch("https://terra-app.ph/privacy-policy");
+                          },
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          decorationColor: _colors.top,
+                          color: _colors.top,
+                        ),
+                      ),
+                      const TextSpan(text: " of Terra.Ph")
+                    ]),
               ),
             ),
           ],
@@ -304,3 +351,10 @@ class AuthenticationDataState extends State<AuthenticationData> {
     );
   }
 }
+
+              // child: Text(
+              //   "I agree to the processing of my personal data in accordance with the Privacy Policy of Terra.Ph",
+                // style: TextStyle(
+                //   color: Colors.black,
+                // ),
+              // ),

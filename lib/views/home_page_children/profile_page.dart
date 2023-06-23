@@ -6,6 +6,7 @@ import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/extension/user.dart';
 import 'package:terra/services/API/auth.dart';
@@ -20,6 +21,8 @@ import 'package:terra/view_model/todo_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/skill_update.dart';
 import 'package:terra/views/home_page_children/profile_page_children/password_reset_page.dart';
 import 'package:terra/views/home_page_children/profile_page_children/security_choice.dart';
+
+import 'profile_page_children/my_negotiation_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -352,7 +355,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Welcome, ${loggedUser!.firstName.capitalize()}",
+                            "Welcome, ${loggedUser!.firstName.capitalizeWords()}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -596,6 +599,78 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                   ),
+                  // Container(
+                  //   width: size.width,
+                  //   padding:
+                  //       const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                  //   decoration: const BoxDecoration(
+                  //     color: Colors.white,
+                  //     border: Border(
+                  //       bottom: BorderSide(
+                  //         color: Colors.black12,
+                  //       ),
+                  //     ),
+                  //   ),
+                  //   child: const Text(
+                  //     "Transactions",
+                  //     style: TextStyle(
+                  //       color: Colors.black54,
+                  //     ),
+                  //   ),
+                  // ),
+                  // ListTile(
+                  //   onTap: () async {
+                  //     await Navigator.push(
+                  //       context,
+                  //       PageTransition(
+                  //           child: const MyNegotiationPage(),
+                  //           type: PageTransitionType.leftToRight),
+                  //     );
+                  //   },
+                  //   leading: Image.asset(
+                  //     "assets/icons/negotiation.png",
+                  //     width: 20,
+                  //     height: 20,
+                  //     color: Colors.black54,
+                  //   ),
+                  //   trailing: const Icon(
+                  //     Icons.chevron_right_outlined,
+                  //     color: Colors.black54,
+                  //   ),
+                  //   title: Row(
+                  //     children: const [
+                  //       Expanded(
+                  //         child: Text(
+                  //           "My Negotiations",
+                  //           style: TextStyle(
+                  //             color: Colors.black54,
+                  //             fontSize: 14,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       // if (e['initial_data'] != null) ...{
+                  //       //   const SizedBox(
+                  //       //     width: 10,
+                  //       //   ),
+                  //       //   ConstrainedBox(
+                  //       //     constraints: BoxConstraints(
+                  //       //       maxWidth: size.width * .3,
+                  //       //     ),
+                  //       //     child: Text(
+                  //       //       e['initial_data'].toString(),
+                  //       //       maxLines: 1,
+                  //       //       textAlign: TextAlign.right,
+                  //       //       overflow: TextOverflow.ellipsis,
+                  //       //       style: const TextStyle(
+                  //       //         color: Colors.black38,
+                  //       //         fontSize: 14,
+                  //       //       ),
+                  //       //     ),
+                  //       //   )
+                  //       // },
+                  //     ],
+                  //   ),
+                  // ),
                   StreamBuilder<LatLng>(
                     stream: _pos.stream,
                     builder: (_, snapshot) {

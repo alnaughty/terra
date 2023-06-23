@@ -14,7 +14,11 @@ extension PhoneChecker on String {
 
 extension Currency on String {
   static final regExp = RegExp(r"^\s*-?[0-9]{1,10}\s*$");
+  static final regExp2 = RegExp(
+    r"/(\d)(?=(\d{3})+(?!\d))/",
+  );
   bool isValidInt() => regExp.hasMatch(this);
+  bool isValidMoney() => regExp2.hasMatch(this);
 }
 
 extension ToURI on String {
