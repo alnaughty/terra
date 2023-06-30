@@ -57,7 +57,8 @@ class UserDetails {
       email: json['email'] ?? "terra@app.ph",
       accountType: json['account_type'].toInt(),
       phoneNumber: json['mobile_number'],
-      avatar: "${Network.domain}${json['avatar']}",
+      avatar:
+          json['avatar'] == null ? "" : "${Network.domain}${json['avatar']}",
       status: json['status'],
       fullName: json['fullname'],
       city: json['city'],

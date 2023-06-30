@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:terra/views/home_page.dart';
+import 'package:terra/views/landing_page.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/applicant_page.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/employer_view/browse_employee_page.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/job_seeker_view/job_listing_page.dart';
@@ -30,13 +30,13 @@ class RouteData {
   static const Duration _transitionDuration = Duration(milliseconds: 500);
   Route<dynamic>? Function(RouteSettings) settings = (RouteSettings settings) {
     switch (settings.name) {
-      case "/landing_page":
-        return PageTransition(
-          child: const LandingPage(),
-          type: PageTransitionType.rightToLeft,
-          duration: _transitionDuration,
-          reverseDuration: _transitionDuration,
-        );
+      // case "/landing_page":
+      //   return PageTransition(
+      //     child: const LandingPage(),
+      //     type: PageTransitionType.rightToLeft,
+      //     duration: _transitionDuration,
+      //     reverseDuration: _transitionDuration,
+      //   );
       case "/check_page":
         return PageTransition(
           child: const CheckPage(),
@@ -96,9 +96,9 @@ class RouteData {
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,
         );
-      case "/home_page":
+      case "/landing_page":
         return PageTransition(
-          child: const HomePage(),
+          child: const LandingPage(),
           type: PageTransitionType.rightToLeft,
           duration: _transitionDuration,
           reverseDuration: _transitionDuration,

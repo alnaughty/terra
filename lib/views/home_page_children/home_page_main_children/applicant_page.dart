@@ -86,7 +86,11 @@ class _ApplicantPageState extends State<ApplicantPage> {
                                 ListTile(
                                   leading: CircleAvatar(
                                     backgroundColor: Colors.white,
-                                    child: Image.network(_u.user.avatar),
+                                    child: _u.user.avatar.isEmpty
+                                        ? Image.asset(
+                                            "assets/images/icon-logo.png",
+                                          )
+                                        : Image.network(_u.user.avatar),
                                   ),
                                   title: Text(
                                     _u.user.fullName,

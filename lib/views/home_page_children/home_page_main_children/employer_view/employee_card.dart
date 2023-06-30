@@ -34,7 +34,11 @@ class _EmployeeCardState extends State<EmployeeCard> {
                     Positioned.fill(
                       child: CircleAvatar(
                         backgroundColor: Colors.white,
-                        child: Image.network(widget.data.avatar),
+                        child: widget.data.avatar.isEmpty
+                            ? Image.asset(
+                                "assets/images/icon-logo.png",
+                              )
+                            : Image.network(widget.data.avatar),
                       ),
                     ),
                     Positioned(

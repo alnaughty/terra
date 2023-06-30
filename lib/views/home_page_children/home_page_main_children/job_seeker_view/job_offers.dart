@@ -114,11 +114,17 @@ class _JobOffersState extends State<JobOffers> {
                                         children: [
                                           CircleAvatar(
                                             backgroundColor: Colors.white,
-                                            child: Image.network(
-                                              job.recruiter.avatar,
-                                              height: 50,
-                                              width: 50,
-                                            ),
+                                            child: job.recruiter.avatar.isEmpty
+                                                ? Image.asset(
+                                                    "assets/images/icon-logo.png",
+                                                    width: 50,
+                                                    height: 50,
+                                                  )
+                                                : Image.network(
+                                                    job.recruiter.avatar,
+                                                    height: 50,
+                                                    width: 50,
+                                                  ),
                                           ),
                                           const SizedBox(
                                             width: 20,

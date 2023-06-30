@@ -41,31 +41,6 @@ class AuthApi {
         "city": city,
         "country": country,
       }..removeWhere((_, value) => value == null));
-      // final Map<String, dynamic> _body = {
-      //   "first_name": firstName,
-      //   "last_name": lastName,
-      //   "password": password,
-      //   "c_password": password,
-      //   "email": email,
-      //   "account_type": accountType.toString(),
-      //   "mobile_number": phoneNumber,
-      //   "firebase_id": uid,
-      // };
-      // if (brgy != null) {
-      //   _body.addAll({
-      //     "barangay": brgy,
-      //   });
-      // }
-      // if (city != null) {
-      //   _body.addAll({
-      //     "city": city,
-      //   });
-      // }
-      // if (country != null) {
-      //   _body.addAll({
-      //     "country": country,
-      //   });
-      // }
       return await http
           .post(
         "${Network.domain}/api/register".toUri,
@@ -74,11 +49,15 @@ class AuthApi {
       )
           .then((response) async {
         var data = json.decode(response.body);
+        print("DATA : $data");
         if (response.statusCode == 200 || response.statusCode == 201) {
-          print("DATA : $data");
           _cacher.seUserToken(data['access_token']);
+          accessToken = data['access_token'];
           return data['access_token'];
         }
+        Fluttertoast.showToast(
+            msg: "Error ${response.statusCode} : ${response.reasonPhrase}");
+        print("ERROR : ${response.statusCode}");
         return null;
       });
     } catch (e, s) {
@@ -105,6 +84,11 @@ class AuthApi {
             _cacher.seUserToken(data['access_token']);
             accessToken = data['access_token'];
             return data['access_token'];
+          } else if (response.statusCode == 400 || response.statusCode == 404) {
+            Fluttertoast.showToast(
+              msg: "Account incomplete, please complete the setup",
+            );
+            return null;
           }
           Fluttertoast.showToast(
               msg: "Error ${response.statusCode} : ${response.reasonPhrase}");
@@ -133,9 +117,10 @@ class AuthApi {
         if (response.statusCode == 200) {
           accessToken = null;
           loggedUser = null;
-          await _cacher.removeToken();
-          await _auth.logout().whenComplete(() async =>
-              await Navigator.pushReplacementNamed(context, "/landing_page"));
+          await _cacher.clearAll();
+          await _auth.logout().whenComplete(
+                () async => await Navigator.pushReplacementNamed(context, "/"),
+              );
 
           return;
         } else {

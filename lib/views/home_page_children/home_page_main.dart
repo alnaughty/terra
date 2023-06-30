@@ -101,15 +101,21 @@ class _HomePageMainState extends State<HomePageMain> with CategoryApi {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(50),
-                            child: CachedNetworkImage(
-                              imageUrl: loggedUser!.avatar,
-                              height: 40,
-                              width: 40,
-                              placeholder: (_, s) => Image.asset(
-                                "assets/images/loader.gif",
-                                width: 40,
-                              ),
-                            ),
+                            child: loggedUser!.avatar.isEmpty
+                                ? Image.asset(
+                                    "assets/images/icon-logo.png",
+                                    width: 40,
+                                    height: 40,
+                                  )
+                                : CachedNetworkImage(
+                                    imageUrl: loggedUser!.avatar,
+                                    height: 40,
+                                    width: 40,
+                                    placeholder: (_, s) => Image.asset(
+                                      "assets/images/loader.gif",
+                                      width: 40,
+                                    ),
+                                  ),
                           ),
                           const SizedBox(
                             width: 10,

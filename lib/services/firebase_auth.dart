@@ -109,17 +109,17 @@ class FirebaseAuthenticator {
   ///Register account to firebase
   ///
   Future<String?> registerViaEmailAndPassword(
-      {required String fullname,
-      required String email,
-      required String password}) async {
+      {required String email, required String password}) async {
     try {
       UserCredential creds = await auth.createUserWithEmailAndPassword(
           email: email, password: password);
       if (creds.user != null) {
-        await creds.user!.updateDisplayName(fullname);
+        final User? firebaseUser = creds.user;
+        if (firebaseUser != null) return firebaseUser.uid;
+        // await creds.user!.updateDisplayName(fullname);
         // await creds.user!.updatePhoneNumber(PhoneAuthProvider.credential(
         //     verificationId: verificationId, smsCode: smsCode));
-        return creds.user!.uid;
+        return null;
       }
       return null;
     } on FirebaseAuthException catch (e) {
@@ -145,14 +145,13 @@ class FirebaseAuthenticator {
       return null;
     } on HttpException {
       Fluttertoast.showToast(
-          msg:
-              "Une erreur s'est produite lors de l'exécution de cette opération");
+          msg: "An error occurred while processing your request");
       return null;
     } on FormatException {
-      Fluttertoast.showToast(msg: "Erreur de format");
+      Fluttertoast.showToast(msg: "Format Error");
       return null;
     } on TimeoutException {
-      Fluttertoast.showToast(msg: "Pas de connexion Internet : timeout");
+      Fluttertoast.showToast(msg: "No internet connection : Timeout");
       return null;
     }
   }

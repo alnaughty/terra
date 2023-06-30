@@ -198,6 +198,7 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                         height: 60,
                         color: _colors.top,
                         onPressed: () async {
+                          FocusScope.of(context).unfocus();
                           if (_kEmailForm.currentState!.validate() &&
                               _kPasswordForm.currentState!.validate()) {
                             setState(() {
@@ -214,7 +215,7 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                           }
                         },
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(5),
                         ),
                         child: const SizedBox(
                           width: double.maxFinite,
@@ -294,7 +295,10 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                         text: TextSpan(
                             text: "New to our plaform? ",
                             style: const TextStyle(
-                                color: Colors.black54, fontFamily: "Terra"),
+                              color: Colors.black54,
+                              fontFamily: "Terra",
+                              fontSize: 15,
+                            ),
                             children: [
                               TextSpan(
                                 text: "Register now",

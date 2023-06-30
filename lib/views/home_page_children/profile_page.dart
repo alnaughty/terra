@@ -340,11 +340,17 @@ class _ProfilePageState extends State<ProfilePage> {
                       borderRadius: BorderRadius.circular(100),
                       child: Container(
                         color: Colors.white,
-                        child: Image.network(
-                          loggedUser!.avatar,
-                          width: 40,
-                          height: 40,
-                        ),
+                        child: loggedUser!.avatar.isEmpty
+                            ? Image.asset(
+                                "assets/images/icon-logo.png",
+                                width: 40,
+                                height: 40,
+                              )
+                            : Image.network(
+                                loggedUser!.avatar,
+                                width: 40,
+                                height: 40,
+                              ),
                       ),
                     ),
                     const SizedBox(
@@ -381,8 +387,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onPressed: () async {
                         widget.loadingCallback(true);
                         await _api.logout(context).whenComplete(
-                          () async {
-                            await _cacher.clearAll();
+                          () {
                             widget.loadingCallback(false);
                           },
                         );
