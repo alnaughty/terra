@@ -113,6 +113,9 @@ class _ApplicationAndRecruitmentDetailsState
                                         widget.data.applicationFrom.avatar,
                                     targetId:
                                         widget.data.applicationFrom.firebaseId,
+                                    targetServerId: widget
+                                        .data.applicationFrom.id
+                                        .toString(),
                                   ),
                                   type: PageTransitionType.leftToRight));
                         });

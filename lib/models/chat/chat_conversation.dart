@@ -3,16 +3,19 @@ class ChatConversation {
   final String message;
   final String senderId;
   final DateTime timeStamp;
+  bool sent;
   final String? file;
   ChatConversation({
     required this.id,
     required this.message,
     required this.timeStamp,
     this.file,
+    this.sent = true,
     required this.senderId,
   });
   factory ChatConversation.fromMap(Map<dynamic, dynamic> map) =>
       ChatConversation(
+        sent: true,
         senderId: map.values.first['sender_id'],
         id: map.keys.first,
         message: map.values.first['message'],
@@ -23,6 +26,7 @@ class ChatConversation {
   factory ChatConversation.fromJson(Map<String, dynamic> json) {
     print("DATA ${json['senderId']}");
     return ChatConversation(
+      sent: true,
       senderId: json['senderId'],
       id: "",
       message: json['message'],
@@ -42,5 +46,6 @@ class ChatConversation {
         "timestamp": timeStamp.millisecondsSinceEpoch,
         "senderId": senderId,
         "file": file,
+        "sent": sent,
       };
 }

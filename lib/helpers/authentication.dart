@@ -169,7 +169,6 @@ class AuthenticationHelper {
   Future<void> login(context,
       {required String email, required String password}) async {
     try {
-      await _cacher.clearAll();
       await _authenticator
           .loginViaEmailAndPassword(email: email, password: password)
           .then(
@@ -183,7 +182,7 @@ class AuthenticationHelper {
                     loggedUser = v;
                   });
                   await Future.delayed(const Duration(milliseconds: 700));
-                  await _cacher.seUserToken(val);
+                  await _cacher.setUserToken(val);
                   await _cacher.signInMethod(0);
                   accessToken = val;
                   await Navigator.pushReplacementNamed(context, "/check_page");
@@ -200,7 +199,7 @@ class AuthenticationHelper {
                       type: PageTransitionType.leftToRight,
                     ),
                   );
-                  print("WARA ACCESSTOKEN");
+                  print("WARA ACCESSTOKENs");
                 }
               },
             );

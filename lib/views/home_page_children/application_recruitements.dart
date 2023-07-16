@@ -42,15 +42,18 @@ class _JobsRecordPageState extends State<JobsRecordPage> {
               ),
             ),
             child: SafeArea(
-              bottom: false,
-              child: Text(
-                "Job ${loggedUser!.accountType == 1 ? "Recruitments" : "Applicants"}",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                ),
-              ),
-            ),
+                bottom: false,
+                child: Row(
+                  children: [
+                    Text(
+                      "Job ${loggedUser!.accountType == 1 ? "Recruitments" : "Applicants"}",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                )),
           ),
           Container(
             width: double.maxFinite,
@@ -85,15 +88,49 @@ class _JobsRecordPageState extends State<JobsRecordPage> {
                   }
                   final List<MyApplication> _applications = snapshot.data!;
                   if (_applications.isEmpty) {
-                    return Center(
-                      child: Text(
-                        "No ${loggedUser!.accountType == 1 ? "Recruitement" : "Applicants"} Available",
-                        style: const TextStyle(
-                          color: Colors.black38,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "No ${loggedUser!.accountType == 1 ? "Recruitments" : "Applicants"} Available",
+                          style: const TextStyle(
+                            color: Colors.black38,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.black38)),
+                          child: GestureDetector(
+                            onTap: () async {
+                              _vm.dispose();
+                              if (mounted) setState(() {});
+                              await _api.fetchUserApplication().then((value) {
+                                _vm.populate(value);
+                                print("REFETCHED!");
+                              });
+                            },
+                            child: const Text(
+                              "Refresh",
+                              style: TextStyle(
+                                color: Colors.black38,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     );
                   }
                   _applications

@@ -85,7 +85,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 30),
                                     child: Text(
-                                      "We have sent a password recover instructions to your email.",
+                                      "We have sent a password recovery instructions to your email.",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                         color: Colors.black.withOpacity(.5),

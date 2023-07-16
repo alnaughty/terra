@@ -225,59 +225,59 @@ class UserApi {
     }
   }
 
-  Future<void> uploadSelfie(String base64) async {
-    try {
-      return await http
-          .post("${Network.domain}/api/upload-selfie".toUri, headers: {
-        "Accept": "application/json",
-        HttpHeaders.authorizationHeader: "Bearer $accessToken"
-      }, body: {
-        "selfie": "data:image/jpg;base64,$base64",
-      }).then((response) {
-        if (response.statusCode == 200) {
-          Fluttertoast.showToast(msg: "Selfie uploaded");
-          loggedUser!.hasSelfie = true;
-          return;
-        } else if (response.statusCode == 413) {
-          Fluttertoast.showToast(msg: "Unable to send image, file too large!");
-          return;
-        } else {
-          Fluttertoast.showToast(msg: "Unable to send image, please try again");
-          return;
-        }
-      });
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Unable to send image, please try again");
-      return;
-    }
-  }
+  // Future<void> uploadSelfie(String base64) async {
+  //   try {
+  //     return await http
+  //         .post("${Network.domain}/api/upload-selfie".toUri, headers: {
+  //       "Accept": "application/json",
+  //       HttpHeaders.authorizationHeader: "Bearer $accessToken"
+  //     }, body: {
+  //       "selfie": "data:image/jpg;base64,$base64",
+  //     }).then((response) {
+  //       if (response.statusCode == 200) {
+  //         Fluttertoast.showToast(msg: "Selfie uploaded");
+  //         loggedUser!.hasSelfie = true;
+  //         return;
+  //       } else if (response.statusCode == 413) {
+  //         Fluttertoast.showToast(msg: "Unable to send image, file too large!");
+  //         return;
+  //       } else {
+  //         Fluttertoast.showToast(msg: "Unable to send image, please try again");
+  //         return;
+  //       }
+  //     });
+  //   } catch (e) {
+  //     Fluttertoast.showToast(msg: "Unable to send image, please try again");
+  //     return;
+  //   }
+  // }
 
-  Future<void> uploadId(String base64) async {
-    try {
-      return await http
-          .post("${Network.domain}/api/upload-document".toUri, headers: {
-        "Accept": "application/json",
-        HttpHeaders.authorizationHeader: "Bearer $accessToken"
-      }, body: {
-        "document": "data:image/jpg;base64,$base64",
-      }).then((response) {
-        if (response.statusCode == 200) {
-          Fluttertoast.showToast(msg: "Document uploaded");
-          loggedUser!.hasUploadedId = true;
-          return;
-        } else if (response.statusCode == 413) {
-          Fluttertoast.showToast(msg: "Unable to send image, file too large!");
-          return;
-        } else {
-          Fluttertoast.showToast(msg: "Unable to send image, please try again");
-          return;
-        }
-      });
-    } catch (e) {
-      Fluttertoast.showToast(msg: "Unable to send image, please try again");
-      return;
-    }
-  }
+  // Future<void> uploadId(String base64) async {
+  //   try {
+  //     return await http
+  //         .post("${Network.domain}/api/upload-document".toUri, headers: {
+  //       "Accept": "application/json",
+  //       HttpHeaders.authorizationHeader: "Bearer $accessToken"
+  //     }, body: {
+  //       "document": "data:image/jpg;base64,$base64",
+  //     }).then((response) {
+  //       if (response.statusCode == 200) {
+  //         Fluttertoast.showToast(msg: "Document uploaded");
+  //         loggedUser!.hasUploadedId = true;
+  //         return;
+  //       } else if (response.statusCode == 413) {
+  //         Fluttertoast.showToast(msg: "Unable to send image, file too large!");
+  //         return;
+  //       } else {
+  //         Fluttertoast.showToast(msg: "Unable to send image, please try again");
+  //         return;
+  //       }
+  //     });
+  //   } catch (e) {
+  //     Fluttertoast.showToast(msg: "Unable to send image, please try again");
+  //     return;
+  //   }
+  // }
 
   Future<void> validateEmail() async {
     try {

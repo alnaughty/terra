@@ -49,7 +49,9 @@ class GoogleAuthService {
     } on SocketException {
       Fluttertoast.showToast(msg: "No Internet Connection");
       return null;
-    } on HttpException {
+    } on HttpException catch (e, s) {
+      print("ERROR : $e");
+      print("TRACE : $s");
       Fluttertoast.showToast(
           msg: "An error has occurred while processing your request.");
       return null;

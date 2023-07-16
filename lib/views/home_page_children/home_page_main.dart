@@ -195,24 +195,24 @@ class _HomePageMainState extends State<HomePageMain> with CategoryApi {
                           );
                         },
                       ),
-                      const SizedBox(
-                        height: 40,
-                      ),
-                      SearchField(
-                        controller: _search,
-                        onFinished: (String text) async {
-                          await Navigator.pushNamed(
-                            context,
-                            "/job_listing",
-                            arguments: [null, text],
-                          );
-                        },
-                      )
+                      // const SizedBox(
+                      //   height: 40,
+                      // ),
+                      // SearchField(
+                      //   controller: _search,
+                      //   onFinished: (String text) async {
+                      //     await Navigator.pushNamed(
+                      //       context,
+                      //       "/job_listing",
+                      //       arguments: [null, text],
+                      //     );
+                      //   },
+                      // )
                     ],
                   ),
                 ),
                 const SizedBox(
-                  height: 40,
+                  height: 20,
                 ),
                 const CategoryListviewHorizontal(),
                 const SizedBox(

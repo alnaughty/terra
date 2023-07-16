@@ -25,14 +25,16 @@ class _SplashScreenState extends State<SplashScreen> with SplashScreenDc {
           accessToken = _cacher.getUserToken();
         });
         await _api.details().then((value) {
-          loggedUser = value;
+          setState(() {
+            loggedUser = value;
+          });
         });
         print("EMAIL : ${loggedUser?.email}");
-          
+
         ///GO TO HOME PAGE
         print("GO TO GHOME");
         // ignore: use_build_context_synchronously
-        await Navigator.pushReplacementNamed(context, "/landing_page");
+        await Navigator.pushReplacementNamed(context, "/check_page");
       } else {
         /// GO TO LANDING PAGE
 
@@ -64,7 +66,12 @@ class _SplashScreenState extends State<SplashScreen> with SplashScreenDc {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Hero(tag: "logo", child: Image.asset("assets/images/Logo.png",),),
+            Hero(
+              tag: "logo",
+              child: Image.asset(
+                "assets/images/Logo.png",
+              ),
+            ),
             const SizedBox(
               height: 10,
             ),

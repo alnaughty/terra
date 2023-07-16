@@ -416,6 +416,9 @@ class _JobDetailsViewerState extends State<JobDetailsViewer> {
                                                         .task.postedBy.avatar,
                                                     targetId: widget.task
                                                         .postedBy.firebaseId,
+                                                    targetServerId: widget
+                                                        .task.postedBy.id
+                                                        .toString(),
                                                   ),
                                                   type: PageTransitionType
                                                       .leftToRight));

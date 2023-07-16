@@ -9,14 +9,19 @@ import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 
 class FillUserDataPage extends StatefulWidget {
-  const FillUserDataPage(
-      {super.key,
-      required this.firebaseId,
-      required this.email,
-      required this.password});
+  const FillUserDataPage({
+    super.key,
+    required this.firebaseId,
+    required this.email,
+    this.name,
+    this.surname,
+    required this.password,
+  });
   final String firebaseId;
   final String email;
   final String password;
+  final String? name;
+  final String? surname;
   @override
   State<FillUserDataPage> createState() => _FillUserDataPageState();
 }
@@ -46,9 +51,10 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
   @override
   void initState() {
     _birthdate = TextEditingController()..text = "Select Date";
-    _firstName = TextEditingController();
-    _lastName = TextEditingController();
+    _firstName = TextEditingController()..text = widget.name ?? "";
+    _lastName = TextEditingController()..text = widget.surname ?? "";
     _phoneNumber = TextEditingController();
+
     super.initState();
   }
 
@@ -331,22 +337,22 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
                               )
                                   .then((v) async {
                                 if (v != null) {
-                                  await _userApi.details().then((v) {
-                                    loggedUser = v;
+                                  await _userApi.details().then((user) {
+                                    loggedUser = user;
                                   });
                                   await Future.delayed(
                                       const Duration(milliseconds: 700));
-                                  await _cacher.seUserToken(v);
+                                  await _cacher.setUserToken(v);
                                   await _cacher.signInMethod(0);
                                   accessToken = v;
-                                  if (loggedUser!.hasVerifiedEmail) {
-                                    // ignore: use_build_context_synchronously
-                                    await Navigator.pushReplacementNamed(
-                                      context,
-                                      "/landing_page",
-                                    );
-                                    return;
-                                  }
+                                  // if (loggedUser!.hasVerifiedEmail) {
+                                  //   // ignore: use_build_context_synchronously
+                                  //   await Navigator.pushReplacementNamed(
+                                  //     context,
+                                  //     "/check_page",
+                                  //   );
+                                  //   return;
+                                  // }
                                   // ignore: use_build_context_synchronously
                                   await Navigator.pushReplacementNamed(
                                     context,

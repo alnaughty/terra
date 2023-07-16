@@ -170,7 +170,7 @@ class _SelfiePageState extends State<SelfiePage> {
                                       return;
                                     }
                                     Navigator.of(context).pop();
-                                    await _api.uploadSelfie(value);
+                                    // await _api.uploadSelfie(value);
                                   });
                                 },
                                 child: const Center(

@@ -19,11 +19,13 @@ class MessageConversationPage extends StatefulWidget {
     required this.targetName,
     required this.targetAvatar,
     required this.targetId,
+    required this.targetServerId,
   });
   final String chatroomId;
   final String targetName;
   final String targetAvatar;
   final String targetId;
+  final String targetServerId;
   // final Terran target;
   @override
   State<MessageConversationPage> createState() =>
@@ -229,7 +231,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                             _text.text,
                             loggedUser!.firebaseId,
                             file: downloadUrl,
-                            receiverId: widget.targetId,
+                            receiverId: widget.targetServerId,
                           );
                           _text.clear();
                         });
@@ -247,7 +249,7 @@ class _MessageConversationPageState extends State<MessageConversationPage> {
                             widget.chatroomId,
                             _text.text,
                             loggedUser!.firebaseId,
-                            receiverId: widget.targetId,
+                            receiverId: widget.targetServerId,
                           );
                           _text.clear();
                         }

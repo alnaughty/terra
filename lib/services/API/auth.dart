@@ -51,9 +51,11 @@ class AuthApi {
         var data = json.decode(response.body);
         print("DATA : $data");
         if (response.statusCode == 200 || response.statusCode == 201) {
-          _cacher.seUserToken(data['access_token']);
+          _cacher.setUserToken(data['access_token']);
           accessToken = data['access_token'];
           return data['access_token'];
+        } else if (response.statusCode == 400) {
+          Fluttertoast.showToast(msg: "This account is already taken");
         }
         Fluttertoast.showToast(
             msg: "Error ${response.statusCode} : ${response.reasonPhrase}");
@@ -62,6 +64,8 @@ class AuthApi {
       });
     } catch (e, s) {
       print("ERROR : $e $s");
+      print("STRACE : $s");
+
       Fluttertoast.showToast(
         msg: "An unexpected error occurred while processing.",
       );
@@ -77,14 +81,16 @@ class AuthApi {
         "device_name": "mobile",
         "firebase_token": id,
       }).then(
-        (response) {
+        (response) async {
           var data = json.decode(response.body);
           print("DATA : $data");
           if (response.statusCode == 200 || response.statusCode == 201) {
-            _cacher.seUserToken(data['access_token']);
+            _cacher.setUserToken(data['access_token']);
             accessToken = data['access_token'];
             return data['access_token'];
-          } else if (response.statusCode == 400 || response.statusCode == 404) {
+          } else if (response.statusCode == 400 ||
+              response.statusCode == 404 ||
+              response.statusCode == 401) {
             Fluttertoast.showToast(
               msg: "Account incomplete, please complete the setup",
             );
@@ -95,6 +101,11 @@ class AuthApi {
           print("ERROR : ${response.statusCode}");
           return null;
         },
+      );
+    } on HandshakeException {
+      print("HANDSHAKE LA PROCEED TO ACCOUNT SETUP");
+      Fluttertoast.showToast(
+        msg: "Please complete the setup",
       );
     } catch (e, s) {
       print("ERROR : $e $s");
@@ -107,16 +118,18 @@ class AuthApi {
 
   Future<void> logout(BuildContext context) async {
     try {
-      return await http.post("${Network.domain}/api/logout".toUri, headers: {
-        "accept": "application/json",
-        HttpHeaders.authorizationHeader: "Bearer $accessToken"
-      }, body: {
-        "fcm_token": fcmToken,
-      }).then((response) async {
+      return await http
+          .post("${Network.domain}/api/logout".toUri,
+              headers: {
+                "accept": "application/json",
+                HttpHeaders.authorizationHeader: "Bearer $accessToken"
+              },
+              body: {
+                "fcm_token": fcmToken,
+              }..removeWhere((key, value) => value == null))
+          .then((response) async {
         print(response.body);
         if (response.statusCode == 200) {
-          accessToken = null;
-          loggedUser = null;
           await _cacher.clearAll();
           await _auth.logout().whenComplete(
                 () async => await Navigator.pushReplacementNamed(context, "/"),

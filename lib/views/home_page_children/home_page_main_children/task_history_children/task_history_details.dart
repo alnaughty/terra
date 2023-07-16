@@ -198,6 +198,8 @@ class _TaskHistoryDetailsState extends State<TaskHistoryDetails> {
                               targetName: widget.data.postedBy.fullname,
                               targetAvatar: widget.data.postedBy.avatar,
                               targetId: widget.data.postedBy.firebaseId,
+                              targetServerId:
+                                  widget.data.postedBy.id.toString(),
                             ),
                             type: PageTransitionType.leftToRight));
                   });

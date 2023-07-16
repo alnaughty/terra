@@ -77,5 +77,6 @@ class Terran {
         id: firebaseId,
         displayName: fullname,
         avatar: avatar,
+        serverId: id.toString(),
       );
 }

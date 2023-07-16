@@ -228,6 +228,7 @@ class _TodoTaskDetailsState extends cup.State<TodoTaskDetails> {
                               targetName: widget.task.user.fullname,
                               targetAvatar: widget.task.user.avatar,
                               targetId: widget.task.user.firebaseId,
+                              targetServerId: widget.task.user.id.toString(),
                             ),
                             type: PageTransitionType.leftToRight));
                   });

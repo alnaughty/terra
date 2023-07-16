@@ -7,8 +7,8 @@ import 'package:terra/utils/global.dart';
 import 'package:terra/views/landing_page_children/auth/forgot_password.dart';
 
 class VerifyEmailPage extends StatefulWidget {
-  const VerifyEmailPage({super.key});
-
+  const VerifyEmailPage({super.key, this.reload = false});
+  final bool reload;
   @override
   State<VerifyEmailPage> createState() => _VerifyEmailPageState();
 }
@@ -252,11 +252,29 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                                 await _api
                                     .verifyEmailCode(_code.text)
                                     .then((v) {
-                                  setState(() {
-                                    loggedUser!.hasVerifiedEmail = v;
-                                    _isLoading = false;
-                                  });
-                                  Navigator.of(context).pop();
+                                  loggedUser!.hasVerifiedEmail = v;
+                                  _isLoading = false;
+                                  if (v) {
+                                    if (widget.reload) {
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        "/",
+                                      );
+                                      return;
+                                    } else {
+                                      // ignore: use_build_context_synchronously
+                                      Navigator.of(context).pop();
+                                      return;
+                                    }
+                                  } else {
+                                    if (!widget.reload) {
+                                      Navigator.of(context).pop();
+                                    }
+                                  }
+                                  // ignore: use_build_context_synchronously
+
+                                  if (mounted) setState(() {});
                                 });
                               }
                             },

@@ -123,12 +123,12 @@ class _UploadIDPageState extends State<UploadIDPage> {
                               setState(() {
                                 _isLoading = true;
                               });
-                              await _api.uploadId(b64Image!).whenComplete(() {
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                                Navigator.of(context).pop(0);
-                              });
+                              // await _api.uploadId(b64Image!).whenComplete(() {
+                              //   setState(() {
+                              //     _isLoading = false;
+                              //   });
+                              //   Navigator.of(context).pop(0);
+                              // });
                             },
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),

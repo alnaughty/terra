@@ -91,6 +91,10 @@ class UserDetails {
   @override
   String toString() => "${toJson()}";
 
-  ChatRoomMember toMember() =>
-      ChatRoomMember(id: firebaseId, displayName: fullName, avatar: avatar);
+  ChatRoomMember toMember() => ChatRoomMember(
+        id: firebaseId,
+        displayName: fullName,
+        avatar: avatar,
+        serverId: id.toString(),
+      );
 }

@@ -105,10 +105,14 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                 return SizedBox(
                   width: size.width,
                   height: size.height - 200,
-                  child: Center(
-                    child: Image.asset(
-                      "assets/images/loader.gif",
-                      width: size.width * .5,
+                  child: const Center(
+                    child: Text(
+                      "No Message found!",
+                      style: TextStyle(
+                        color: Colors.black38,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 );
@@ -242,8 +246,12 @@ class _ChatRoomsPageState extends State<ChatRoomsPage> {
                                           .capitalizeWords(),
                                   targetId: room.members[0].id ==
                                           loggedUser!.firebaseId
-                                      ? room.members[1].id.capitalizeWords()
+                                      ? room.members[1].id
                                       : room.members[0].id,
+                                  targetServerId: room.members[0].serverId ==
+                                          loggedUser!.id.toString()
+                                      ? room.members[1].serverId
+                                      : room.members[0].serverId,
                                 ),
                                 type: PageTransitionType.leftToRight,
                               ));

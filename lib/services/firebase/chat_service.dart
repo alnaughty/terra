@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/chat/chat_conversation.dart';
@@ -143,6 +144,7 @@ class ChatService {
                 id: memberData['id'],
                 displayName: memberData['displayName'],
                 avatar: memberData['avatar'],
+                serverId: memberData['server_id'],
               ),
             )
             .toList();
@@ -206,7 +208,10 @@ class ChatService {
         "receiver_id": receiverId,
         "message": message,
       });
-    } catch (e, f) {
+    } catch (e, s) {
+      Fluttertoast.showToast(
+          msg:
+              "Unable to notify the receiver, but recorded, please contact admin.");
       return;
     }
   }
@@ -220,6 +225,7 @@ class ChatService {
       final ChatConversation conversation = ChatConversation(
         id: '',
         message: message,
+        sent: false,
         senderId: senderId,
         timeStamp: DateTime.fromMillisecondsSinceEpoch(timestamp),
         file: file,

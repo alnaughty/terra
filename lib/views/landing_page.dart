@@ -109,7 +109,7 @@ class _LandingPageState extends State<LandingPage>
       _cacher.clearAll();
       Navigator.pushReplacementNamed(context, "/");
     }
-    _fcm.init();
+    _fcm.init(context);
     await fetchAll();
     await _appApi.fetchUserApplication().then(
           (value) => _applicationVM.populate(value),
@@ -147,6 +147,7 @@ class _LandingPageState extends State<LandingPage>
       final bool showTuts = _cacher.initApp();
       if (showTuts) {
         showLandingTutorial(context);
+        _cacher.setToOld();
       }
       await Future.wait([
         init(),

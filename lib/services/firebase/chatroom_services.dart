@@ -19,7 +19,9 @@ class ChatRoomServicse {
       required String name1,
       required String name2,
       required String avatar1,
-      required String avatar2}) async {
+      required String avatar2,
+      required String userServerId1,
+      required String userServerId2}) async {
     try {
       print("CREATE OR GET");
       final DatabaseReference chatRoomsRef =
@@ -42,6 +44,8 @@ class ChatRoomServicse {
           "user1_avatar": avatar1,
           "user2_name": name2,
           'user2_id': userId2,
+          "user1_server_id": userServerId1,
+          "user2_server_id": userServerId2,
           "user2_avatar": avatar2,
           'created_at': ServerValue.timestamp,
         };
@@ -170,14 +174,15 @@ class ChatRoomServicse {
               lastMessage: convo,
               members: [
                 ChatRoomMember(
-                  id: value['user1_id'],
-                  displayName: value['user1_name'],
-                  avatar: value['user1_avatar'],
-                ),
+                    id: value['user1_id'],
+                    displayName: value['user1_name'],
+                    avatar: value['user1_avatar'],
+                    serverId: value['user1_server_id']),
                 ChatRoomMember(
                   id: value['user2_id'],
                   displayName: value['user2_name'],
                   avatar: value['user2_avatar'],
+                  serverId: value['user2_server_id'],
                 ),
               ],
             );

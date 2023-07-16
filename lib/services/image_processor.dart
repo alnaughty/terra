@@ -1,22 +1,67 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class ImageProcessor {
   ImageProcessor._pr();
   static final ImageProcessor _instance = ImageProcessor._pr();
   static ImageProcessor get instance => _instance;
   static final ImagePicker _picker = ImagePicker();
+
   Future<File?> pickImageGallery() async {
     return await _picker.pickImage(source: ImageSource.gallery).then((value) {
       if (value == null) return null;
       final File n = File(value.path);
       return n;
     });
+  }
+  // Future<ImageData> getData(File file) async {
+  //   final Uint8List fileBytes =
+  //       await compressImage(File(file.path).readAsBytesSync());
+
+  //   return ImageData(
+  //     base64: base64Encode(fileBytes),
+  //     extension: file.path.substring(file.path.lastIndexOf('.') + 1),
+  //   );
+  // }
+  Future<Uint8List> compressImage(Uint8List list) async {
+    return await FlutterImageCompress.compressWithList(
+      list,
+      quality: 70,
+      rotate: 0,
+    ).then((value) => value);
+  }
+
+  ///return base64
+  Future<String?> compressImg(File file) async {
+    try {
+      final Uint8List fileBytes =
+          await compressImage(File(file.path).readAsBytesSync());
+      return base64Encode(fileBytes);
+    } catch (e) {
+      print("UNABLE TO COMPRESS");
+      return null;
+    }
+  }
+
+  // return base64
+  Future<String?> pickImage(ImageSource source) async {
+    try {
+      final XFile? file = await _picker.pickImage(source: source);
+      if (file == null) {
+        return null;
+      }
+      return await compressImg(
+        File(file.path),
+      );
+    } catch (e) {
+      print("IMG PICK FAILED");
+      return null;
+    }
   }
 
   Future<File?> pickImageCamera() async {

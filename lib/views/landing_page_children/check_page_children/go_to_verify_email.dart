@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
+import 'package:terra/views/home_page_children/profile_page_children/verify_email_page.dart';
 
 class GoToVerifyEmailPage extends StatelessWidget {
   const GoToVerifyEmailPage({super.key, required this.callback});
@@ -28,8 +31,18 @@ class GoToVerifyEmailPage extends StatelessWidget {
           onPressed: () async {
             if (loggedUser!.hasVerifiedEmail) {
               callback();
+              Fluttertoast.showToast(
+                  msg: "Please wait for the team to verify your data");
             } else {
-              await Navigator.pushNamed(context, "/verify_email_page");
+              await Navigator.push(
+                context,
+                PageTransition(
+                  child: const VerifyEmailPage(
+                    reload: true,
+                  ),
+                  type: PageTransitionType.rightToLeft,
+                ),
+              );
             }
           },
           height: 60,

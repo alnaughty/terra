@@ -78,7 +78,7 @@ class DataCacher {
   }
 
   String? getUserToken() => _prefs.getString("access-token");
-  Future<void> seUserToken(String token) async {
+  Future<void> setUserToken(String token) async {
     await _prefs.setString("access-token", token);
   }
 
