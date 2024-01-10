@@ -3,7 +3,7 @@ import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:tutorial/tutorial.dart';
 
-class TutorialHelper {
+mixin class TutorialHelper {
   static Widget styledText(String label, {required String content}) =>
       Text.rich(
         TextSpan(
@@ -136,10 +136,10 @@ class TutorialHelper {
           "Password",
           content: "is where you can change/modify your password",
         ),
-        styledText(
-          "Security Level",
-          content: "is where you can see how verified your account is",
-        ),
+        // styledText(
+        //   "Security Level",
+        //   content: "is where you can see how verified your account is",
+        // ),
         styledText(
           "Skills",
           content:

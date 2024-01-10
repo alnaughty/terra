@@ -5,7 +5,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- Provide required visibility configuration for API level 30 and above -->
 <queries>
@@ -14,7 +16,7 @@
     <action android:name="android.intent.action.VIEW" />
     <data android:scheme="sms" />
   </intent>
-  <!-- If your app checks for call support -->
+  <!-- If your app checks for call support -->´
   <intent>
     <action android:name="android.intent.action.VIEW" />
     <data android:scheme="tel" />

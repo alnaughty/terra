@@ -46,7 +46,7 @@ class SecurityChoice extends StatelessWidget {
                 : null,
           ),
           ListTile(
-            onTap: loggedUser!.hasVerifiedEmail
+            onTap: !loggedUser!.hasVerifiedEmail
                 ? null
                 : () async {
                     await Navigator.pushNamed(context, "/verify_email_page");

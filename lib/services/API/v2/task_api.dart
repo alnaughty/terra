@@ -213,10 +213,13 @@ class TaskAPIV2 {
   Future<bool> markAsPaid(int id) async {
     try {
       return await http
-          .put("${Network.domain}/api/mark-as-paid/$id".toUri, headers: {
+          .post("${Network.domain}/api/mark-as-paid".toUri, headers: {
         "accept": "application/json",
         HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "todo_id": "$id",
       }).then((response) {
+        print("status code ${response.statusCode}");
         return response.statusCode == 200;
       });
     } catch (e) {
@@ -228,9 +231,11 @@ class TaskAPIV2 {
   Future<bool> markAsComplete(int id) async {
     try {
       return await http
-          .put("${Network.domain}/api/mark-as-complete/$id".toUri, headers: {
+          .post("${Network.domain}/api/mark-as-complete".toUri, headers: {
         "accept": "application/json",
         HttpHeaders.authorizationHeader: "Bearer $accessToken"
+      }, body: {
+        "todo_id": "$id",
       }).then((response) {
         print(response.body);
         return response.statusCode == 200;

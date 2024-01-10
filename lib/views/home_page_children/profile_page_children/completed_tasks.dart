@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:liquid_pull_to_refresh/liquid_pull_to_refresh.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/models/v2/todo.dart';
 import 'package:terra/services/API/v2/task_api.dart';
 import 'package:terra/utils/color.dart';
@@ -198,7 +198,7 @@ class _CompletedTasksPageState extends State<CompletedTasksPage> {
                                                   "paid") ...{
                                                 Tooltip(
                                                   message: task.task.status
-                                                      .capitalize(),
+                                                      .capitalizeWords(),
                                                   child: Icon(
                                                     Icons.paid,
                                                     color: _colors.top,
@@ -208,7 +208,7 @@ class _CompletedTasksPageState extends State<CompletedTasksPage> {
                                                   "pending") ...{
                                                 Tooltip(
                                                   message: task.task.status
-                                                      .capitalize(),
+                                                      .capitalizeWords(),
                                                   child: const Icon(
                                                     Icons.pending,
                                                     color: Colors.grey,

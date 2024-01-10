@@ -3,17 +3,18 @@ import 'package:terra/models/v2/terran.dart';
 
 extension SecurityLevel on UserDetails {
   String get toSecurityName {
-    int lvl = toSecurityLvl;
-    print(lvl);
-    if (lvl == 0) {
-      return "Unverified";
-    } else if (lvl == 1) {
-      return "Partially Verified";
-    } else if (lvl <= 3) {
-      return "Semi-verified";
-    } else {
-      return "Fully Verified";
-    }
+    // int lvl = toSecurityLvl;
+    // print(lvl);
+    return "Fully Verified";
+    // if (lvl == 0) {
+    //   return "Unverified";
+    // } else if (lvl == 1) {
+    //   return "Partially Verified";
+    // } else if (lvl <= 3) {
+    //   return "Semi-verified";
+    // } else {
+    //   return "Fully Verified";
+    // }
   }
 
   int get toSecurityLvl {
@@ -36,16 +37,17 @@ extension SecurityLevel on UserDetails {
 
 extension SecurityTerranLevel on Terran {
   String get toSecurityName {
-    int lvl = toSecurityLvl;
-    if (lvl == 0) {
-      return "Unverified";
-    } else if (lvl == 1) {
-      return "Partially Verified";
-    } else if (lvl <= 3) {
-      return "Semi-verified";
-    } else {
-      return "Fully Verified";
-    }
+    // int lvl = toSecurityLvl;
+    return "Fully Verified";
+    // if (lvl == 0) {
+    //   return "Unverified";
+    // } else if (lvl == 1) {
+    //   return "Partially Verified";
+    // } else if (lvl <= 3) {
+    //   return "Semi-verified";
+    // } else {
+    //   return "Fully Verified";
+    // }
   }
 
   int get toSecurityLvl {

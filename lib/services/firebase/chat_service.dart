@@ -137,6 +137,7 @@ class ChatService {
     return chatroomRef.snapshots().map((docSnapshot) {
       if (docSnapshot.exists) {
         final data = docSnapshot.data()!;
+        print("DOCUMENT DATA : ${data}");
         final membersData = List<Map<String, dynamic>>.from(data['members']);
         final members = membersData
             .map(
@@ -144,7 +145,7 @@ class ChatService {
                 id: memberData['id'],
                 displayName: memberData['displayName'],
                 avatar: memberData['avatar'],
-                serverId: memberData['server_id'],
+                serverId: memberData['server_id'] ?? "0",
               ),
             )
             .toList();

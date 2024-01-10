@@ -2,7 +2,6 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/helpers/custom_scrollable_stepper.dart';

@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_file_view/flutter_file_view.dart';
+// import 'package:flutter_file_view/flutter_file_view.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class CustomFileViewer extends StatelessWidget {
   CustomFileViewer({super.key, required this.url, required this.isPdf}) {
     if (!isPdf) {
-      FlutterFileView.init();
+      // FlutterFileView.init();
     }
     // _path = DefaultCacheManager().getSingleFile(url).then((file) => file.path);
   }
@@ -66,13 +66,7 @@ class CustomFileViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isPdf
-          ? SfPdfViewer.network(url)
-          : FileView(
-              controller: FileViewController.network(
-                url,
-              ),
-            ),
+      body: isPdf ? SfPdfViewer.network(url) : Container(),
       // body: FutureBuilder<File>(
       //   future: _getFile(),
       //   builder: (_, future) {

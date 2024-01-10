@@ -44,7 +44,9 @@ class UploadIdPageState extends State<UploadIdPage> {
     "Professional Regulation Commission (PRC) ID",
     "Philippine Identification",
     "Philippine Identification (PhilID / ePhilID)",
-    "SSS ID"
+    "SSS ID",
+    "Postal ID",
+    "Student ID"
   ];
   String? type;
   String? frontIdImage;

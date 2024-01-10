@@ -2,11 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/extension/user.dart';
 import 'package:terra/services/API/auth.dart';
@@ -21,8 +19,6 @@ import 'package:terra/view_model/todo_vm.dart';
 import 'package:terra/views/home_page_children/home_page_main_children/skill_update.dart';
 import 'package:terra/views/home_page_children/profile_page_children/password_reset_page.dart';
 import 'package:terra/views/home_page_children/profile_page_children/security_choice.dart';
-
-import 'profile_page_children/my_negotiation_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({

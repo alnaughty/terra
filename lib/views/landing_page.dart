@@ -241,6 +241,19 @@ class _LandingPageState extends State<LandingPage>
                           ),
                   ),
                 ),
+                // Positioned(
+                //   top: 30,
+                //   right: 0,
+                //   child: IconButton(
+                //     onPressed: () async {
+                //       await _fcm.showPopUp(context,
+                //           title: "TEST", message: "Test Message");
+                //     },
+                //     icon: Icon(
+                //       Icons.notifications,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
             bottomNavigationBar: loggedUser == null

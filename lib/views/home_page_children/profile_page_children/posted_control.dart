@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -108,7 +107,7 @@ class _PostedControlCenterState extends State<PostedControlCenter> {
               appBar: AppBar(
                 centerTitle: true,
                 title: Text(
-                    "${toEdit ? "Edit task" : "Task Details"} (${widget.task.status.capitalize()})"),
+                    "${toEdit ? "Edit task" : "Task Details"} (${widget.task.status.capitalizeWords()})"),
               ),
               body: SafeArea(
                 top: false,

@@ -9,7 +9,7 @@ import 'package:terra/utils/global.dart';
 import 'package:terra/utils/network.dart';
 import 'package:terra/view_model/categories_vm.dart';
 
-class CategoryApi {
+mixin class CategoryApi {
   static final CategoriesVm _vm = CategoriesVm.instance;
   Future<void> fetchAll() async {
     try {

@@ -9,7 +9,7 @@ import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/utils/network.dart';
 
-class UserApi {
+mixin class UserApi {
   final DataCacher _cacher = DataCacher.instance;
   // Future<bool> updateAccountType() async {}
 

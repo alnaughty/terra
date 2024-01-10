@@ -39,7 +39,11 @@ class SignInWith extends StatelessWidget {
                     return;
                   }
                   final String firebaseUid = user.uid;
-                  final String token = await user.getIdToken();
+                  final String? token = await user.getIdToken();
+                  if (token == null) {
+                    Fluttertoast.showToast(msg: "Unable to login user");
+                    return;
+                  }
                   await _api.login(id: token).then(
                     (val) async {
                       if (val != null) {
@@ -137,7 +141,11 @@ class SignInWith extends StatelessWidget {
                       return;
                     }
                     // final String token = user.uid;
-                    final String token = await user.getIdToken();
+                    final String? token = await user.getIdToken();
+                    if (token == null) {
+                      Fluttertoast.showToast(msg: "Unable to login user");
+                      return;
+                    }
                     final String firebaseUid = user.uid;
                     await _api.login(id: token).then(
                       (val) async {

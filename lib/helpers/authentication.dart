@@ -9,7 +9,7 @@ import 'package:terra/services/firebase_auth.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/views/fill_user_data.dart';
 
-class AuthenticationHelper {
+mixin class AuthenticationHelper {
   static final FirebaseAuthenticator _authenticator = FirebaseAuthenticator();
   final DataCacher _cacher = DataCacher.instance;
   static final AuthApi _api = AuthApi();

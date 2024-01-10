@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/cli_commands.dart';
+import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/image_processor.dart';
 import 'package:terra/utils/color.dart';
@@ -61,7 +61,7 @@ class _UploadIDPageState extends State<UploadIDPage> {
                                   : chosenImage,
                             ),
                             Text(
-                              "Hey ${loggedUser!.firstName.capitalize()}!",
+                              "Hey ${loggedUser!.firstName.capitalizeWords()}!",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: _colors.top,
