@@ -1,4 +1,3 @@
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -13,9 +12,9 @@ final DataCacher _cacher = DataCacher.instance;
 final MyFCMService _fcm = MyFCMService.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  var port = ReceivePort();
-  IsolateNameServer.removePortNameMapping('port');
-  IsolateNameServer.registerPortWithName(port.sendPort, 'port');
+  // var port = ReceivePort();
+  // IsolateNameServer.removePortNameMapping('port');
+  // IsolateNameServer.registerPortWithName(port.sendPort, 'port');
   await dotenv.load();
   await _cacher.init();
   await Firebase.initializeApp();
