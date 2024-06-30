@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>794347808656-i9jdk1t76j26ra5hmdp9qmrekfrq0hqd.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.794347808656-i9jdk1t76j26ra5hmdp9qmrekfrq0hqd</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>794347808656-5oug52p8bv5s25l2r6k6p9k4kmmcgg3j.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBQ6u6y9V53LRCEbKjp7xTL9tOPEo14-MQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>794347808656</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>ph.terraapp.terra</string>
+	<key>PROJECT_ID</key>
+	<string>terra-app-372401</string>
+	<key>STORAGE_BUCKET</key>
+	<string>terra-app-372401.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:794347808656:ios:941f3eb41ec8904e4ef515</string>
+	<key>DATABASE_URL</key>
+	<string>https://terra-app-372401-default-rtdb.asia-southeast1.firebasedatabase.app</string>
+</dict>
+</plist>

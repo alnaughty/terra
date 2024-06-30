@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:terra/extension/string_extensions.dart';
@@ -207,39 +208,39 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     },
-    {
-      "title": "Security Level",
-      "avatar": "shield-check.svg",
-      "initial_data": loggedUser!.toSecurityName,
-      "onTap": () async {
-        await showModalBottomSheet(
-          context: context,
-          barrierColor: Colors.black.withOpacity(.5),
-          isDismissible: true,
-          useSafeArea: true,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          // shape: RoundedRectangleBorder(
-          //   borderRadius: BorderRadius.circular(20),
-          // ),
-          // constraints: const BoxConstraints(
-          //   maxHeight: 280,
-          // ),
-          builder: (_) => SafeArea(
-            top: false,
-            child: Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 20,
-              ),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20), color: Colors.white),
-              child: const SecurityChoice(),
-            ),
-          ),
-        );
-      },
-    },
+    // {
+    //   "title": "Security Level",
+    //   "avatar": "shield-check.svg",
+    //   "initial_data": loggedUser!.toSecurityName,
+    //   "onTap": () async {
+    //     await showModalBottomSheet(
+    //       context: context,
+    //       barrierColor: Colors.black.withOpacity(.5),
+    //       isDismissible: true,
+    //       useSafeArea: true,
+    //       elevation: 0,
+    //       backgroundColor: Colors.transparent,
+    //       // shape: RoundedRectangleBorder(
+    //       //   borderRadius: BorderRadius.circular(20),
+    //       // ),
+    //       // constraints: const BoxConstraints(
+    //       //   maxHeight: 280,
+    //       // ),
+    //       builder: (_) => SafeArea(
+    //         top: false,
+    //         child: Container(
+    //           margin: const EdgeInsets.symmetric(
+    //             horizontal: 20,
+    //             vertical: 20,
+    //           ),
+    //           decoration: BoxDecoration(
+    //               borderRadius: BorderRadius.circular(20), color: Colors.white),
+    //           child: const SecurityChoice(),
+    //         ),
+    //       ),
+    //     );
+    //   },
+    // },
     if (loggedUser!.accountType != 2) ...{
       {
         "title": "Skills",
@@ -310,481 +311,620 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final GlobalKey<FormState> _kBio = GlobalKey<FormState>();
   late final TextEditingController _bio;
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        // resizeToAvoidBottomInset: true,
-        body: Column(
+    return PopScope(
+      canPop: !isLoading,
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Stack(
           children: [
-            Container(
-              width: size.width,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [_colors.top, _colors.bot],
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: SafeArea(
-                bottom: false,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+            Positioned.fill(
+              child: Scaffold(
+                // resizeToAvoidBottomInset: true,
+                body: Column(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Container(
-                        color: Colors.white,
-                        child: loggedUser!.avatar.isEmpty
-                            ? Image.asset(
-                                "assets/images/icon-logo.png",
-                                width: 40,
-                                height: 40,
-                              )
-                            : Image.network(
-                                loggedUser!.avatar,
-                                width: 40,
-                                height: 40,
+                    Container(
+                      width: size.width,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [_colors.top, _colors.bot],
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      child: SafeArea(
+                        bottom: false,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Container(
+                                color: Colors.white,
+                                child: loggedUser!.avatar.isEmpty
+                                    ? Image.asset(
+                                        "assets/images/icon-logo.png",
+                                        width: 40,
+                                        height: 40,
+                                      )
+                                    : Image.network(
+                                        loggedUser!.avatar,
+                                        width: 40,
+                                        height: 40,
+                                      ),
                               ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Welcome, ${loggedUser!.firstName.capitalizeWords()}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                  Text(
+                                    loggedUser!.email,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white.withOpacity(.8),
+                                      fontWeight: FontWeight.w300,
+                                      height: 1,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                widget.loadingCallback(true);
+                                await _api.logout(context).whenComplete(
+                                  () {
+                                    widget.loadingCallback(false);
+                                  },
+                                );
+                              },
+                              style: ButtonStyle(
+                                  foregroundColor:
+                                      MaterialStateProperty.resolveWith(
+                                (states) => Colors.white,
+                              )),
+                              child: const Text(
+                                "Logout",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    Container(
+                      padding: const EdgeInsets.only(
+                          left: 20, right: 15, top: 15, bottom: 15),
+                      color: Colors.grey.shade100,
+                      child: Row(
                         children: [
-                          Text(
-                            "Welcome, ${loggedUser!.firstName.capitalizeWords()}",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 17,
+                          Expanded(
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 600),
+                              child: isEditingBio
+                                  ? Form(
+                                      key: _kBio,
+                                      child: Column(
+                                        children: [
+                                          TextFormField(
+                                            controller: _bio,
+                                            validator: (String? text) {
+                                              if (text == null) {
+                                                return "Something went wrong";
+                                              } else if (text.isEmpty) {
+                                                return "You cannot put an empty bio";
+                                              }
+                                            },
+                                            keyboardType:
+                                                TextInputType.multiline,
+                                            maxLines: 3,
+                                            cursorColor: Colors.black,
+                                            decoration: InputDecoration(
+                                              hintText:
+                                                  loggedUser!.bio ?? "Your Bio",
+                                              hintStyle: TextStyle(
+                                                color: Colors.black
+                                                    .withOpacity(.5),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                          MaterialButton(
+                                            onPressed: () async {
+                                              if (_kBio.currentState!
+                                                  .validate()) {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                                final String b = _bio.text;
+                                                _bio.clear();
+                                                await _userApi
+                                                    .updateBio(b)
+                                                    .then((value) {
+                                                  if (value) {
+                                                    loggedUser!.bio = b;
+                                                  }
+                                                  isEditingBio = false;
+                                                  if (mounted) setState(() {});
+                                                });
+                                              }
+                                            },
+                                            height: 55,
+                                            padding: EdgeInsets.zero,
+                                            child: Center(
+                                              child: Container(
+                                                height: 55,
+                                                width: double.maxFinite,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      _colors.top,
+                                                      _colors.bot
+                                                    ],
+                                                  ),
+                                                ),
+                                                child: const Center(
+                                                  child: Text(
+                                                    "Submit",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                  : Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        loggedUser!.bio ?? "No bio found",
+                                        style: TextStyle(
+                                          fontSize: 14.5,
+                                          color: Colors.black.withOpacity(.5),
+                                        ),
+                                      ),
+                                    ),
                             ),
                           ),
-                          Text(
-                            loggedUser!.email,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(.8),
-                              fontWeight: FontWeight.w300,
-                              height: 1,
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isEditingBio = !isEditingBio;
+                              });
+                              if (loggedUser!.bio == null) {
+                                // ADD BIO
+                              } else {
+                                // UPDATE BIO
+                              }
+                            },
+                            icon: Icon(
+                              loggedUser!.bio == null
+                                  ? Icons.add_circle_outline_rounded
+                                  : Icons.edit_note_rounded,
+                              color: _colors.top,
                             ),
                           )
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        widget.loadingCallback(true);
-                        await _api.logout(context).whenComplete(
-                          () {
-                            widget.loadingCallback(false);
-                          },
-                        );
-                      },
-                      style: ButtonStyle(
-                          foregroundColor: MaterialStateProperty.resolveWith(
-                        (states) => Colors.white,
-                      )),
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w300,
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 20,
                         ),
+                        children: [
+                          Container(
+                            width: size.width,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 0, vertical: 10),
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.black12,
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              "My Account",
+                              style: TextStyle(
+                                color: Colors.black54,
+                              ),
+                            ),
+                          ),
+                          ...accountContent.map(
+                            (e) => ListTile(
+                              onTap: e['onTap'] as Function(),
+                              leading: e['avatar'].toString().contains(".svg")
+                                  ? SvgPicture.asset(
+                                      "assets/icons/${e['avatar']}",
+                                      width: 20,
+                                      height: 20,
+                                      color: Colors.black54,
+                                    )
+                                  : Image.asset(
+                                      "assets/icons/${e['avatar']}",
+                                      width: 20,
+                                      height: 20,
+                                      color: Colors.black54,
+                                    ),
+                              trailing: e['onTap'] != null
+                                  ? const Icon(
+                                      Icons.chevron_right_outlined,
+                                      color: Colors.black54,
+                                    )
+                                  : null,
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      e['title'].toString(),
+                                      style: const TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  if (e['initial_data'] != null) ...{
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: size.width * .3,
+                                      ),
+                                      child: Text(
+                                        e['initial_data'].toString(),
+                                        maxLines: 1,
+                                        textAlign: TextAlign.right,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.black38,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    )
+                                  },
+                                ],
+                              ),
+                            ),
+                          ),
+                          // Container(
+                          //   width: size.width,
+                          //   padding:
+                          //       const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
+                          //   decoration: const BoxDecoration(
+                          //     color: Colors.white,
+                          //     border: Border(
+                          //       bottom: BorderSide(
+                          //         color: Colors.black12,
+                          //       ),
+                          //     ),
+                          //   ),
+                          //   child: const Text(
+                          //     "Transactions",
+                          //     style: TextStyle(
+                          //       color: Colors.black54,
+                          //     ),
+                          //   ),
+                          // ),
+                          // ListTile(
+                          //   onTap: () async {
+                          //     await Navigator.push(
+                          //       context,
+                          //       PageTransition(
+                          //           child: const MyNegotiationPage(),
+                          //           type: PageTransitionType.leftToRight),
+                          //     );
+                          //   },
+                          //   leading: Image.asset(
+                          //     "assets/icons/negotiation.png",
+                          //     width: 20,
+                          //     height: 20,
+                          //     color: Colors.black54,
+                          //   ),
+                          //   trailing: const Icon(
+                          //     Icons.chevron_right_outlined,
+                          //     color: Colors.black54,
+                          //   ),
+                          //   title: Row(
+                          //     children: const [
+                          //       Expanded(
+                          //         child: Text(
+                          //           "My Negotiations",
+                          //           style: TextStyle(
+                          //             color: Colors.black54,
+                          //             fontSize: 14,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //       // if (e['initial_data'] != null) ...{
+                          //       //   const SizedBox(
+                          //       //     width: 10,
+                          //       //   ),
+                          //       //   ConstrainedBox(
+                          //       //     constraints: BoxConstraints(
+                          //       //       maxWidth: size.width * .3,
+                          //       //     ),
+                          //       //     child: Text(
+                          //       //       e['initial_data'].toString(),
+                          //       //       maxLines: 1,
+                          //       //       textAlign: TextAlign.right,
+                          //       //       overflow: TextOverflow.ellipsis,
+                          //       //       style: const TextStyle(
+                          //       //         color: Colors.black38,
+                          //       //         fontSize: 14,
+                          //       //       ),
+                          //       //     ),
+                          //       //   )
+                          //       // },
+                          //     ],
+                          //   ),
+                          // ),
+                          StreamBuilder<LatLng>(
+                            stream: _pos.stream,
+                            builder: (_, snapshot) {
+                              if (snapshot.hasError || !snapshot.hasData) {
+                                return Container();
+                              }
+                              final LatLng pos = snapshot.data!;
+                              return FutureBuilder<Placemark?>(
+                                future: _pos.translateCoordinate(),
+                                builder: (_, future) {
+                                  if (future.hasError || !future.hasData) {
+                                    return Container();
+                                  }
+                                  final Placemark placemark = future.data!;
+                                  return Column(
+                                    children: [
+                                      Container(
+                                        width: size.width,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 0, vertical: 10),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border(
+                                            bottom: BorderSide(
+                                              color: Colors.black12,
+                                            ),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Location",
+                                          style: TextStyle(
+                                            color: Colors.black54,
+                                          ),
+                                        ),
+                                      ),
+                                      ...[
+                                        {
+                                          "title": "Country",
+                                          "avatar": "country.png",
+                                          "initial_data":
+                                              placemark.country ?? "UNSET",
+                                        },
+                                        {
+                                          "title": "City",
+                                          "avatar": "city.png",
+                                          "initial_data":
+                                              placemark.locality ?? "UNSET",
+                                        },
+                                      ].map(
+                                        (e) => ListTile(
+                                          onTap: e['onTap'] as Function()?,
+                                          leading: e['avatar']
+                                                  .toString()
+                                                  .contains(".svg")
+                                              ? SvgPicture.asset(
+                                                  "assets/icons/${e['avatar']}",
+                                                  width: 20,
+                                                  height: 20,
+                                                  color: Colors.black54,
+                                                )
+                                              : Image.asset(
+                                                  "assets/icons/${e['avatar']}",
+                                                  width: 20,
+                                                  height: 20,
+                                                  color: Colors.black54,
+                                                ),
+                                          trailing: e['onTap'] != null
+                                              ? const Icon(
+                                                  Icons.chevron_right_outlined,
+                                                  color: Colors.black54,
+                                                )
+                                              : null,
+                                          title: Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  e['title'].toString(),
+                                                  style: const TextStyle(
+                                                    color: Colors.black54,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ),
+                                              if (e['initial_data'] !=
+                                                  null) ...{
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                ConstrainedBox(
+                                                  constraints: BoxConstraints(
+                                                    maxWidth: size.width * .3,
+                                                  ),
+                                                  child: Text(
+                                                    e['initial_data']
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                      color: Colors.black38,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                )
+                                              },
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          ListTile(
+                            onTap: () async {
+                              await showGeneralDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                barrierLabel: "",
+                                barrierColor: Colors.black54,
+                                pageBuilder: (_, a1, a2) =>
+                                    AlertDialog.adaptive(
+                                  title: const Text("Delete Account"),
+                                  titleTextStyle: Platform.isAndroid
+                                      ? const TextStyle(
+                                          fontSize: 20,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w600,
+                                        )
+                                      : null,
+                                  content: const Text(
+                                      "Deleting your account will remove all of your information from our database.This action cannot undone.\n\nAre you sure you want to delete your account?"),
+                                  actions: [
+                                    adaptiveAction(
+                                      context: context,
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        "Cancel",
+                                        style: TextStyle(
+                                          color: Colors.grey.shade900,
+                                        ),
+                                      ),
+                                    ),
+                                    adaptiveAction(
+                                      context: context,
+                                      onPressed: () async {
+                                        Navigator.of(context).pop();
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        await _api
+                                            .deleteAccount(loggedUser!.email)
+                                            .then((value) {
+                                          if (value) {
+                                            _cacher.clearAll();
+                                            Fluttertoast.showToast(
+                                                msg: "Account Deleted");
+                                            Navigator.pushReplacementNamed(
+                                                context, '/');
+                                          }
+                                        });
+                                      },
+                                      child: const Text(
+                                        "Delete",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                              // await _cacher.clearAll();
+                            },
+                            minLeadingWidth: 10,
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 15),
+                            leading: const SizedBox(
+                              width: 25,
+                              child: Icon(
+                                Icons.delete_forever_outlined,
+                                color: Colors.black54,
+                                size: 25,
+                              ),
+                            ),
+                            title: const Text(
+                              "Delete Account",
+                            ),
+                            titleTextStyle: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500),
+                            subtitle: const Text("Delete account permanently"),
+                            subtitleTextStyle: const TextStyle(
+                              color: Colors.black54,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.only(
-                  left: 20, right: 15, top: 15, bottom: 15),
-              color: Colors.grey.shade100,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 600),
-                      child: isEditingBio
-                          ? Form(
-                              key: _kBio,
-                              child: Column(
-                                children: [
-                                  TextFormField(
-                                    controller: _bio,
-                                    validator: (String? text) {
-                                      if (text == null) {
-                                        return "Something went wrong";
-                                      } else if (text.isEmpty) {
-                                        return "You cannot put an empty bio";
-                                      }
-                                    },
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: 3,
-                                    cursorColor: Colors.black,
-                                    decoration: InputDecoration(
-                                      hintText: loggedUser!.bio ?? "Your Bio",
-                                      hintStyle: TextStyle(
-                                        color: Colors.black.withOpacity(.5),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 10,
-                                  ),
-                                  MaterialButton(
-                                    onPressed: () async {
-                                      if (_kBio.currentState!.validate()) {
-                                        FocusScope.of(context).unfocus();
-                                        final String b = _bio.text;
-                                        _bio.clear();
-                                        await _userApi
-                                            .updateBio(b)
-                                            .then((value) {
-                                          if (value) {
-                                            loggedUser!.bio = b;
-                                          }
-                                          isEditingBio = false;
-                                          if (mounted) setState(() {});
-                                        });
-                                      }
-                                    },
-                                    height: 55,
-                                    padding: EdgeInsets.zero,
-                                    child: Center(
-                                      child: Container(
-                                        height: 55,
-                                        width: double.maxFinite,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          gradient: LinearGradient(
-                                            colors: [_colors.top, _colors.bot],
-                                          ),
-                                        ),
-                                        child: const Center(
-                                          child: Text(
-                                            "Submit",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          : Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                loggedUser!.bio ?? "No bio found",
-                                style: TextStyle(
-                                  fontSize: 14.5,
-                                  color: Colors.black.withOpacity(.5),
-                                ),
-                              ),
-                            ),
-                    ),
+            if (isLoading) ...{
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black.withOpacity(.5),
+                  child: Center(
+                    child: Image.asset("assets/images/loader.gif"),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      setState(() {
-                        isEditingBio = !isEditingBio;
-                      });
-                      if (loggedUser!.bio == null) {
-                        // ADD BIO
-                      } else {
-                        // UPDATE BIO
-                      }
-                    },
-                    icon: Icon(
-                      loggedUser!.bio == null
-                          ? Icons.add_circle_outline_rounded
-                          : Icons.edit_note_rounded,
-                      color: _colors.top,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 20,
                 ),
-                children: [
-                  Container(
-                    width: size.width,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.black12,
-                        ),
-                      ),
-                    ),
-                    child: const Text(
-                      "My Account",
-                      style: TextStyle(
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ),
-                  ...accountContent.map(
-                    (e) => ListTile(
-                      onTap: e['onTap'] as Function(),
-                      leading: e['avatar'].toString().contains(".svg")
-                          ? SvgPicture.asset(
-                              "assets/icons/${e['avatar']}",
-                              width: 20,
-                              height: 20,
-                              color: Colors.black54,
-                            )
-                          : Image.asset(
-                              "assets/icons/${e['avatar']}",
-                              width: 20,
-                              height: 20,
-                              color: Colors.black54,
-                            ),
-                      trailing: e['onTap'] != null
-                          ? const Icon(
-                              Icons.chevron_right_outlined,
-                              color: Colors.black54,
-                            )
-                          : null,
-                      title: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              e['title'].toString(),
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                          if (e['initial_data'] != null) ...{
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            ConstrainedBox(
-                              constraints: BoxConstraints(
-                                maxWidth: size.width * .3,
-                              ),
-                              child: Text(
-                                e['initial_data'].toString(),
-                                maxLines: 1,
-                                textAlign: TextAlign.right,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.black38,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            )
-                          },
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Container(
-                  //   width: size.width,
-                  //   padding:
-                  //       const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
-                  //   decoration: const BoxDecoration(
-                  //     color: Colors.white,
-                  //     border: Border(
-                  //       bottom: BorderSide(
-                  //         color: Colors.black12,
-                  //       ),
-                  //     ),
-                  //   ),
-                  //   child: const Text(
-                  //     "Transactions",
-                  //     style: TextStyle(
-                  //       color: Colors.black54,
-                  //     ),
-                  //   ),
-                  // ),
-                  // ListTile(
-                  //   onTap: () async {
-                  //     await Navigator.push(
-                  //       context,
-                  //       PageTransition(
-                  //           child: const MyNegotiationPage(),
-                  //           type: PageTransitionType.leftToRight),
-                  //     );
-                  //   },
-                  //   leading: Image.asset(
-                  //     "assets/icons/negotiation.png",
-                  //     width: 20,
-                  //     height: 20,
-                  //     color: Colors.black54,
-                  //   ),
-                  //   trailing: const Icon(
-                  //     Icons.chevron_right_outlined,
-                  //     color: Colors.black54,
-                  //   ),
-                  //   title: Row(
-                  //     children: const [
-                  //       Expanded(
-                  //         child: Text(
-                  //           "My Negotiations",
-                  //           style: TextStyle(
-                  //             color: Colors.black54,
-                  //             fontSize: 14,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       // if (e['initial_data'] != null) ...{
-                  //       //   const SizedBox(
-                  //       //     width: 10,
-                  //       //   ),
-                  //       //   ConstrainedBox(
-                  //       //     constraints: BoxConstraints(
-                  //       //       maxWidth: size.width * .3,
-                  //       //     ),
-                  //       //     child: Text(
-                  //       //       e['initial_data'].toString(),
-                  //       //       maxLines: 1,
-                  //       //       textAlign: TextAlign.right,
-                  //       //       overflow: TextOverflow.ellipsis,
-                  //       //       style: const TextStyle(
-                  //       //         color: Colors.black38,
-                  //       //         fontSize: 14,
-                  //       //       ),
-                  //       //     ),
-                  //       //   )
-                  //       // },
-                  //     ],
-                  //   ),
-                  // ),
-                  StreamBuilder<LatLng>(
-                    stream: _pos.stream,
-                    builder: (_, snapshot) {
-                      if (snapshot.hasError || !snapshot.hasData) {
-                        return Container();
-                      }
-                      final LatLng pos = snapshot.data!;
-                      return FutureBuilder<Placemark?>(
-                        future: _pos.translateCoordinate(),
-                        builder: (_, future) {
-                          if (future.hasError || !future.hasData) {
-                            return Container();
-                          }
-                          final Placemark placemark = future.data!;
-                          return Column(
-                            children: [
-                              Container(
-                                width: size.width,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 0, vertical: 10),
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border(
-                                    bottom: BorderSide(
-                                      color: Colors.black12,
-                                    ),
-                                  ),
-                                ),
-                                child: const Text(
-                                  "Location",
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ),
-                              ...[
-                                {
-                                  "title": "Country",
-                                  "avatar": "country.png",
-                                  "initial_data": placemark.country ?? "UNSET",
-                                },
-                                {
-                                  "title": "City",
-                                  "avatar": "city.png",
-                                  "initial_data": placemark.locality ?? "UNSET",
-                                },
-                              ].map(
-                                (e) => ListTile(
-                                  onTap: e['onTap'] as Function()?,
-                                  leading:
-                                      e['avatar'].toString().contains(".svg")
-                                          ? SvgPicture.asset(
-                                              "assets/icons/${e['avatar']}",
-                                              width: 20,
-                                              height: 20,
-                                              color: Colors.black54,
-                                            )
-                                          : Image.asset(
-                                              "assets/icons/${e['avatar']}",
-                                              width: 20,
-                                              height: 20,
-                                              color: Colors.black54,
-                                            ),
-                                  trailing: e['onTap'] != null
-                                      ? const Icon(
-                                          Icons.chevron_right_outlined,
-                                          color: Colors.black54,
-                                        )
-                                      : null,
-                                  title: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          e['title'].toString(),
-                                          style: const TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      if (e['initial_data'] != null) ...{
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            maxWidth: size.width * .3,
-                                          ),
-                                          child: Text(
-                                            e['initial_data'].toString(),
-                                            style: const TextStyle(
-                                              color: Colors.black38,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        )
-                                      },
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+              )
+            },
           ],
         ),
       ),
     );
+  }
+
+  Widget adaptiveAction(
+      {required BuildContext context,
+      required VoidCallback onPressed,
+      required Widget child}) {
+    final ThemeData theme = Theme.of(context);
+    switch (theme.platform) {
+      case TargetPlatform.android:
+      case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
+        return TextButton(onPressed: onPressed, child: child);
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+        return CupertinoDialogAction(onPressed: onPressed, child: child);
+    }
   }
 }

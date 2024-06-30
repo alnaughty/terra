@@ -54,7 +54,8 @@ class DataCacher {
   //*
   //0 = credentials
   //1 = google
-  //2 = fb
+  //2 = apple
+  //3 = fb
   //*/
   Future<void> signInMethod(int i) async => await _prefs.setInt(
         "sign-in-method",
@@ -83,4 +84,14 @@ class DataCacher {
   }
 
   Future<void> removeToken() async => await _prefs.remove("access-token");
+
+  Future<void> setUnsavedCreds(List<String> f) async {
+    assert(f.length < 3,
+        'less data, should contain displayname & phone,firebaseToken');
+    await _prefs.setStringList('unsaved-creds', f);
+  }
+
+  List<String> getUnsavedCreds() => _prefs.getStringList('unsaved-creds') ?? [];
+  Future<void> deleteUnsavedCreds() async =>
+      await _prefs.remove('unsaved-creds');
 }

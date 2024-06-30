@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -23,6 +26,7 @@ import 'package:terra/views/home_page_children/chats/chat_rooms.dart';
 import 'package:terra/views/home_page_children/home_page_main.dart';
 import 'package:terra/views/home_page_children/profile_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:terra/views/landing_page_children/pop_up_location.dart';
 import 'package:tutorial/tutorial.dart';
 
 class LandingPage extends StatefulWidget {
@@ -48,7 +52,7 @@ class _LandingPageState extends State<LandingPage>
   final List<String> icons = ["home", "chats", "jobs", "profile"];
 
   List<TutorialItem> items = [];
-  // List<TutorialItems> itens = [];
+
   late final TabController _tabController;
   late final List<Widget> _body = [
     HomePageMain(
@@ -66,6 +70,31 @@ class _LandingPageState extends State<LandingPage>
 
   final DataCacher _cacher = DataCacher.instance;
   Future<void> initLocation() async {
+    if (Platform.isIOS) {
+      await requestTrackingPermission();
+    }
+    await showGeneralDialog(
+      // ignore: use_build_context_synchronously
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: "",
+      barrierColor: Colors.black.withOpacity(.5),
+      transitionBuilder: ((context, animation, secondaryAnimation, child) =>
+          ScaleTransition(
+            scale: animation,
+            child: FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+          )),
+      pageBuilder: ((context, animation, secondaryAnimation) =>
+          const PopupLocationDisplay()),
+    );
+    final LocationPermission perm = await Geolocator.checkPermission();
+    if (perm == LocationPermission.always ||
+        perm == LocationPermission.whileInUse) {
+      return;
+    }
     await Geolocator.requestPermission().then((permission) async {
       if (permission == LocationPermission.always ||
           permission == LocationPermission.whileInUse) {
@@ -74,35 +103,25 @@ class _LandingPageState extends State<LandingPage>
             LatLng(pos.latitude, pos.longitude),
           );
         });
-      } else {
-        Navigator.of(context).pop();
-        Fluttertoast.showToast(msg: "Please enable location permission.");
-      }
+      } else {}
     });
     if (mounted) setState(() {});
   }
 
-  // Future<void> initPlatform() async {
-  //   await hasString().then((value) async {
-  //     await Future.delayed(const Duration(milliseconds: 1500));
-  //     if (value) {
-  //       setState(() {
-  //         accessToken = _cacher.getUserToken();
-  //       });
+  Future<void> requestTrackingPermission() async {
+    final TrackingStatus status =
+        await AppTrackingTransparency.trackingAuthorizationStatus;
 
-  //       ///GO TO HOME PAGE
-  //       print("GO TO GHOME");
-  //       // ignore: use_build_context_synchronously
-  //       // await Navigator.pushReplacementNamed(context, "/home_page");
-  //     } else {
-  //       /// GO TO LANDING PAGE
-
-  //       print("GO TO LANDING");
-  //       // ignore: use_build_context_synchronously
-  //       await Navigator.pushReplacementNamed(context, "/landing_page");
-  //     }
-  //   });
-  // }
+    if (status == TrackingStatus.notDetermined) {
+      await Future.delayed(
+          const Duration(milliseconds: 200)); // Delay for smooth transition
+      final TrackingStatus newStatus =
+          await AppTrackingTransparency.requestTrackingAuthorization();
+      print('Tracking status: $newStatus');
+    } else {
+      print('Tracking status: $status');
+    }
+  }
 
   Future<void> init() async {
     if (loggedUser == null) {
@@ -116,19 +135,7 @@ class _LandingPageState extends State<LandingPage>
         );
     await listenMessages();
     if (mounted) setState(() {});
-    // await initPlatform();
-    // await details().then((value) async {
-    //   if (value != null) {
-    //     loggedUser = value;
-    //     if (mounted) setState(() {});
-    //     print("USER : $value");
 
-    //   } else {
-    //     await _cacher.removeToken();
-    //     // ignore: use_build_context_synchronously
-    //     await Navigator.pushReplacementNamed(context, "/login_page");
-    //   }
-    // });
     await _process.loadProcesses();
   }
 
@@ -141,7 +148,6 @@ class _LandingPageState extends State<LandingPage>
 
   @override
   void initState() {
-    // TODO: implement initState
     _tabController = TabController(length: _body.length, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final bool showTuts = _cacher.initApp();
@@ -159,7 +165,6 @@ class _LandingPageState extends State<LandingPage>
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _tabController.dispose();
     super.dispose();
   }
@@ -173,60 +178,9 @@ class _LandingPageState extends State<LandingPage>
         Positioned.fill(
           child: Scaffold(
             resizeToAvoidBottomInset: true,
-            // appBar: _tabController.index == 0
-            //     ? AppBar(
-            //         backgroundColor: Colors.grey.shade200,
-            //         title: Image.asset(
-            //           "assets/images/Terra-name.png",
-            //           height: 40,
-            //         ),
-            //         centerTitle: true,
-            //         elevation: 0,
-            //       )
-            //     : null,
             backgroundColor: Colors.grey.shade200,
             body: Stack(
               children: [
-                // Positioned(
-                //   top: -20,
-                //   right: -10,
-                //   child: Container(
-                //     height: 100,
-                //     width: 100,
-                //     decoration: BoxDecoration(
-                //       // shape: BoxShape.circle,
-                //       borderRadius: BorderRadius.circular(130),
-                //       color: Colors.transparent,
-                //       boxShadow: [
-                //         BoxShadow(
-                //           offset: const Offset(2, 4),
-                //           color: _colors.top.withOpacity(.3),
-                //           blurRadius: 10,
-                //         )
-                //       ],
-                //     ),
-                //   ),
-                // ),
-                // Positioned(
-                //   top: -10,
-                //   right: 50,
-                //   child: Container(
-                //     height: 150,
-                //     width: 150,
-                //     decoration: BoxDecoration(
-                //       // shape: BoxShape.circle,
-                //       borderRadius: BorderRadius.circular(150),
-                //       color: Colors.transparent,
-                //       boxShadow: [
-                //         BoxShadow(
-                //           offset: const Offset(2, 4),
-                //           color: _colors.bot.withOpacity(.6),
-                //           blurRadius: 10,
-                //         )
-                //       ],
-                //     ),
-                //   ),
-                // ),
                 Positioned.fill(
                   child: SafeArea(
                     top: false,
@@ -241,19 +195,6 @@ class _LandingPageState extends State<LandingPage>
                           ),
                   ),
                 ),
-                // Positioned(
-                //   top: 30,
-                //   right: 0,
-                //   child: IconButton(
-                //     onPressed: () async {
-                //       await _fcm.showPopUp(context,
-                //           title: "TEST", message: "Test Message");
-                //     },
-                //     icon: Icon(
-                //       Icons.notifications,
-                //     ),
-                //   ),
-                // ),
               ],
             ),
             bottomNavigationBar: loggedUser == null

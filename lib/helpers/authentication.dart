@@ -6,6 +6,7 @@ import 'package:terra/services/API/auth.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/services/firebase_auth.dart';
+import 'package:terra/services/url_launcher.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/views/fill_user_data.dart';
 
@@ -14,6 +15,7 @@ mixin class AuthenticationHelper {
   final DataCacher _cacher = DataCacher.instance;
   static final AuthApi _api = AuthApi();
   static final UserApi _userApi = UserApi();
+  final Launcher mlauncher = Launcher();
   Future<void> rawRegister(
     context, {
     required String email,
@@ -29,6 +31,7 @@ mixin class AuthenticationHelper {
         // if (value == null) return;
         print("REGISTERED VALUE : $value");
         if (value != null) {
+          
           await Navigator.pushReplacement(
             context,
             PageTransition(

@@ -172,10 +172,10 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                               },
                               style: ButtonStyle(
                                 foregroundColor:
-                                    MaterialStateProperty.resolveWith(
+                                    WidgetStateProperty.resolveWith(
                                   (states) => _colors.top,
                                 ),
-                                textStyle: MaterialStateProperty.resolveWith(
+                                textStyle: WidgetStateProperty.resolveWith(
                                   (states) => TextStyle(
                                     color: _colors.top,
                                     fontFamily: "Poppins",
@@ -193,7 +193,50 @@ class _LoginPageState extends State<LoginPage> with AuthenticationHelper {
                       const SizedBox(
                         height: 50,
                       ),
-
+                      Text.rich(
+                        TextSpan(
+                            text:
+                                "By logging in, I state that I have read and understood the ",
+                            style: const TextStyle(
+                              color: Color(0xFF4A4A4A),
+                            ),
+                            children: [
+                              TextSpan(
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () async {
+                                    await mlauncher.launch(
+                                        "https://terra-app.ph/privacy-policy");
+                                  },
+                                text: "Privacy Policy",
+                                style: TextStyle(
+                                  color: _colors.top,
+                                  decorationColor: _colors.top,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                              const TextSpan(
+                                text: " and the ",
+                              ),
+                              TextSpan(
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () async {
+                                    await mlauncher.launch(
+                                        "https://terra-app.ph/terms-of-services");
+                                  },
+                                text: "Terms of Services",
+                                style: TextStyle(
+                                  color: _colors.top,
+                                  decorationColor: _colors.top,
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ]),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
                       MaterialButton(
                         height: 60,
                         color: _colors.top,

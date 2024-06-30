@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:terra/services/API/user_api.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
 import 'package:terra/view_data_component/splash_screen_dc.dart';
+import 'package:terra/views/fill_user_data.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,6 +20,28 @@ class _SplashScreenState extends State<SplashScreen> with SplashScreenDc {
   final DataCacher _cacher = DataCacher.instance;
   final UserApi _api = UserApi();
   void initPlatform() async {
+    final List<String> ff = _cacher.getUnsavedCreds();
+    if (ff.isNotEmpty) {
+      // await _cacher.setUnsavedCreds([
+      //                       user.email ?? "",
+      //                       "",
+      //                       user.phoneNumber ?? "",
+      //                       firebaseUid
+      //                     ]);
+      await Navigator.pushReplacement(
+        context,
+        PageTransition(
+          child: FillUserDataPage(
+            firebaseId: ff.last,
+            email: ff.first,
+            password: ff[1],
+            phone: ff[2],
+          ),
+          type: PageTransitionType.leftToRight,
+        ),
+      );
+      return;
+    }
     await hasString().then((value) async {
       await Future.delayed(const Duration(milliseconds: 1500));
       if (value) {

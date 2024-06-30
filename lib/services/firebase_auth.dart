@@ -4,10 +4,13 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
+import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/global.dart';
 
 class FirebaseAuthenticator {
   static final FirebaseAuth auth = FirebaseAuth.instance;
+
+  static final DataCacher _cacher = DataCacher.instance;
   Future<void> logout() async {
     try {
       return await auth.signOut();
@@ -115,11 +118,20 @@ class FirebaseAuthenticator {
           email: email, password: password);
       if (creds.user != null) {
         final User? firebaseUser = creds.user;
-        if (firebaseUser != null) return firebaseUser.uid;
+        if (firebaseUser == null) return null;
+        // if (firebaseUser != null) return firebaseUser.uid;
+        await _cacher.setUnsavedCreds([
+          firebaseUser.displayName ?? "",
+          "",
+          firebaseUser.phoneNumber ?? "",
+          firebaseUser.email ?? "",
+          firebaseUser.uid
+        ]);
         // await creds.user!.updateDisplayName(fullname);
         // await creds.user!.updatePhoneNumber(PhoneAuthProvider.credential(
         //     verificationId: verificationId, smsCode: smsCode));
-        return null;
+
+        return firebaseUser.uid;
       }
       return null;
     } on FirebaseAuthException catch (e) {

@@ -116,6 +116,18 @@ class AuthApi {
     }
   }
 
+  Future<bool> deleteAccount(String email) async {
+    try {
+      return await http
+          .post("${Network.domain}/api/account/delete/delete-account".toUri)
+          .then((response) {
+        return response.statusCode == 200;
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<void> logout(BuildContext context) async {
     try {
       return await http

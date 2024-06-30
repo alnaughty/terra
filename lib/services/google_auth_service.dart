@@ -31,6 +31,7 @@ class GoogleAuthService {
           );
           final authResult = await auth.signInWithCredential(credential);
           final firebaseUser = authResult.user;
+          // firebaseUser.delete();
           return firebaseUser;
         }
         return null;

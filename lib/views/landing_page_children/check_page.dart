@@ -96,8 +96,8 @@ class _CheckPageState extends State<CheckPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => !_isLoading,
+    return PopScope(
+      canPop: !_isLoading,
       child: Stack(
         children: [
           Positioned.fill(

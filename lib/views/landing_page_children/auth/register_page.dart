@@ -436,6 +436,7 @@
 //     );
 //   }
 // }
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:terra/extension/string_extensions.dart';
@@ -480,8 +481,8 @@ class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return WillPopScope(
-      onWillPop: () async => !_isLoading,
+    return PopScope(
+      canPop: !_isLoading,
       child: Stack(
         children: [
           Positioned.fill(
@@ -664,7 +665,51 @@ class _RegisterPageState extends State<RegisterPage> with AuthenticationHelper {
                           ),
                         ),
                         const SizedBox(
-                          height: 50,
+                          height: 30,
+                        ),
+                        Text.rich(
+                          TextSpan(
+                              text:
+                                  "By registering, I state that I have read and understood the ",
+                              style: const TextStyle(
+                                color: Color(0xFF4A4A4A),
+                              ),
+                              children: [
+                                TextSpan(
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () async {
+                                      await mlauncher.launch(
+                                          "https://terra-app.ph/privacy-policy");
+                                    },
+                                  text: "Privacy Policy",
+                                  style: TextStyle(
+                                    color: _colors.top,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: _colors.top,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: " and the ",
+                                ),
+                                TextSpan(
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () async {
+                                      await mlauncher.launch(
+                                          "https://terra-app.ph/terms-of-services");
+                                    },
+                                  text: "Terms of Services",
+                                  style: TextStyle(
+                                    color: _colors.top,
+                                    decorationColor: _colors.top,
+                                    fontWeight: FontWeight.w700,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ]),
+                        ),
+                        const SizedBox(
+                          height: 10,
                         ),
                         MaterialButton(
                           height: 60,

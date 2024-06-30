@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:terra/extension/string_extensions.dart';
 import 'package:terra/services/API/auth.dart';
 import 'package:terra/services/API/user_api.dart';
+import 'package:terra/services/apple_auth_service.dart';
 import 'package:terra/services/data_cacher.dart';
 import 'package:terra/utils/color.dart';
 import 'package:terra/utils/global.dart';
@@ -13,15 +15,14 @@ class FillUserDataPage extends StatefulWidget {
     super.key,
     required this.firebaseId,
     required this.email,
-    this.name,
-    this.surname,
+    this.displayName,
+    this.phone,
     required this.password,
   });
   final String firebaseId;
   final String email;
   final String password;
-  final String? name;
-  final String? surname;
+  final String? displayName, phone;
   @override
   State<FillUserDataPage> createState() => _FillUserDataPageState();
 }
@@ -33,6 +34,7 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
   late final TextEditingController _phoneNumber;
   late final TextEditingController _birthdate;
   final AuthApi _api = AuthApi();
+  static final AppleAuthService _appleAuth = AppleAuthService.instance;
   static final UserApi _userApi = UserApi();
   final GlobalKey<FormState> _kForm = GlobalKey<FormState>();
   final List<String> _accountType = [
@@ -48,13 +50,47 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
   final AppColors _colors = AppColors.instance;
   DateTime? _selectedDate;
   bool _isLoading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // fillUserData(User currentuser) {
+  //   _phoneNumber.text = currentuser.phoneNumber ?? "";
+  //   final List<String> _displayName = currentuser.displayName?.split(" ") ?? [];
+  //   _firstName.text = _displayName.isEmpty ? "" : _displayName.first;
+  //   _lastName.text = _displayName.isEmpty ? "" : _displayName.last;
+  //   if (mounted) setState(() {});
+  // }
+
+  bool enableFN = true;
+  bool enableLN = true;
+  bool enablePhone = true;
+  initTexts() {
+    _birthdate = TextEditingController()..text = "Select Date";
+    final String? names = widget.displayName;
+    String? fname;
+    String? lname;
+    if (names != null) {
+      final List splitted = names.split(" ");
+      if (splitted.length > 1) {
+        fname = splitted.first;
+        lname = splitted.last;
+        enableFN = fname!.isNotEmpty;
+        enableLN = lname!.isNotEmpty;
+      } else if (splitted.length == 1) {
+        fname = splitted.first;
+        enableFN = fname!.isNotEmpty;
+      }
+    }
+    _firstName = TextEditingController()..text = fname ?? "";
+    _lastName = TextEditingController()..text = lname ?? "";
+    _phoneNumber = TextEditingController()..text = widget.phone ?? "";
+    enablePhone = widget.phone != null || (widget.phone?.isNotEmpty ?? true);
+  }
+
   @override
   void initState() {
-    _birthdate = TextEditingController()..text = "Select Date";
-    _firstName = TextEditingController()..text = widget.name ?? "";
-    _lastName = TextEditingController()..text = widget.surname ?? "";
-    _phoneNumber = TextEditingController();
-
+    initTexts();
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   await userCheck();
+    // });
     super.initState();
   }
 
@@ -163,56 +199,62 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
                           key: _kForm,
                           child: Column(
                             children: [
-                              TextFormField(
-                                validator: (text) {
-                                  if (text == null) {
-                                    return "Invalid type";
-                                  } else if (text.isEmpty) {
-                                    return "This field is required";
-                                  }
-                                },
-                                decoration: const InputDecoration(
-                                  hintText: "John",
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  hintStyle: TextStyle(
-                                    color: Colors.grey,
+                              if (enableFN) ...{
+                                TextFormField(
+                                  validator: (text) {
+                                    if (text == null) {
+                                      return "Invalid type";
+                                    } else if (text.isEmpty) {
+                                      return "This field is required";
+                                    }
+                                  },
+                                  enabled: enableFN,
+                                  decoration: const InputDecoration(
+                                    hintText: "John",
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                    label: Text(
+                                      "Firstname",
+                                    ),
                                   ),
-                                  label: Text(
-                                    "Firstname",
-                                  ),
+                                  controller: _firstName,
+                                  keyboardType: TextInputType.emailAddress,
                                 ),
-                                controller: _firstName,
-                                keyboardType: TextInputType.emailAddress,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              TextFormField(
-                                validator: (text) {
-                                  if (text == null) {
-                                    return "Invalid type";
-                                  } else if (text.isEmpty) {
-                                    return "This field is required";
-                                  }
-                                },
-                                decoration: const InputDecoration(
-                                  hintText: "Doe",
-                                  fillColor: Colors.white,
-                                  filled: true,
-                                  hintStyle: TextStyle(
-                                    color: Colors.grey,
-                                  ),
-                                  label: Text(
-                                    "Lastname",
-                                  ),
+                                const SizedBox(
+                                  height: 10,
                                 ),
-                                controller: _lastName,
-                                keyboardType: TextInputType.emailAddress,
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
+                              },
+                              if (enableLN) ...{
+                                TextFormField(
+                                  enabled: enableLN,
+                                  validator: (text) {
+                                    if (text == null) {
+                                      return "Invalid type";
+                                    } else if (text.isEmpty) {
+                                      return "This field is required";
+                                    }
+                                  },
+                                  decoration: const InputDecoration(
+                                    hintText: "Doe",
+                                    fillColor: Colors.white,
+                                    filled: true,
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                    ),
+                                    label: Text(
+                                      "Lastname",
+                                    ),
+                                  ),
+                                  controller: _lastName,
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                              },
                               TextFormField(
                                 controller: _phoneNumber,
                                 keyboardType: TextInputType.phone,
@@ -223,6 +265,7 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
                                     return "Invalid phone number";
                                   }
                                 },
+                                enabled: enablePhone,
                                 decoration: const InputDecoration(
                                   hintText: "9XXX-XXX-XXX",
                                   label: Text(
@@ -344,6 +387,7 @@ class _FillUserDataPageState extends State<FillUserDataPage> {
                                       const Duration(milliseconds: 700));
                                   await _cacher.setUserToken(v);
                                   await _cacher.signInMethod(0);
+                                  await _cacher.deleteUnsavedCreds();
                                   accessToken = v;
                                   // if (loggedUser!.hasVerifiedEmail) {
                                   //   // ignore: use_build_context_synchronously
